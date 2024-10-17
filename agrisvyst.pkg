@@ -1,0 +1,12 @@
+v 0
+d 'AGRISVYST': processing, analysing, disseminating survey data
+d 
+d processing, analysing, disseminating survey data
+d 
+d Distribution-Date:   20241017
+d License: MIT
+d 
+F genmdt.ado
+F genmdt.sthlp
+F setup_anonymization.ado
+F setup_anonymization.sthlp
