@@ -3,7 +3,7 @@
 // DO NOT FORGET to update the version of the package, if changed!
 // for more information visit http://github.com/haghish/github
 
-make agrisvyst,  toc pkg readme version(0)                                   ///
+make agrisvyst, replace toc pkg readme version(0)                            ///
      license("MIT")                                                          ///
      author("Amsata Niang")                                                  ///
      affiliation("FAO")                                                      ///
@@ -11,5 +11,5 @@ make agrisvyst,  toc pkg readme version(0)                                   ///
      url("")                                                                 ///
      title("processing, analysing, disseminating survey data")               ///
      description("processing, analysing, disseminating survey data")         ///
-     install("genmdt.ado;genmdt.sthlp;setup_anonymization.ado;setup_anonymization.sthlp") ///
-     iancillary("")                                                         
+     install("genmdt.ado;genmdt.sthlp;mat_to_ds.ado;mat_to_ds.sthlp;setup_anonymization.ado;setup_anonymization.sthlp") ///
+     iancillary("testdst.dta")                                              
