@@ -48,7 +48,7 @@ seealso[
 
 END HELP FILE */
 
-program define openDataTable
+program define generateODT
 		
 	syntax varlist ,dimcomb(string asis) PARAMeter(string) VARiable(string asis) LABind(string asis) UNITs(string asis)
 		
