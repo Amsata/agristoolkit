@@ -48,7 +48,7 @@ seealso[
 
 END HELP FILE */
 
-program define genmdt2
+program define genmdt
 		
 	syntax varlist ,dimcomb(string asis) PARAMeter(string) VARiable(string asis) LABind(string asis) UNITs(string asis)
 		
