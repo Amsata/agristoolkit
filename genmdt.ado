@@ -203,7 +203,7 @@ program define genmdt
 		scalar init_2=1
 	} 
 	else {
-		append using `sample_n'
+		append using `sample_n',force
 		save `sample_n', replace
 		}
 	restore
@@ -238,7 +238,7 @@ program define genmdt
 				scalar init_2=1
 			} 
 			else {
-				append using `sample_n'
+				append using `sample_n',force
 				save `sample_n', replace
 			}
 			restore
@@ -277,7 +277,7 @@ program define genmdt
 		destring `v', replace
 		}
 		drop rownames dimension
-		append using `odp_tab'
+		append using `odp_tab', force
 		save `odp_tab', replace
 		restore // restore the iniial dataset for the continuation of the loop on tuples
 	}	
