@@ -48,7 +48,7 @@ seealso[
 
 END HELP FILE */
 
-program define genmdt
+program define genmdt2
 		
 	syntax varlist ,dimcomb(string asis) PARAMeter(string) VARiable(string asis) LABind(string asis) UNITs(string asis)
 		
@@ -320,7 +320,7 @@ program define genmdt
 			recode `:word `i' of `varlist'' .=`n_lev' 
 		} 
 		else {	
-			drop if `:word `i' of `varlist''==""
+			drop if `:word `i' of `varlist''==.
 		}
 		label values `:word `i' of `varlist'' ld_`:word `i' of `varlist''
 	}
