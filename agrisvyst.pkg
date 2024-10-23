@@ -6,8 +6,10 @@ d
 d Distribution-Date:   20241023
 d License: MIT
 d 
-F genmdt.ado
-F genmdt.sthlp
+F generateODT.ado
+F generateODT.sthlp
+F generateODTbyGeo.ado
+F generateODTbyGeo.sthlp
 F mat_to_ds.ado
 F mat_to_ds.sthlp
 F setup_anonymization.ado

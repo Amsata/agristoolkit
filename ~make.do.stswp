@@ -11,5 +11,5 @@ make agrisvyst, replace toc pkg readme version(0)                            ///
      url("")                                                                 ///
      title("processing, analysing, disseminating survey data")               ///
      description("processing, analysing, disseminating survey data")         ///
-     install("generateODT.ado;generateODT.sthlp;generateODTbyGeo.ado;generateODTbyGeo.sthlp;mat_to_ds.ado;mat_to_ds.sthlp;setup_anonymization.ado;setup_anonymization.sthlp") ///
-     ancillary("testdst.dta")                                              
+     install("generateODT.ado;generateODT.sthlp;generateODTbyGeo.ado;generateODTbyGe.sthlp;mat_to_ds.ado;mat_to_ds.sthlp;setup_anonymization.ado;setup_anonymization.sthlp") ///
+     iancillary("testdst.dta")                                              
