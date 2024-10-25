@@ -91,7 +91,7 @@ program define generateODT
 	**********************************************************
 	foreach v of local varlist {
 		count if missing(`v')
-		quietly return list
+		return list
 		if (`r(N)'>0) {
 			display as error "The dimension `v' should not contain missing values"
 			exit 498 // or any error code you want to return
@@ -157,7 +157,7 @@ program define generateODT
 	*******************************************************************************
 	**** Generate estimate for all the combination ********************************
 	*******************************************************************************
-	quietly svy: `parameter' `variable'
+	svy: `parameter' `variable'
 	qui return list
 	matrix define T= r(table)'	
 	preserve
@@ -165,7 +165,7 @@ program define generateODT
 	tempfile res_estimation
 	save `res_estimation', replace
 	* Estimating coefficient of variation
-	quietly estat cv
+	estat cv
 	matrix define CV = r(cv)'
 	mat_to_ds CV
 	*renaming the variable to CV
@@ -214,6 +214,9 @@ program define generateODT
 	tuples `varlist'  // for looping over all dimensions
 	forvalues i=1/`ntuples' {
 		di "Generating estimation for dimension combination : `tuple`i''"
+		
+		
+		quietly {
 		local tuple "`tuple`i''" // the content of `tuple`i'' is lost in the process, this is a backup
 		
 		************************************************************************
@@ -222,8 +225,8 @@ program define generateODT
 		local tuple_size: list sizeof tuple
 		
 		if(`tuple_size'==2) {
-			quietly asdoc table `tuple', replace
-			quietly matlist st_mat_main
+			asdoc table `tuple', replace
+			matlist st_mat_main
            
 		   // Get dimensions of the matrix
 			local rows = rowsof(st_mat_main)
@@ -302,6 +305,7 @@ program define generateODT
 			
 		}
 		
+	
 		
 		***********************************************************************
 		*** Generate sample frequency where a given variable is non-missing ***
@@ -314,71 +318,68 @@ program define generateODT
 			local pos = strpos("`var_2'", "/")
 			local denominator = substr("`var_2'", `pos'+1, .)
 			local numerator = substr("`var_2'", 1, `pos'-1)
-			quietly gen sample_n= cond(freq==1 & !missing(`numerator',`denominator'),1,0)
+			gen sample_n= cond(freq==1 & !missing(`numerator',`denominator'),1,0)
 		}
 		else {
-			quietly gen sample_n= cond(freq==1 & !missing(`v'),1,0)
+			gen sample_n= cond(freq==1 & !missing(`v'),1,0)
 		}
 			collapse (sum) sample_n , by(`tuple`i'')
 			gen Indicator="`v'"
 			
 			* First saving or appending the main results dataset: sample_n
 			if (init_2==0) {
-				quietly save `sample_n', replace
-				quietly scalar init_2=1
+				save `sample_n', replace
+				scalar init_2=1
 			} 
 			else {
-				quietly append using `sample_n',force
-				quietly save `sample_n', replace
+				append using `sample_n',force
+				save `sample_n', replace
 			}
 			restore
 		}
-		
-		
 		************************************************************************
 		*** Generate estimate over dimension the given dimension combination ***
 		************************************************************************
-		quietly svy, over(`tuple`i''): `parameter' `variable'
+		svy, over(`tuple`i''): `parameter' `variable'
 		qui return list
 		matrix define T= r(table)'	
 		preserve
 		mat_to_ds T		   
-		di as error "TESTTTTERRRRRRRRRRRR"
 		tempfile res_estimation
-		quietly save `res_estimation', replace
+		save `res_estimation', replace
 		*Estimating coefficient of variation
-		quietly estat cv
+		estat cv
 		matrix define CV = r(cv)'
 		mat_to_ds CV	   
 		unab all_vars: *
 		rename `:word 1 of `all_vars'' CV // or word(`all_vars', 1)	
 		merge 1:1 rownames using `res_estimation', nogen
-		
 		*break 498
 		**************************************************************************
 		*** Extract correct dimension name and merging with sample frequencies (possible from Stata 17 ***
 		**************************************************************************
-		quietly split rownames, p(@)
+		split rownames, p(@)
 		rename rownames1 Indicator
-		quietly replace Indicator= regexr(Indicator, "^c.", "")
+		replace Indicator= regexr(Indicator, "^c.", "")
 		rename rownames2 dimension
-		quietly split dimension, p(#)
+		split dimension, p(#)
 		local c : word count `tuple'
 		forvalues i=1/`c' {
 			local v "`:word `i' of `tuple''"
 			rename dimension`i' `v'
-			quietly replace `v'= ustrregexra(`v',".`v'","")
-			quietly replace `v'= ustrregexra(`v',"bn","")
+			replace `v'= ustrregexra(`v',".`v'","")
+			replace `v'= ustrregexra(`v',"bn","")
 			destring `v', replace
 		}
 		drop rownames dimension
 		append using `odp_tab', force
 		save `odp_tab', replace
 		restore // restore the iniial dataset for the continuation of the loop on tuples
+		
+		} //quietly
 	}	
 		
-	
-	
+	quietly {
 	*After the loop on tuples, odp_tab contain the results of all dimention combination
 	*Extracting variable labels
 	foreach v of local varlist {	
@@ -390,8 +391,8 @@ program define generateODT
 	local c: word count `varlist'
 	forvalues i=1/`c' {
 		if ("`:word `i' of `dimcomb''"!="") {
-			quietly cap label list ld_`:word `i' of `varlist''
-			quietly return list
+			cap label list ld_`:word `i' of `varlist''
+			return list
 			local n_lev=`r(max)'+1
 			cap elabel list ld_`:word `i' of `varlist''
 			return list 
@@ -412,16 +413,16 @@ program define generateODT
 	run `dolabs'
 	local c: word count `varlist'
 	forvalues i=1/`c' {
-			quietly cap label list ld_`:word `i' of `varlist''
-			quietly return list
+			cap label list ld_`:word `i' of `varlist''
+			return list
 			local n_lev=`r(max)'
 		if ("`:word `i' of `dimcomb''"!="") {
 			di "TEST ONE `n_lev'"
-			quietly gen `:word `i' of `varlist''_bis=int(`:word `i' of `varlist'')
+			gen `:word `i' of `varlist''_bis=int(`:word `i' of `varlist'')
 			drop `:word `i' of `varlist''
 			
 			rename `:word `i' of `varlist''_bis `:word `i' of `varlist''
-			quietly replace `:word `i' of `varlist''=`n_lev' if `:word `i' of `varlist''==.
+			replace `:word `i' of `varlist''=`n_lev' if `:word `i' of `varlist''==.
 		} 
 		else {	
 			di "TEST TWO"
@@ -439,10 +440,10 @@ program define generateODT
 	local c: word count `varlist'
 	forvalues i=1/`c' {
 		if ("`:word `i' of `dimcomb''"!="") {
-			quietly cap label list ld_`:word `i' of `varlist''
-			quietly return list
+			cap label list ld_`:word `i' of `varlist''
+			return list
 			local n_lev=`r(max)'
-			quietly replace `:word `i' of `varlist''= `n_lev' if `:word `i' of `varlist''==.
+			replace `:word `i' of `varlist''= `n_lev' if `:word `i' of `varlist''==.
 		} 
 		else {
 			drop if `:word `i' of `varlist''==.
@@ -460,23 +461,24 @@ program define generateODT
 		
 		forvalues i=1/`c' {
 			di "`:word `i' of `variable''"
-		quietly replace Indicator= "`:word `i' of `variable''" if Indicator=="_ratio_`i'"
+		replace Indicator= "`:word `i' of `variable''" if Indicator=="_ratio_`i'"
 		}
 		
 	gen IndicatorName=""
 	gen Unit=""
 	local c : word count `variable'
 	forvalues i=1/`c' {
-		quietly replace IndicatorName = "`:word `i' of `labind''" if Indicator=="`:word `i' of `variable''"
+		replace IndicatorName = "`:word `i' of `labind''" if Indicator=="`:word `i' of `variable''"
 	}
 	forvalues i=1/`c' {
-		quietly replace Unit = "`:word `i' of `units''" if Indicator=="`:word `i' of `variable''"
+		replace Unit = "`:word `i' of `units''" if Indicator=="`:word `i' of `variable''"
 	}
 	
 
 	merge m:1 `varlist' Indicator using `sample_n'
 	order `varlist' Indicator IndicatorName b Unit sample_n
 	sort Indicator `varlist'
+	} // quietly
 	
 	********************************************************
 	*************** formating indicator for ratio **********
@@ -492,7 +494,7 @@ program define generateODT
 		local numerator = substr("`var_2'", 1, `pos'-1)
 		local numerator = subinstr("`numerator'", "_n", "", .)
 		if ("`numerator'"=="`denominator'") { // if the ratio formula is in the form (ind2_n/ind2_d)
-			quietly replace Indicator="`numerator'" if Indicator== "`v'"
+			replace Indicator="`numerator'" if Indicator== "`v'"
 		}
 	}
 
