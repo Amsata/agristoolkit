@@ -52,6 +52,6 @@ END HELP FILE */
 	// add matrix row names to dataset
 	gen rownames = ""
 	forvalues i = 1/`c' {
-		replace rownames = "`:word `i' of `rownames''" in `i'
+		quietly replace rownames = "`:word `i' of `rownames''" in `i'
 	}
 end
