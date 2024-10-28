@@ -2,30 +2,45 @@
 title[a command to setup working directory and necessary files and folder for anonymization]
 
 desc[
- {cmd:setup_anonymization} generate folders, excel files for variables classification and dataset
- description, pre-populated scripts and sample reports for anonymization and information loss analysis.
+ {cmd:generateODT} generate multi-dimentional statisticial tables destined to open Data Africa plateform
+ or for other potential use.
 ] 
 
 opt[varlist() list of of variables (domains) over which estimates will be creatd.]
-opt[dimcomb() specify the labels of margins of variables in varlist.]
+opt[marginlabels() specify the labels of margins of variables in varlist.]
 opt[parameter() parameter to be estimated in the domains (total, mean or ratio).]
 opt[variable() variable the value of which will be used to generate the specified parameter in 'parameter'.]
-opt[labind() a comprehensive and informative label of the indicator generated with variables specified in 'variable'.]
+opt[conditionals() eliminate tuples (of dimensions in varlist) according to specified conditions.]
+opt[indicatorname() a comprehensive and informative label of the indicator generated with variables specified in 'variable'.]
 opt[units() units of the parameter generated with variable in 'variable'.]
+opt[svySE() units of the parameter generated with variable in 'variable'.]
+opt[subpop() {cmd:(}[{varname}] [{it:{help if}}]{cmd:)}}identify a subpopulation]
 
 
-opt[varlist() list of of variables (domains) over which estimates will be creatd.]
-opt[dimcomb() specify the labels of margins of variables in varlist.]
-opt[parameter() parameter to be estimated in the domains (total, mean or ratio).]
-opt[variable() variable the value of which will be used to generate the specified parameter in 'parameter'.]
-opt[labind() a comprehensive and informative label of the indicator generated with variables specified in 'variable'.]
-opt[units() units of the parameter generated with variable in 'variable'.]
+
+opt2[varlist() list of of variables (domains) over which estimates will be creatd.]
+opt2[marginlabels() specify the labels of margins of variables in varlist.]
+opt2[parameter() parameter to be estimated in the domains (total, mean or ratio).]
+opt2[variable() variable the value of which will be used to generate the specified parameter in 'parameter'.]
+opt2[conditionals() eliminate tuples (of dimensions in varlist) according to specified conditions.]
+opt2[indicatorname() a comprehensive and informative label of the indicator generated with variables specified in 'variable'.]
+opt2[units() units of the parameter generated with variable in 'variable'.]
+opt2[svySE() units of the parameter generated with variable in 'variable'.]
+opt2[subpop() {cmd:(}[{varname}] [{it:{help if}}]{cmd:)}}identify a subpopulation	]
 
 
 example[
- {stata sgenODT Element Area ,dimcomb("All households" "Uganda") param("ratio") var((I3_n/I3_d)) ///
-	labind("Pourcentage of households") ///
-	units("%")}
+ {stata generateODT Region sex ,marginlabels("All households" "Wakanda") param("ratio") var((I3_n/I3_d)) ///
+	indicatorname("Women entrepreneurship index") ///
+	units("")}
+	
+	 {stata generateODT Region sex ,marginlabels("All households" "Wakanda") param("mean") var(hh_member) ///
+	indicatorname("Average households size") ///
+	units("people")}
+	
+		 {stata generateODT Region sex ,marginlabels("All households" "Wakanda") param("total") var(production) ///
+	indicatorname("Crop production") ///
+	units("MT")}
  ]
  
  
@@ -35,7 +50,7 @@ email[amsata_niang@yahoo.fr]
 
 
 freetext[
-This function is a wrap up of the function 'CreateAgrisvy' and 'setup_anonymization' (combined in one in Stata) from the R package 'agrisvyr'.
+
 ]
 
 references[
@@ -51,7 +66,8 @@ END HELP FILE */
 capture program drop generateODT
 program define generateODT
 		
-	syntax varlist ,dimcomb(string asis) PARAMeter(string) VARiable(string asis) LABind(string asis) UNITs(string asis)
+	syntax varlist ,MARGINLABels(string asis) PARAMeter(string) VARiable(string asis) ///
+	[conditionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) ]
 		
 	********************************************************
 	*** Control that there is no duplication of variable ***
@@ -66,23 +82,11 @@ program define generateODT
 	*** Check consistency in the number of elements ***
 	***************************************************
 	local n_varlist: list sizeof varlist
-	local n_dimcomb: list sizeof dimcomb
+	local n_marginlabels: list sizeof marginlabels
 	local n_variable: list sizeof variable
-	local n_labind: list sizeof labind
-	local n_units: list sizeof units
 	
-	if (`n_dimcomb'!=`n_varlist') {
-		display as error "The options varlist and dimcomb should have the same number of elements"
-		exit 498 // or any error code you want to return
-	}
-
-	if (`n_labind'!=`n_variable') {
-		display as error "The options labind and variable should have the same number of elements"
-		exit 498 // or any error code you want to return
-	}
-
-	if (`n_units'!=`n_variable') {
-		display as error "The options units and variable should have the same number of elements"
+	if (`n_marginlabels'!=`n_varlist') {
+		display as error "The options varlist (`n_varlist' elements) and marginlabels (`n_marginlabels' element) should have the same number of elements"
 		exit 498 // or any error code you want to return
 	}
 
@@ -179,7 +183,13 @@ program define generateODT
 	restore
 	****************En generate estimates for all combination *********************
 		   
-	tuples `varlist'  // for looping over all dimensions
+	if ("`conditionals'"=="") {
+		tuples `varlist' // for looping over all dimensions
+	}
+	else{
+		tuples `varlist', conditionals(`conditionals') display // for looping over all dimensions
+	}
+	
 	scalar init_2=0   //to manage fist saving and append
 	gen freq=1 		  // used to count sample frequency where a given variable is non-missing temporary variable may be better
 	*Sample frequency for all observation
@@ -211,101 +221,22 @@ program define generateODT
 	}
 	
 						
-	tuples `varlist'  // for looping over all dimensions
+	if ("`conditionals'"=="") {
+		tuples `varlist' // for looping over all dimensions
+	}
+	else{
+		tuples `varlist', conditionals(`conditionals') // for looping over all dimensions
+	}
+	
 	forvalues i=1/`ntuples' {
 		di "Generating estimation for dimension combination : `tuple`i''"
-		
-		
 		quietly {
 		local tuple "`tuple`i''" // the content of `tuple`i'' is lost in the process, this is a backup
 		
 		************************************************************************
 		*****check if there are hierarchical structure between 2 variables******
 		************************************************************************
-		local tuple_size: list sizeof tuple
 		
-		if(`tuple_size'==2) {
-			asdoc table `tuple', replace
-			matlist st_mat_main
-           
-		   // Get dimensions of the matrix
-			local rows = rowsof(st_mat_main)
-			local cols = colsof(st_mat_main)
-			// Loop through each element of the matrix
-			forvalues i = 1/`rows' {
-				forvalues j = 1/`cols' {
-					// Check if the element is missing
-					if missing(st_mat_main[`i', `j']) {
-						// Replace with zero
-						matrix st_mat_main[`i', `j'] = 0
-					}
-				}
-			}
-			
-			// Initialize a vector to store counts
-			matrix counts = J(1, `cols', 0)
-
-			// Loop through each column to count non-zero entries
-			forvalues j = 1/`cols' {
-				local count = 0
-				forvalues i = 1/`rows' {
-					if st_mat_main[`i', `j']!= 0 {
-						local count = `count' + 1
-					}
-				}
-			
-				matrix counts[1, `j'] = `count'
-			}
-			
-			
-			local total_sum = 0
-			forvalues i = 1/`=rowsof(counts)' {
-				forvalues j = 1/`=colsof(counts)' {
-					local total_sum = `total_sum' + counts[`i', `j']
-				}
-			}
-			
-			
-			if(`total_sum'==`cols') {
-				display as error " DImension `tuple' seem to be hierarchic. please use generateODTbyGeo"
-				exit 498
-			}
-			
-		** faire pour rowwise
-		matrix st_mat_main_t=st_mat_main'
-		local rows = rowsof(st_mat_main_t)
-			local cols = colsof(st_mat_main_t)
-			// Initialize a vector to store counts
-			matrix counts = J(1, `cols', 0)
-
-			// Loop through each column to count non-zero entries
-			forvalues j = 1/`cols' {
-				local count = 0
-				forvalues i = 1/`rows' {
-					if st_mat_main_t[`i', `j']!= 0 {
-						local count = `count' + 1
-					}
-				}
-			
-				matrix counts[1, `j'] = `count'
-			}
-			
-				local total_sum = 0
-			forvalues i = 1/`=rowsof(counts)' {
-				forvalues j = 1/`=colsof(counts)' {
-					local total_sum = `total_sum' + A[`i', `j']
-				}
-			}
-			
-			if(`total_sum'==`cols') {
-				display as error " DImension `tuple' seem to be hierarchic. please use generateODTbyGeo"
-				exit 498
-			}
-			
-			
-		}
-		
-	
 		
 		***********************************************************************
 		*** Generate sample frequency where a given variable is non-missing ***
@@ -358,19 +289,29 @@ program define generateODT
 		**************************************************************************
 		*** Extract correct dimension name and merging with sample frequencies (possible from Stata 17 ***
 		**************************************************************************
+		
 		split rownames, p(@)
+		capture drop Indicator
 		rename rownames1 Indicator
-		replace Indicator= regexr(Indicator, "^c.", "")
+		// loop over variable and extract var using replace newvar = "Sex" if regexm(myvar, "Sex")
+		foreach v of local variable {
+		replace Indicator = "`v'" if regexm(Indicator, "`v'")
+		}
+		*replace Indicator= regexr(Indicator, "^c.", "")
 		rename rownames2 dimension
 		split dimension, p(#)
 		local c : word count `tuple'
 		forvalues i=1/`c' {
 			local v "`:word `i' of `tuple''"
 			rename dimension`i' `v'
-			replace `v'= ustrregexra(`v',".`v'","")
-			replace `v'= ustrregexra(`v',"bn","")
-			destring `v', replace
+			replace `v' = regexs(1) if regexm(`v', "([0-9]+)")
+			*cap replace `v'= ustrregexra(`v',".`v'","")
+			*cap replace `v'= ustrregexra(`v',"bn","")
+			*replace `v'= ustrregexra(`v',"o","")
+
+			cap destring `v', replace
 		}
+		
 		drop rownames dimension
 		append using `odp_tab', force
 		save `odp_tab', replace
@@ -390,7 +331,7 @@ program define generateODT
 	*Adding the value label for the magins of dimensions
 	local c: word count `varlist'
 	forvalues i=1/`c' {
-		if ("`:word `i' of `dimcomb''"!="") {
+		if ("`:word `i' of `marginlabels''"!="") {
 			cap label list ld_`:word `i' of `varlist''
 			return list
 			local n_lev=`r(max)'+1
@@ -401,7 +342,7 @@ program define generateODT
 			
 			if (`ap'==0) {
 				
-			label define ld_`:word `i' of `varlist'' `n_lev' "`:word `i' of `dimcomb''", add
+			label define ld_`:word `i' of `varlist'' `n_lev' "`:word `i' of `marginlabels''", add
 			}
 		}
 	}	
@@ -416,7 +357,7 @@ program define generateODT
 			cap label list ld_`:word `i' of `varlist''
 			return list
 			local n_lev=`r(max)'
-		if ("`:word `i' of `dimcomb''"!="") {
+		if ("`:word `i' of `marginlabels''"!="") {
 			di "TEST ONE `n_lev'"
 			gen `:word `i' of `varlist''_bis=int(`:word `i' of `varlist'')
 			drop `:word `i' of `varlist''
@@ -433,13 +374,13 @@ program define generateODT
 	}
 	save `sample_n', replace
 	
-	use `odp_tab',clear	
+	use `odp_tab', clear	
 	// get the value labels
 	run `dolabs'
 	*see https://www.statalist.org/forums/forum/general-stata-discussion/general/251350-how-can-i-apply-value-labels-stored-in-different-dataset-into-my-primary-data
 	local c: word count `varlist'
 	forvalues i=1/`c' {
-		if ("`:word `i' of `dimcomb''"!="") {
+		if ("`:word `i' of `marginlabels''"!="") {
 			cap label list ld_`:word `i' of `varlist''
 			return list
 			local n_lev=`r(max)'
@@ -464,20 +405,63 @@ program define generateODT
 		replace Indicator= "`:word `i' of `variable''" if Indicator=="_ratio_`i'"
 		}
 		
-	gen IndicatorName=""
-	gen Unit=""
-	local c : word count `variable'
-	forvalues i=1/`c' {
-		replace IndicatorName = "`:word `i' of `labind''" if Indicator=="`:word `i' of `variable''"
+	merge m:1 `varlist' Indicator using `sample_n'
+	
+	gen Parameter="`parameter'"
+	sort Indicator `varlist'
+	rename Indicator Variable
+	rename sample_n sample_freq
+	rename CV coef_variation
+	rename se standard_err
+	rename ll conf_int_ll
+	rename ul conf_int_ul
+	rename b Value
+	
+		order `varlist' Variable Parameter  Value  sample_freq
+
+	
+	******************************************************************************
+	****** ADDING units if specicied**********************************************
+	******************************************************************************
+		local n_units: list sizeof units
+
+	if (`n_units'!=0) {
+		if (`n_units'!=`n_variable') {
+			display as error "The options units and variable should have the same number of elements"
+			exit 498 // or any error code you want to return
+		}
+				
+		gen Unit=""
+		forvalues i=1/`c' {
+			replace Unit = "`:word `i' of `units''" if Variable=="`:word `i' of `variable''"
+		}
+			order `varlist' Variable Parameter  Value  Unit sample_freq
+
 	}
+	*************************Unit***********************************************************
+	
+	
+	***************************************************************************************
+	*** Adding indicator label if specified************************************************
+	***************************************************************************************
+	local n_indicatorname: list sizeof indicatorname
+	if (`n_indicatorname'!=0) {
+	local c: word count `variable'
+	if (`n_indicatorname'!=`n_variable') {
+		display as error "The options indicatorname and variable should have the same number of elements"
+		exit 498 // or any error code you want to return
+	}
+				
+	gen IndicatorName=""
+	local c: word count `variable'
 	forvalues i=1/`c' {
-		replace Unit = "`:word `i' of `units''" if Indicator=="`:word `i' of `variable''"
+		replace IndicatorName = "`:word `i' of `indicatorname''" if Variable=="`:word `i' of `variable''"
+	}
+			order `varlist' Variable Parameter IndicatorName Value sample_freq
+
 	}
 	
-
-	merge m:1 `varlist' Indicator using `sample_n'
-	order `varlist' Indicator IndicatorName b Unit sample_n
-	sort Indicator `varlist'
+	
 	} // quietly
 	
 	********************************************************
