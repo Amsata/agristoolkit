@@ -68,6 +68,22 @@ program define generateODT
 		
 	syntax varlist ,MARGINLABels(string asis) PARAMeter(string) VARiable(string asis) ///
 	[conditionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) ]
+	
+	
+	****************************************************************************
+	********************* Checking dependancies*********************************
+	****************************************************************************
+	cap which elabel
+	if _rc {
+		display "The elabel package is required. Please install it by running: ssc install elabel"
+		exit 1
+	}
+
+	cap which tuples
+	if _rc {
+		display "The tuples package is required. Please install it by running: ssc install elabel"
+		exit 1
+	}
 		
 	********************************************************
 	*** Control that there is no duplication of variable ***
