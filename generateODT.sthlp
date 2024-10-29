@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 1.0 25 Oct 2024}{...}
+{* *! version 1.0 29 Oct 2024}{...}
 {vieweralsosee "" "--"}{...}
 {vieweralsosee "Install command2" "ssc install command2"}{...}
 {vieweralsosee "Help command2 (if installed)" "help command2"}{...}
@@ -26,16 +26,22 @@ varlist
 
 {syntab:Required }
 
-{synopt:{opt dimcomb(string asis)}}  specify the labels of margins of variables in varlist. {p_end}
+{synopt:{opt marginlab:els(string asis)}}  specify the labels of margins of variables in varlist. {p_end}
 
 {synopt:{opt param:eter(string)}}  parameter to be estimated in the domains (total, mean or ratio). {p_end}
 
 {synopt:{opt var:iable(string asis)}}  variable the value of which will be used to generate the specified parameter in 'parameter'. {p_end}
 
 {syntab:Optional}
+{synopt:{opt conditionals(string asis)}} eliminate tuples (of dimensions in varlist) according to specified conditions.
+
+{synopt:{opt :svySE(string)}}  
+
+{synopt:{opt subpop(string asis)}} {cmd:(}[{varname}
+
 {synopt:{opt unit:s(string asis)}} units of the parameter generated with variable in 'variable'.
 
-{synopt:{opt lab:ind(string asis)}} a comprehensive and informative label of the indicator generated with variables specified in 'variable'.
+{synopt:{opt indicator:name(string asis)}} a comprehensive and informative label of the indicator generated with variables specified in 'variable'.
 
 {synoptline}
 {p2colreset}{...}
@@ -54,42 +60,44 @@ varlist
 {dlgtab:Main}
 
 {phang}
-{opt dimcomb(string asis)}  specify the labels of margins of variables in varlist.
+{opt marginlab:els(string asis)} specify the labels of margins of variables in varlist.
 
 {phang}
-{opt param:eter(string)}  parameter to be estimated in the domains (total, mean or ratio).
+{opt param:eter(string)} parameter to be estimated in the domains (total, mean or ratio).
 
 {phang}
-{opt var:iable(string asis)}  variable the value of which will be used to generate the specified parameter in 'parameter'.
+{opt var:iable(string asis)} variable the value of which will be used to generate the specified parameter in 'parameter'.
 
 {phang}
-{opt unit:s(string asis)}  units of the parameter generated with variable in 'variable'.
+{opt conditionals(string asis)} eliminate tuples (of dimensions in varlist) according to specified conditions.
 
 {phang}
-{opt lab:ind(string asis)}  a comprehensive and informative label of the indicator generated with variables specified in 'variable'.
+{opt :svySE(string)}  
+
+{phang}
+{opt subpop(string asis)} {cmd:(}[{varname}
+
+{phang}
+{opt unit:s(string asis)} units of the parameter generated with variable in 'variable'.
+
+{phang}
+{opt indicator:name(string asis)} a comprehensive and informative label of the indicator generated with variables specified in 'variable'.
 
 
 
 {marker examples}{...}
 {title:Examples}
 
-{pstd}
-
-testing:
-
- {cmd:. generateODT Region sex ,dimcomb("All households" "Wakanda") param("ratio")  var((I3_n/I3_d)) /// }
- {cmd:. labind("Women entrepreneurship index") units("")}
- 
- 
- {cmd:. generateODT Region sex ,dimcomb("All households" "Wakanda") param("ratio")  var((I3_n/I3_d)) labind("Women entrepreneurship index") units("")}
-
+ {stata generateODT Region sex ,marginlabels("All households" "Wakanda") param("ratio") var((I3_n/I3_d)) ///
+	indicatorname("Women entrepreneurship index") ///
+	units("")}
 	
-	 {cmd:. generateODT Region sex ,dimcomb("All households" "Wakanda") param("mean") var(hh_member) ///
-	labind("Average households size") ///
+	 {stata generateODT Region sex ,marginlabels("All households" "Wakanda") param("mean") var(hh_member) ///
+	indicatorname("Average households size") ///
 	units("people")}
 	
-		 {cmd:. generateODT Region sex ,dimcomb("All households" "Wakanda") param("total") var(production) ///
-	labind("Crop production") ///
+		 {stata generateODT Region sex ,marginlabels("All households" "Wakanda") param("total") var(production) ///
+	indicatorname("Crop production") ///
 	units("MT")}
 
 
