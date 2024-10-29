@@ -118,7 +118,7 @@ foreach item of local marginlabels {
 		}
     }
 	
-	local new_marginlabels  "`new_marginlabels'"  "`:word `i' of `geovarmarginlab''" 
+	local new_marginlabels  "`:word `i' of `geovarmarginlab''" "`new_marginlabels'"  
  
  
         local new_marginlabels  `" "`new_marginlabels'" "' 
