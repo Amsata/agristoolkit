@@ -119,9 +119,7 @@ foreach item of local marginlabels {
     }
 	
 	local new_marginlabels  "`:word `i' of `geovarmarginlab''" "`new_marginlabels'"  
- 
- 
-        local new_marginlabels  `" "`new_marginlabels'" "' 
+
         local new_varlist "`:word `i' of `hiergeovars'' `varlist'"
  
 	***generateODT for the new_varlist and n_w dim comb
