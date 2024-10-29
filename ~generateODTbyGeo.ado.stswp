@@ -131,7 +131,7 @@ foreach item of local marginlabels {
 	quietly generateODT `new_varlist' ,marginlab(`new_marginlabels') param(`parameter') var(`variable') conditionals(`conditionals') indicator(`indicatorname') units(`units')
 	decode `:word `i' of `hiergeovars'', gen(geo_var)
 	drop `:word `i' of `hiergeovars''
-	sort geo_var
+	order geo_var
 	if(init==0) {
 		save `odp_table', replace
 		scalar init=1
