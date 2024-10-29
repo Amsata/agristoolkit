@@ -110,7 +110,7 @@ scalar cont=0
 foreach item of local marginlabels {
       // If not excluded, add to the new local macro
 		if (cont==0) {
-		local new_marginlabels  "`item'" 
+		local new_marginlabels  `item'
 		scalar cont=1
 		}
 		else {
@@ -131,7 +131,7 @@ foreach item of local marginlabels {
 	quietly generateODT `new_varlist' ,marginlab(`new_marginlabels') param(`parameter') var(`variable') conditionals(`conditionals') indicator(`indicatorname') units(`units')
 	decode `:word `i' of `hiergeovars'', gen(geo_var)
 	drop `:word `i' of `hiergeovars''
-	sort geo_var
+	order geo_var
 	if(init==0) {
 		save `odp_table', replace
 		scalar init=1
