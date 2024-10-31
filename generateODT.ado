@@ -472,7 +472,7 @@ program define generateODT
 	local c: word count `variable'
 	forvalues i=1/`c' {
 		replace IndicatorName = `"`:word `i' of `indicatorname''"' if Variable=="`:word `i' of `variable''"
-		cap replace IndicatorName = ustrregexra( IndicatorName ,"@","'")
+		cap replace IndicatorName = ustrregexra( IndicatorName ,"&","'")
 		*cap replace IndicatorName = ustrregexra( IndicatorName ,`""   '"',"")  //issue de la gestion des apostrophes comme d'une... NB: ne pas mettre " das les labels
 		*cap replace IndicatorName = ustrregexra( IndicatorName ,"  '","") //issue de la gestion des apostrophes comme d'une...
 	}
