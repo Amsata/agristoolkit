@@ -373,7 +373,7 @@ program define generateODT
 			cap label list ld_`:word `i' of `varlist''
 			return list
 			local n_lev=`r(max)'
-		if ("`:word `i' of `marginlabels''"!="") {
+		if (`"`:word `i' of `marginlabels''"'!="") {
 			di "TEST ONE `n_lev'"
 			gen `:word `i' of `varlist''_bis=int(`:word `i' of `varlist'')
 			drop `:word `i' of `varlist''
@@ -471,7 +471,9 @@ program define generateODT
 	gen IndicatorName=""
 	local c: word count `variable'
 	forvalues i=1/`c' {
-		replace IndicatorName = "`:word `i' of `indicatorname''" if Variable=="`:word `i' of `variable''"
+		replace IndicatorName = `"`:word `i' of `indicatorname''"' if Variable=="`:word `i' of `variable''"
+		*cap replace IndicatorName = ustrregexra( IndicatorName ,`""   '"',"")  //issue de la gestion des apostrophes comme d'une... NB: ne pas mettre " das les labels
+		*cap replace IndicatorName = ustrregexra( IndicatorName ,"  '","") //issue de la gestion des apostrophes comme d'une...
 	}
 			order `varlist' Variable Parameter IndicatorName Value sample_freq
 
