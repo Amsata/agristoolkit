@@ -336,7 +336,7 @@ program define generateODT
 		} //quietly
 	}	
 	
-		
+/*		
 	quietly {
 	*After the loop on tuples, odp_tab contain the results of all dimention combination
 	*Extracting variable labels
@@ -420,6 +420,8 @@ program define generateODT
 		forvalues i=1/`c' {
 			di "`:word `i' of `variable''"
 		replace Indicator= "`:word `i' of `variable''" if Indicator=="_ratio_`i'"
+		replace Indicator= "`:word `i' of `variable''" if Indicator=="_ratio_`i'"
+
 		}
 		
 		
@@ -509,6 +511,7 @@ program define generateODT
 	}
 
 	}
+*/
 */
 end
 
