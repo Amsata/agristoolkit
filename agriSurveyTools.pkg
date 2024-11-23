@@ -10,8 +10,8 @@ F generateODT.ado
 F generateODT.sthlp
 F generateODTbyGeo.ado
 F generateODTbyGeo.sthlp
-F generateODToar.sthlp
 F generateODTpar.ado
+F generateODTpar.sthlp
 F mat_to_ds.ado
 F mat_to_ds.sthlp
 F setup_anonymization.ado

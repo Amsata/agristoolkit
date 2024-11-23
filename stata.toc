@@ -3,6 +3,6 @@ d Materials by Amsata Niang
 d FAO
 d amsata_niang@yahoo.fr
 
-d 'agrisvyst': processing, analysing, disseminating survey data
+d 'agriSurveyTools': processing, analysing, disseminating survey data
 
-p agrisvyst
+p agriSurveyTools

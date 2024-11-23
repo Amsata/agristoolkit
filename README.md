@@ -1,7 +1,7 @@
 _v. 0_  
 
-`agrisvyst` : processing, analysing, disseminating survey data
-==============================================================
+`agriSurveyTools` : processing, analysing, disseminating survey data
+====================================================================
 
 Description
 -----------
