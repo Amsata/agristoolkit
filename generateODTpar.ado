@@ -329,6 +329,7 @@ program define generateODTpar
 		**************************************************************************
 		*** Extract correct dimension name and merging with sample frequencies (possible from Stata 17 ***
 		**************************************************************************
+		/*
 		split rownames, p(@)
 		capture drop Indicator
 		rename rownames1 Indicator
@@ -353,6 +354,7 @@ program define generateODTpar
 		
 		drop rownames dimension
 		*append using `odp_tab', force
+		*/
 		save `odp_tab', replace
 		*restore // restore the iniial dataset for the continuation of the loop on tuples
 		
