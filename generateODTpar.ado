@@ -354,10 +354,10 @@ program define generateODTpar
 		drop rownames dimension
 		*append using `odp_tab', force
 		save `odp_tab', replace
-		restore // restore the iniial dataset for the continuation of the loop on tuples
+		*restore // restore the iniial dataset for the continuation of the loop on tuples
 		
 		} //quietly
-	}	
+	*}	
 	
 	use `odp_tab', clear
 	/*	
