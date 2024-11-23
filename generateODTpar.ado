@@ -340,16 +340,16 @@ program define generateODTpar
 		rename rownames2 dimension
 		split dimension, p(#)
 		local c : word count `varlist'
-		*forvalues i=1/`c' {
+		forvalues i=1/`c' {
 			local v "`:word `i' of `tuple''"
-			rename dimension`i' `variable'
-			replace `variable' = regexs(1) if regexm(`variable', "([0-9]+)")
+			rename dimension`i' `v'
+			replace `v' = regexs(1) if regexm(`v', "([0-9]+)")
 			*cap replace `v'= ustrregexra(`v',".`v'","")
 			*cap replace `v'= ustrregexra(`v',"bn","")
 			*replace `v'= ustrregexra(`v',"o","")
 
-			cap destring `variable', replace
-		*}
+			cap destring `v', replace
+		}
 		
 		drop rownames dimension
 		*append using `odp_tab', force
