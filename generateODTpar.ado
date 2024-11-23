@@ -67,7 +67,7 @@ capture program drop generateODTpar
 program define generateODTpar
 		
 	syntax [varlist] ,PARAMeter(string) VARiable(string asis) ///
-	[MARGINLABels(string asis)  conditionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) ]
+	[conditionals(string asis) svySE(string) subpop(string asis) alldim(string asis) ]
 
 	*tempfile odp_tab
 
@@ -77,7 +77,8 @@ program define generateODTpar
 		************************************************************************
 		*** Generate estimate over dimension the given dimension combination ***
 		************************************************************************
-		if("`varlist'"=="") svy: `parameter' `variable'
+		
+		if("`alldim'"=="yes") svy: `parameter' `variable'
 		else svy, over(`varlist'): `parameter' `variable'
 		qui return list
 		matrix define T= r(table)'	
@@ -117,8 +118,8 @@ program define generateODTpar
 		*break 498
 		**************************************************************************
 		*** Extract correct dimension name and merging with sample frequencies (possible from Stata 17 ***
-		**************************************************************************
-		
+		*************************************************************************
+		if("`alldim'"!="yes") {
 		split rownames, p(@)
 		capture drop Indicator
 		rename rownames1 Indicator
@@ -142,6 +143,7 @@ program define generateODTpar
 		}
 		
 		drop dimension
+		}
 		*append using `odp_tab', force
 		*save `odp_tab', replace
 		*restore // restore the iniial dataset for the continuation of the loop on tuples
