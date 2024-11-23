@@ -184,7 +184,7 @@ program define generateODTpar
 	matrix define T= r(table)'	
 	qui ereturn list
 	matrix define Freq= e(_N)'	
-	*preserve
+	preserve
 	mat_to_ds T		   
 	tempfile res_estimation
 	save `res_estimation', replace
