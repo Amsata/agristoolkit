@@ -89,14 +89,14 @@ program define generateODTpar
 		tempfile res_estimation
 		save `res_estimation', replace
 		mat_to_ds n_subpop	   
-		tempfile res_freq
+		tempfile dataset_n_obs
 		order rownames
 		unab all_vars: *
 		rename `:word 2 of `all_vars'' n_Obs // or word(`all_vars', 1)
 		save `dataset_n_obs', replace
 		
 		mat_to_ds N_subpop	   
-		tempfile N_subpop
+		tempfile dataset_N_subpop
 		order rownames
 		unab all_vars: *
 		rename `:word 2 of `all_vars'' N_subPop // or word(`all_vars', 1)
