@@ -66,7 +66,8 @@ END HELP FILE */
 capture program drop generateODTpar
 program define generateODTpar
 		
-	syntax ,PARAMeter(string) VARiable(string asis) [dimension(varlist) conditionals(string asis) svySE(string) subpop(string asis) ]
+	syntax varlist ,PARAMeter(string) VARiable(string asis) ///
+	[MARGINLABels(string asis)  conditionals(string asis) svySE(string) subpop(string asis)  alldim(string asis) ]
 
 	*tempfile odp_tab
 
@@ -76,9 +77,8 @@ program define generateODTpar
 		************************************************************************
 		*** Generate estimate over dimension the given dimension combination ***
 		************************************************************************
-		if("`dimension'"=="") svy: `parameter' `variable'
-		else svy, over(`dimension'): `parameter' `variable'
-		
+		if("`alldim'"=="yes") svy: `parameter' `variable'
+		else svy, over(`varlist'): `parameter' `variable'
 		qui return list
 		matrix define T= r(table)'	
 		qui ereturn list
@@ -129,9 +129,9 @@ program define generateODTpar
 		replace Indicator= regexr(Indicator, "^c.", "")
 		rename rownames2 dimension
 		split dimension, p(#)
-		local c : word count `dimension'
+		local c : word count `varlist'
 		forvalues i=1/`c' {
-			local v "`:word `i' of `dimension''"
+			local v "`:word `i' of `varlist''"
 			rename dimension`i' `v'
 			replace `v' = regexs(1) if regexm(`v', "([0-9]+)")
 			*cap replace `v'= ustrregexra(`v',".`v'","")
