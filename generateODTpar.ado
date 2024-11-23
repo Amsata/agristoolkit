@@ -66,7 +66,7 @@ END HELP FILE */
 capture program drop generateODTpar
 program define generateODTpar
 		
-	syntax varlist ,PARAMeter(string) VARiable(string asis) ///
+	syntax [varlist] ,PARAMeter(string) VARiable(string asis) ///
 	[MARGINLABels(string asis)  conditionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) ]
 
 	*tempfile odp_tab
@@ -77,7 +77,8 @@ program define generateODTpar
 		************************************************************************
 		*** Generate estimate over dimension the given dimension combination ***
 		************************************************************************
-		svy, over(`varlist'): `parameter' `variable'
+		if("`varlist'"=="") svy: `parameter' `variable'
+		else svy, over(`varlist'): `parameter' `variable'
 		qui return list
 		matrix define T= r(table)'	
 		qui ereturn list
