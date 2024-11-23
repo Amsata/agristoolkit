@@ -69,7 +69,7 @@ program define generateODTpar
 	syntax varlist ,PARAMeter(string) VARiable(string asis) ///
 	[MARGINLABels(string asis)  conditionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) ]
 	
-	
+/*	
 	****************************************************************************
 	********************* Checking dependancies*********************************
 	****************************************************************************
@@ -172,8 +172,9 @@ program define generateODTpar
 		}
 		
 	}
+	
+*/	
 	tempfile odp_tab
-	tempfile sample_n
 
 	*******************************************************************************
 	**** Generate estimate for all the combination ********************************
@@ -181,10 +182,18 @@ program define generateODTpar
 	svy: `parameter' `variable'
 	qui return list
 	matrix define T= r(table)'	
-	preserve
+	qui ereturn list
+	matrix define Freq= e(_N)'	
+	*preserve
 	mat_to_ds T		   
 	tempfile res_estimation
 	save `res_estimation', replace
+	mat_to_ds Freq	   
+	tempfile res_freq
+	order rownames
+	unab all_vars: *
+	rename `:word 2 of `all_vars'' sample_n // or word(`all_vars', 1)
+	save `res_freq', replace
 	* Estimating coefficient of variation
 	estat cv
 	matrix define CV = r(cv)'
@@ -193,24 +202,27 @@ program define generateODTpar
 	unab all_vars: *
 	rename `:word 1 of `all_vars'' CV // or word(`all_vars', 1)
 	merge 1:1 rownames using `res_estimation', nogen
+	merge 1:1 rownames using `res_freq', nogen
+
 	split rownames, p(@)
 	rename rownames1 Indicator
 	drop rownames
 	save `odp_tab', replace
 	restore
 	****************En generate estimates for all combination *********************
-		   
+	/*	   
 	if ("`conditionals'"=="") {
 		tuples `varlist' // for looping over all dimensions
 	}
 	else{
 		tuples `varlist', conditionals(`conditionals') display // for looping over all dimensions
 	}
-	
-	scalar init_2=0   //to manage fist saving and append
-	gen freq=1 		  // used to count sample frequency where a given variable is non-missing temporary variable may be better
+*/	
+	*scalar init_2=0   //to manage fist saving and append
+	*gen freq=1 		  // used to count sample frequency where a given variable is non-missing temporary variable may be better
 	*Sample frequency for all observation
-	foreach v of local variable {
+	*foreach v of local variable {
+		/*
 	preserve
 	if ("`parameter'"=="ratio") {
 		local var_2 = subinstr("`v'", "(", "", .)
@@ -224,31 +236,26 @@ program define generateODTpar
 		gen sample_n= cond(freq==1 & !missing(`v'),1,0)
 	}
 	collapse (sum) sample_n
-	gen Indicator="`v'"	
+	gen Indicator="`variable'"	
 	* First saving or appending the main results dataset: sample_n
-	if (init_2==0) {
+	*if (init_2==0) {
 		save `sample_n', replace
-		scalar init_2=1
-	} 
-	else {
-		append using `sample_n',force
-		save `sample_n', replace
-		}
+		*scalar init_2=1
+	*} 
+	*else {
+		*append using `sample_n',force
+		*save `sample_n', replace
+		*}
 	restore
-	}
+	*}
 	
-						
-	if ("`conditionals'"=="") {
-		tuples `varlist' // for looping over all dimensions
-	}
-	else{
-		tuples `varlist', conditionals(`conditionals') // for looping over all dimensions
-	}
+*/						
 	
-	forvalues i=1/`ntuples' {
-		di "Generating estimation for dimension combination : `tuple`i''"
+	
+	*forvalues i=1/`ntuples' {
+		*di "Generating estimation for dimension combination : `tuple`i''"
 		quietly {
-		local tuple "`tuple`i''" // the content of `tuple`i'' is lost in the process, this is a backup
+		*local tuple "`tuple`i''" // the content of `tuple`i'' is lost in the process, this is a backup
 		
 		************************************************************************
 		*****check if there are hierarchical structure between 2 variables******
@@ -258,7 +265,9 @@ program define generateODTpar
 		***********************************************************************
 		*** Generate sample frequency where a given variable is non-missing ***
 		***********************************************************************
-		foreach v of local variable {
+		*foreach v of local variable {
+			
+			/*
 			preserve
 		if ("`parameter'"=="ratio") {
 			local var_2 = subinstr("`v'", "(", "", .)
@@ -275,38 +284,51 @@ program define generateODTpar
 			gen Indicator="`v'"
 			
 			* First saving or appending the main results dataset: sample_n
-			if (init_2==0) {
+			*if (init_2==0) {
 				save `sample_n', replace
-				scalar init_2=1
-			} 
-			else {
-				append using `sample_n',force
-				save `sample_n', replace
+				*scalar init_2=1
+			*} 
+			*else {
+				*append using `sample_n',force
+				*save `sample_n', replace
 			}
 			restore
-		}
+		*}
+		
+		*/
+		
+		
 		************************************************************************
 		*** Generate estimate over dimension the given dimension combination ***
 		************************************************************************
-		svy, over(`tuple`i''): `parameter' `variable'
+		svy, over(`varlist'): `parameter' `variable'
 		qui return list
 		matrix define T= r(table)'	
-		preserve
+		qui ereturn list
+		matrix define Freq= e(_N)'	
+		*preserve
 		mat_to_ds T		   
 		tempfile res_estimation
 		save `res_estimation', replace
-		*Estimating coefficient of variation
+		mat_to_ds Freq	   
+		tempfile res_freq
+		order rownames
+		unab all_vars: *
+		rename `:word 2 of `all_vars'' sample_n // or word(`all_vars', 1)
+		save `res_freq', replace
+		* Estimating coefficient of variation
 		estat cv
 		matrix define CV = r(cv)'
-		mat_to_ds CV	   
+		mat_to_ds CV
+		*renaming the variable to CV
 		unab all_vars: *
-		rename `:word 1 of `all_vars'' CV // or word(`all_vars', 1)	
+		rename `:word 1 of `all_vars'' CV // or word(`all_vars', 1)
 		merge 1:1 rownames using `res_estimation', nogen
+		merge 1:1 rownames using `res_freq', nogen
 		*break 498
 		**************************************************************************
 		*** Extract correct dimension name and merging with sample frequencies (possible from Stata 17 ***
 		**************************************************************************
-		
 		split rownames, p(@)
 		capture drop Indicator
 		rename rownames1 Indicator
@@ -317,20 +339,20 @@ program define generateODTpar
 		replace Indicator= regexr(Indicator, "^c.", "")
 		rename rownames2 dimension
 		split dimension, p(#)
-		local c : word count `tuple'
-		forvalues i=1/`c' {
+		local c : word count `varlist'
+		*forvalues i=1/`c' {
 			local v "`:word `i' of `tuple''"
-			rename dimension`i' `v'
-			replace `v' = regexs(1) if regexm(`v', "([0-9]+)")
+			rename dimension`i' `variable'
+			replace `variable' = regexs(1) if regexm(`variable', "([0-9]+)")
 			*cap replace `v'= ustrregexra(`v',".`v'","")
 			*cap replace `v'= ustrregexra(`v',"bn","")
 			*replace `v'= ustrregexra(`v',"o","")
 
-			cap destring `v', replace
-		}
+			cap destring `variable', replace
+		*}
 		
 		drop rownames dimension
-		append using `odp_tab', force
+		*append using `odp_tab', force
 		save `odp_tab', replace
 		restore // restore the iniial dataset for the continuation of the loop on tuples
 		
