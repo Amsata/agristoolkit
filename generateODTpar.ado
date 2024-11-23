@@ -329,7 +329,7 @@ program define generateODTpar
 		**************************************************************************
 		*** Extract correct dimension name and merging with sample frequencies (possible from Stata 17 ***
 		**************************************************************************
-		/*
+		
 		split rownames, p(@)
 		capture drop Indicator
 		rename rownames1 Indicator
@@ -342,7 +342,7 @@ program define generateODTpar
 		split dimension, p(#)
 		local c : word count `varlist'
 		forvalues i=1/`c' {
-			local v "`:word `i' of `tuple''"
+			local v "`:word `i' of `varlist''"
 			rename dimension`i' `v'
 			replace `v' = regexs(1) if regexm(`v', "([0-9]+)")
 			*cap replace `v'= ustrregexra(`v',".`v'","")
@@ -352,9 +352,8 @@ program define generateODTpar
 			cap destring `v', replace
 		}
 		
-		drop rownames dimension
+		drop dimension
 		*append using `odp_tab', force
-		*/
 		save `odp_tab', replace
 		*restore // restore the iniial dataset for the continuation of the loop on tuples
 		
