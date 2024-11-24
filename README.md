@@ -1,6 +1,6 @@
 _v. 0_  
 
-`agriSurveyTools` : processing, analysing, disseminating survey data
+`agriSUrveyTools` : processing, analysing, disseminating survey data
 ====================================================================
 
 Description
