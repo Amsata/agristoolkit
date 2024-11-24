@@ -234,7 +234,7 @@ save `tmp_data_odt', replace
 global temp_file "`tmp_data_odt'"
 
 
-parallel, prog(svyParallel)  setparallelid(`parallelid') keep nodata: svyParallel `varlist' `variable' `parameter'
+parallel, prog(svyParallel)  setparallelid(`parallelid') keep nodata: svyParallel "`varlist'" "`variable'" "`parameter'"
 ls __pll*.dta	
 
 *Appending all files

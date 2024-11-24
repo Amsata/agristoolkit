@@ -2,7 +2,7 @@
 
 program svyParallel
 
-args varlist variable parameter
+args varlist variable parameter 
 
 	*tuples `varlist' // for looping over all dimensions
     local si: list sizeof variable
