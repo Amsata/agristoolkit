@@ -3,7 +3,7 @@
 // DO NOT FORGET to update the version of the package, if changed!
 // for more information visit http://github.com/haghish/github
 
-make agriSUrveyT, replace toc pkg readme version(0)                            ///
+make agriSUrveyTools, replace toc pkg readme version(0)                            ///
      license("MIT")                                                          ///
      author("Amsata Niang")                                                  ///
      affiliation("FAO")                                                      ///
