@@ -3,7 +3,7 @@ d 'AGRISURVEYTOOLS': processing, analysing, disseminating survey data
 d 
 d processing, analysing, disseminating survey data
 d 
-d Distribution-Date:   20241124
+d Distribution-Date:   20241125
 d License: MIT
 d 
 F generateODT.ado
@@ -20,4 +20,5 @@ F svyEstimate.ado
 F svyEstimate.sthlp
 F svyParallel.ado
 F svyParallel.sthlp
+F svyParallelGeo.ado
 f testdst.dta
