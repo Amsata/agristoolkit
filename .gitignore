@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+agrisvyr.Rproj
+inst/doc
+~*
+.do
+*.dta
