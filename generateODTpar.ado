@@ -66,7 +66,7 @@ END HELP FILE */
 *capture program drop generateODTPar
 
 *cap program drop generateODTPar
-program define generateODTPar
+program define generateODTpar
 		
 	syntax varlist ,MARGINLABels(string asis) PARAMeter(string) VARiable(string asis) ///
 	[conditionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) ]

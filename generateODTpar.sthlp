@@ -3,19 +3,19 @@
 {vieweralsosee "" "--"}{...}
 {vieweralsosee "Install command2" "ssc install command2"}{...}
 {vieweralsosee "Help command2 (if installed)" "help command2"}{...}
-{viewerjumpto "Syntax" "generateODTPar##syntax"}{...}
-{viewerjumpto "Description" "generateODTPar##description"}{...}
-{viewerjumpto "Options" "generateODTPar##options"}{...}
-{viewerjumpto "Remarks" "generateODTPar##remarks"}{...}
-{viewerjumpto "Examples" "generateODTPar##examples"}{...}
+{viewerjumpto "Syntax" "generateODTpar##syntax"}{...}
+{viewerjumpto "Description" "generateODTpar##description"}{...}
+{viewerjumpto "Options" "generateODTpar##options"}{...}
+{viewerjumpto "Remarks" "generateODTpar##remarks"}{...}
+{viewerjumpto "Examples" "generateODTpar##examples"}{...}
 {title:Title}
 {phang}
-{bf:generateODTPar} {hline 2} a command to setup working directory and necessary files and folder for anonymization
+{bf:generateODTpar} {hline 2} a command to setup working directory and necessary files and folder for anonymization
 
 {marker syntax}{...}
 {title:Syntax}
 {p 8 17 2}
-{cmdab:generateODTPar}
+{cmdab:generateODTpar}
 varlist
 [{cmd:,}
 {it:options}]

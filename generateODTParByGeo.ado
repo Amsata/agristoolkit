@@ -66,7 +66,7 @@ END HELP FILE */
 *capture program drop generateODTPar
 
 *cap program drop generateODTParByGeo
-program define generateODTParByGeo
+program define generateODTparByGeo
 		
 
  syntax varlist ,marginlabels(string asis)  PARAMeter(string asis) ///

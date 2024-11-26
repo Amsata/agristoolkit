@@ -3,19 +3,19 @@
 {vieweralsosee "" "--"}{...}
 {vieweralsosee "Install command2" "ssc install command2"}{...}
 {vieweralsosee "Help command2 (if installed)" "help command2"}{...}
-{viewerjumpto "Syntax" "generateODTParByGeo##syntax"}{...}
-{viewerjumpto "Description" "generateODTParByGeo##description"}{...}
-{viewerjumpto "Options" "generateODTParByGeo##options"}{...}
-{viewerjumpto "Remarks" "generateODTParByGeo##remarks"}{...}
-{viewerjumpto "Examples" "generateODTParByGeo##examples"}{...}
+{viewerjumpto "Syntax" "generateODTparByGeo##syntax"}{...}
+{viewerjumpto "Description" "generateODTparByGeo##description"}{...}
+{viewerjumpto "Options" "generateODTparByGeo##options"}{...}
+{viewerjumpto "Remarks" "generateODTparByGeo##remarks"}{...}
+{viewerjumpto "Examples" "generateODTparByGeo##examples"}{...}
 {title:Title}
 {phang}
-{bf:generateODTParByGeo} {hline 2} a command to setup working directory and necessary files and folder for anonymization
+{bf:generateODTparByGeo} {hline 2} a command to setup working directory and necessary files and folder for anonymization
 
 {marker syntax}{...}
 {title:Syntax}
 {p 8 17 2}
-{cmdab:generateODTParByGeo}
+{cmdab:generateODTparByGeo}
 varlist
 [{cmd:,}
 {it:options}]
