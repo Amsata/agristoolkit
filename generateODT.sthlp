@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 1.0 29 Oct 2024}{...}
+{* *! version 1.0 26 Nov 2024}{...}
 {vieweralsosee "" "--"}{...}
 {vieweralsosee "Install command2" "ssc install command2"}{...}
 {vieweralsosee "Help command2 (if installed)" "help command2"}{...}

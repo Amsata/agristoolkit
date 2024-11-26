@@ -89,7 +89,7 @@ scalar init=0
  
  foreach v of local hiergeovars {
 	local pos: list posof "`v'" in varlist
-	if (`pos'>0) {
+	if (`n_geovar'!=0 & `pos'>0) {
 		display as error "The variable `v' should be excluded from varlist"
 		exit 498
 	}

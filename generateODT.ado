@@ -438,9 +438,8 @@ program define generateODT
 	* keep only dimensions where frequency exists
 	drop if sample_freq==.
 	
-		order `varlist' Variable Parameter  Value  sample_freq
+	order `varlist' Variable Parameter  Value  sample_freq
 
-	
 	******************************************************************************
 	****** ADDING units if specicied**********************************************
 	******************************************************************************
@@ -459,6 +458,7 @@ program define generateODT
 			order `varlist' Variable Parameter  Value  Unit sample_freq
 
 	}
+	
 	*************************Unit***********************************************************
 	
 	
@@ -480,7 +480,7 @@ program define generateODT
 		*cap replace IndicatorName = ustrregexra( IndicatorName ,`""   '"',"")  //issue de la gestion des apostrophes comme d'une... NB: ne pas mettre " das les labels
 		*cap replace IndicatorName = ustrregexra( IndicatorName ,"  '","") //issue de la gestion des apostrophes comme d'une...
 	}
-			order `varlist' Variable Parameter IndicatorName Value sample_freq
+			order `varlist' Variable Parameter IndicatorName Value Unit sample_freq
 			cap replace IndicatorName = ustrregexra( IndicatorName ,"&","'")
 
 
