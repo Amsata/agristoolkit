@@ -64,8 +64,8 @@ seealso[
 END HELP FILE */
 
 
-*cap program drop generateODTParByGeo
-program define generateODTparByGeo
+*cap program drop generateOpenDataTable
+program define generateOpenDataTable
 		
 
  syntax varlist ,marginlabels(string asis)  PARAMeter(string asis) ///

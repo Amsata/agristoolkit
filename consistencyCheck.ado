@@ -29,6 +29,8 @@ if (`pos'!=0) {
 	di as error "We suggest replacing them by @ and the final result we will replace @ by apostrophe" _newline
 	di as error "your imput should be '`userInput'' and the output without your intervention will be '`ind'' " _newline
 	exit 498
+	* https://www.stata.com/statalist/archive/2012-08/msg00924.html
+	*explore answers here to solve the apostrophe issue
 }
 }
 		

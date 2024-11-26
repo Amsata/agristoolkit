@@ -13,8 +13,8 @@ F generateODTbyGeo.ado
 F generateODTbyGeo.sthlp
 F generateODTpar.ado
 F generateODTpar.sthlp
-F generateODTparByGeo.ado
-F generateODTparByGeo.sthlp
+F generateOpenDataTable.ado
+F generateOpenDataTable.sthlp
 F mat_to_ds.ado
 F setup_anonymization.ado
 F setup_anonymization.sthlp
