@@ -1,21 +1,21 @@
 {smcl}
-{* *! version 1.0 23 Nov 2024}{...}
+{* *! version 1.0 26 Nov 2024}{...}
 {vieweralsosee "" "--"}{...}
 {vieweralsosee "Install command2" "ssc install command2"}{...}
 {vieweralsosee "Help command2 (if installed)" "help command2"}{...}
-{viewerjumpto "Syntax" "generateODTpar##syntax"}{...}
-{viewerjumpto "Description" "generateODTpar##description"}{...}
-{viewerjumpto "Options" "generateODTpar##options"}{...}
-{viewerjumpto "Remarks" "generateODTpar##remarks"}{...}
-{viewerjumpto "Examples" "generateODTpar##examples"}{...}
+{viewerjumpto "Syntax" "generateODTPar##syntax"}{...}
+{viewerjumpto "Description" "generateODTPar##description"}{...}
+{viewerjumpto "Options" "generateODTPar##options"}{...}
+{viewerjumpto "Remarks" "generateODTPar##remarks"}{...}
+{viewerjumpto "Examples" "generateODTPar##examples"}{...}
 {title:Title}
 {phang}
-{bf:generateODTpar} {hline 2} a command to setup working directory and necessary files and folder for anonymization
+{bf:generateODTPar} {hline 2} a command to setup working directory and necessary files and folder for anonymization
 
 {marker syntax}{...}
 {title:Syntax}
 {p 8 17 2}
-{cmdab:generateODTpar}
+{cmdab:generateODTPar}
 varlist
 [{cmd:,}
 {it:options}]
@@ -26,13 +26,13 @@ varlist
 
 {syntab:Required }
 
+{synopt:{opt marginlab:els(string asis)}}  specify the labels of margins of variables in varlist. {p_end}
+
 {synopt:{opt param:eter(string)}}  parameter to be estimated in the domains (total, mean or ratio). {p_end}
 
 {synopt:{opt var:iable(string asis)}}  variable the value of which will be used to generate the specified parameter in 'parameter'. {p_end}
 
 {syntab:Optional}
-{synopt:{opt marginlab:els(string asis)}} specify the labels of margins of variables in varlist.
-
 {synopt:{opt conditionals(string asis)}} eliminate tuples (of dimensions in varlist) according to specified conditions.
 
 {synopt:{opt :svySE(string)}}  
@@ -60,13 +60,13 @@ varlist
 {dlgtab:Main}
 
 {phang}
+{opt marginlab:els(string asis)} specify the labels of margins of variables in varlist.
+
+{phang}
 {opt param:eter(string)} parameter to be estimated in the domains (total, mean or ratio).
 
 {phang}
 {opt var:iable(string asis)} variable the value of which will be used to generate the specified parameter in 'parameter'.
-
-{phang}
-{opt marginlab:els(string asis)} specify the labels of margins of variables in varlist.
 
 {phang}
 {opt conditionals(string asis)} eliminate tuples (of dimensions in varlist) according to specified conditions.

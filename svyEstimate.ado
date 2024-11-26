@@ -1,69 +1,4 @@
-/* START HELP FILE
-title[a command to setup working directory and necessary files and folder for anonymization]
 
-desc[
- {cmd:generateODT} generate multi-dimentional statisticial tables destined to open Data Africa plateform
- or for other potential use.
-] 
-
-opt[varlist() list of of variables (domains) over which estimates will be creatd.]
-opt[marginlabels() specify the labels of margins of variables in varlist.]
-opt[parameter() parameter to be estimated in the domains (total, mean or ratio).]
-opt[variable() variable the value of which will be used to generate the specified parameter in 'parameter'.]
-opt[conditionals() eliminate tuples (of dimensions in varlist) according to specified conditions.]
-opt[indicatorname() a comprehensive and informative label of the indicator generated with variables specified in 'variable'.]
-opt[units() units of the parameter generated with variable in 'variable'.]
-opt[svySE() units of the parameter generated with variable in 'variable'.]
-opt[subpop() {cmd:(}[{varname}] [{it:{help if}}]{cmd:)}}identify a subpopulation]
-
-
-
-opt2[varlist() list of of variables (domains) over which estimates will be creatd.]
-opt2[marginlabels() specify the labels of margins of variables in varlist.]
-opt2[parameter() parameter to be estimated in the domains (total, mean or ratio).]
-opt2[variable() variable the value of which will be used to generate the specified parameter in 'parameter'.]
-opt2[conditionals() eliminate tuples (of dimensions in varlist) according to specified conditions.]
-opt2[indicatorname() a comprehensive and informative label of the indicator generated with variables specified in 'variable'.]
-opt2[units() units of the parameter generated with variable in 'variable'.]
-opt2[svySE() units of the parameter generated with variable in 'variable'.]
-opt2[subpop() {cmd:(}[{varname}] [{it:{help if}}]{cmd:)}}identify a subpopulation	]
-
-
-example[
- {stata generateODT Region sex ,marginlabels("All households" "Wakanda") param("ratio") var((I3_n/I3_d)) ///
-	indicatorname("Women entrepreneurship index") ///
-	units("")}
-	
-	 {stata generateODT Region sex ,marginlabels("All households" "Wakanda") param("mean") var(hh_member) ///
-	indicatorname("Average households size") ///
-	units("people")}
-	
-		 {stata generateODT Region sex ,marginlabels("All households" "Wakanda") param("total") var(production) ///
-	indicatorname("Crop production") ///
-	units("MT")}
- ]
- 
- 
-author[Amsata Niang]
-institute[Food and Agriculture Organization of the United Nations FAO]
-email[amsata_niang@yahoo.fr]
-
-
-freetext[
-
-]
-
-references[
-
-]
-
-seealso[
-
-]
-
-END HELP FILE */
-
-*capture program drop svyEstimate
 program define svyEstimate
 		
 	syntax [varlist] ,PARAMeter(string) VARiable(string asis) ///
@@ -106,31 +41,39 @@ program define svyEstimate
 		mat_to_ds CV
 		*renaming the variable to CV
 		unab all_vars: *
-		rename `:word 1 of `all_vars'' CV // or word(`all_vars', 1)
+		rename `:word 1 of `all_vars'' CV_pct // or word(`all_vars', 1)
 		merge 1:1 rownames using `res_estimation', nogen
 		merge 1:1 rownames using `dataset_n_obs', nogen
 		merge 1:1 rownames using `dataset_N_subpop', nogen
-
-		*break 498
-		**************************************************************************
-		*** Extract correct dimension name and merging with sample frequencies (possible from Stata 17 ***
-		*************************************************************************
-		if("`alldim'"!="yes") {
-		split rownames, p(@)
-		capture drop Indicator
-		rename rownames1 Indicator
-		replace Indicator= regexr(Indicator, "^c.", "")
-		rename rownames2 dimension
-		split dimension, p(#)
-		local c : word count `varlist'
-		forvalues i=1/`c' {
+		if("`parameter'"=="ratio") replace rownames = regexr(rownames, "^[^@]+", "`variable'")
+		
+		if ("`alldim'"!="yes") {
+		   split rownames, p(@)
+			capture drop Indicator
+			rename rownames1 Indicator
+			replace Indicator= regexr(Indicator, "^co.", "")
+			replace Indicator= regexr(Indicator, "^c.", "")
+			rename rownames2 dimension
+			split dimension, p(#)
+			local c : word count `varlist'
+			forvalues i=1/`c' {
 			local v "`:word `i' of `varlist''"
 			rename dimension`i' `v'
 			replace `v' = regexs(1) if regexm(`v', "([0-9]+)")
 			cap destring `v', replace
-		}
-		drop dimension
-		}
+			}
+			drop dimension 
+			*drop rownames
+	}
+	else {
+		gen Indicator=rownames
+	}
+		*break 498
+		**************************************************************************
+		*** Extract correct dimension name and merging with sample frequencies (possible from Stata 17 ***
+		*************************************************************************
+		
+		
 		} //quietly
 	
 end

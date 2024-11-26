@@ -1,7 +1,6 @@
 
-
+capture program drop svyParallel
 program svyParallel
-
 args varlist variable parameter 
 
 	*tuples `varlist' // for looping over all dimensions

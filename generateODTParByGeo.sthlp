@@ -1,22 +1,22 @@
 {smcl}
-{* *! version 1.0 24 Nov 2024}{...}
+{* *! version 1.0 26 Nov 2024}{...}
 {vieweralsosee "" "--"}{...}
 {vieweralsosee "Install command2" "ssc install command2"}{...}
 {vieweralsosee "Help command2 (if installed)" "help command2"}{...}
-{viewerjumpto "Syntax" "svyEstimate##syntax"}{...}
-{viewerjumpto "Description" "svyEstimate##description"}{...}
-{viewerjumpto "Options" "svyEstimate##options"}{...}
-{viewerjumpto "Remarks" "svyEstimate##remarks"}{...}
-{viewerjumpto "Examples" "svyEstimate##examples"}{...}
+{viewerjumpto "Syntax" "generateODTParByGeo##syntax"}{...}
+{viewerjumpto "Description" "generateODTParByGeo##description"}{...}
+{viewerjumpto "Options" "generateODTParByGeo##options"}{...}
+{viewerjumpto "Remarks" "generateODTParByGeo##remarks"}{...}
+{viewerjumpto "Examples" "generateODTParByGeo##examples"}{...}
 {title:Title}
 {phang}
-{bf:svyEstimate} {hline 2} a command to setup working directory and necessary files and folder for anonymization
+{bf:generateODTParByGeo} {hline 2} a command to setup working directory and necessary files and folder for anonymization
 
 {marker syntax}{...}
 {title:Syntax}
 {p 8 17 2}
-{cmdab:svyEstimate}
-[{help varlist}]
+{cmdab:generateODTParByGeo}
+varlist
 [{cmd:,}
 {it:options}]
 
@@ -26,18 +26,26 @@
 
 {syntab:Required }
 
-{synopt:{opt param:eter(string)}}  parameter to be estimated in the domains (total, mean or ratio). {p_end}
+{synopt:{opt marginlabels(string asis)}}  specify the labels of margins of variables in varlist. {p_end}
+
+{synopt:{opt param:eter(string asis)}}  parameter to be estimated in the domains (total, mean or ratio). {p_end}
 
 {synopt:{opt var:iable(string asis)}}  variable the value of which will be used to generate the specified parameter in 'parameter'. {p_end}
 
 {syntab:Optional}
+{synopt:{opt hiergeovars(string asis)}}  
+
+{synopt:{opt geovarmarginlab(string asis)}}  
+
 {synopt:{opt conditionals(string asis)}} eliminate tuples (of dimensions in varlist) according to specified conditions.
 
 {synopt:{opt :svySE(string)}}  
 
 {synopt:{opt subpop(string asis)}} {cmd:(}[{varname}
 
-{synopt:{opt alldim(string asis)}}  
+{synopt:{opt unit:s(string asis)}} units of the parameter generated with variable in 'variable'.
+
+{synopt:{opt indicator:name(string asis)}} a comprehensive and informative label of the indicator generated with variables specified in 'variable'.
 
 {synoptline}
 {p2colreset}{...}
@@ -56,10 +64,19 @@
 {dlgtab:Main}
 
 {phang}
-{opt param:eter(string)} parameter to be estimated in the domains (total, mean or ratio).
+{opt marginlabels(string asis)} specify the labels of margins of variables in varlist.
+
+{phang}
+{opt param:eter(string asis)} parameter to be estimated in the domains (total, mean or ratio).
 
 {phang}
 {opt var:iable(string asis)} variable the value of which will be used to generate the specified parameter in 'parameter'.
+
+{phang}
+{opt hiergeovars(string asis)}  
+
+{phang}
+{opt geovarmarginlab(string asis)}  
 
 {phang}
 {opt conditionals(string asis)} eliminate tuples (of dimensions in varlist) according to specified conditions.
@@ -71,7 +88,10 @@
 {opt subpop(string asis)} {cmd:(}[{varname}
 
 {phang}
-{opt alldim(string asis)}  
+{opt unit:s(string asis)} units of the parameter generated with variable in 'variable'.
+
+{phang}
+{opt indicator:name(string asis)} a comprehensive and informative label of the indicator generated with variables specified in 'variable'.
 
 
 
