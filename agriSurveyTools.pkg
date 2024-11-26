@@ -1,7 +1,7 @@
 v 0
-d 'AGRISURVEYTOOLS': processing, analysing, disseminating survey data
+d 'AGRISURVEYTOOLS': Data processing, analysis and dissemination
 d 
-d processing, analysing, disseminating survey data
+d Data processing, analysis and dissemination
 d 
 d Distribution-Date:   20241126
 d License: MIT
@@ -9,14 +9,15 @@ d
 F consistencyCheck.ado
 F generateODT.ado
 F generateODT.sthlp
+F generateODTPar.sthlp
+F generateODTParByGeo.ado
+F generateODTParByGeo.sthlp
 F generateODTbyGeo.ado
 F generateODTbyGeo.sthlp
 F generateODTpar.ado
-F generateODTpar.sthlp
 F mat_to_ds.ado
 F setup_anonymization.ado
 F setup_anonymization.sthlp
 F svyEstimate.ado
 F svyParallel.ado
 F svyParallelGeo.ado
-f testdst.dta

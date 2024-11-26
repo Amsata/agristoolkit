@@ -38,19 +38,19 @@ if (`pos'!=0) {
 	****************************************************************************
 	cap which elabel
 	if _rc {
-		display "The elabel package is required. Please install it by running: ssc install elabel"
+		di as error "The elabel package is required. Please install it by running: ssc install elabel"
 		exit 1
 	}
 
 	cap which tuples
 	if _rc {
-		display "The tuples package is required. Please install it by running: ssc install elabel"
+		di as error "The tuples package is required. Please install it by running: ssc install elabel"
 		exit 1
 	}
 	
 	cap which parallel
 	if _rc {
-		display "The parallel package is required. Please install it by running: ssc install elabel"
+		di as error "The parallel package is required. Please install it by running: ssc install elabel"
 		exit 1
 	}
 		
@@ -71,7 +71,7 @@ if (`pos'!=0) {
 	local n_variable: list sizeof variable
 	
 	if (`n_marginlabels'!=`n_varlist') {
-		di"The options varlist (`n_varlist' elements) and marginlabels (`n_marginlabels' element) should have the same number of elements"
+		di as error "The options varlist (`n_varlist' elements) and marginlabels (`n_marginlabels' element) should have the same number of elements"
 		exit 498 // or any error code you want to return
 	}
 

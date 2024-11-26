@@ -1,12 +1,12 @@
 _v. 0_  
 
-`agriSUrveyTools` : processing, analysing, disseminating survey data
-====================================================================
+`agriSurveyTools` : Data processing, analysis and dissemination
+===============================================================
 
 Description
 -----------
 
-processing, analysing, disseminating survey data
+Data processing, analysis and dissemination
 
 ### License
 MIT
