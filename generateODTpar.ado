@@ -65,14 +65,26 @@ END HELP FILE */
 
 *capture program drop generateODTPar
 
-
-
+*cap program drop generateODTPar
 program define generateODTPar
 		
 	syntax varlist ,MARGINLABels(string asis) PARAMeter(string) VARiable(string asis) ///
 	[conditionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) ]
 	
 	
+	
+	
+	quietly consistencyCheck `varlist' ,marginlabels(`marginlabels') param(`parameter') var(`variable') conditionals(`conditionals') indicator(`indicatorname') units(`units')
+
+	* TO DO
+		* Control if parallel is setup
+		* take into account subpo
+		* take into account vctype is svy
+		*take into account conditionals
+		*control existence of variable in case ratio is specify like rat:var1/var2
+		
+		
+/*	
 	****************************************************************************
 	********************* Checking dependancies*********************************
 	****************************************************************************
@@ -175,66 +187,17 @@ program define generateODTPar
 		
 	}
 	
-	
-
-program svyParallel
-
-args varlist variable parameter
-
-	*tuples `varlist' // for looping over all dimensions
-    local si: list sizeof variable
-	local s_varlist: list sizeof varlist
-	
-	if(`s_varlist'==0) {
-		local alldim "yes"
-		local ntuples 1
-	}
-	else {
-		local alldim "no"
-		*if ("`conditionals'"=="") {
-		tuples `varlist' 
-	*}
-	*else{
-	*	tuples `varlist', conditionals(`conditionals') 
-	*}
-	
-	} 
-
-	forvalues i=1/`si' {
-		forvalues j=1/`ntuples' {
-			*tuples `varlist'
-			if("`alldim'"=="no") local tuple "`tuple`j''" 
-			else local tuple "`varlist'"
-			local var "`:word `i' of `variable''"
-
-			*local core = mod(`j' - 1, $PLL_CLUSTERS) + 1
-			if(`ntuples'>=`si') local core = mod(`j' - 1, $PLL_CLUSTERS) + 1
-			else local core = mod(`i' - 1, $PLL_CLUSTERS) + 1
-			
-		if($pll_instance == `core') {
-		m: parallel_sandbox(5)  
-
-		use "$temp_file", clear
-
-		
-		************************************************************************
-		*****check if there are hierarchical structure between 2 variables******
-		************************************************************************	
-			quietly svyEstimate `tuple' , param(`parameter') var(`var') alldim(`alldim')
-
-		save __pll_`parallelid'_$pll_instance.dta, replace
-		*append using `odp_tab', force
-		*save `odp_tab', replace
-		*restore // restore the iniial dataset for the continuation of the loop on tuples
-		}
-	}
-	}	
-end
-	
+*/	
 tempfile tmp_data_odt
 save `tmp_data_odt', replace
 global temp_file "`tmp_data_odt'"
 
+findfile svyParallel.ado
+return list
+local mypath "`r(fn)'"
+run `mypath'
+
+preserve
 
 parallel, prog(svyParallel)  setparallelid(`parallelid') keep nodata: svyParallel "`varlist'" "`variable'" "`parameter'"
 ls __pll*.dta	
@@ -252,9 +215,71 @@ foreach file of local files {
     }
 }
 
-/*		
-	quietly {
-	*After the loop on tuples, odp_tab contain the results of all dimention combination
+tempfile dataset_dims
+save `dataset_dims',  replace
+
+
+ qui parallel clean, e($LAST_PLL_ID) force
+mata: parallel_sandbox(2, "`parallelid'")
+ parallel clean, all force 
+ 
+restore
+
+preserve 
+
+findfile svyParallel.ado
+return list
+local mypath "`r(fn)'"
+run `mypath'
+parallel, prog(svyParallel)  setparallelid(`parallelid') keep nodata: svyParallel "" "`variable'" "`parameter'"
+ls __pll*.dta	
+
+local files: dir . files "__pll_*.dta"
+* Step 2: Load the first dataset
+use `: word 1 of `files'', clear
+* Step 3: Loop through the remaining datasets and append them
+foreach file of local files {
+    * Skip the first file since it's already loaded
+    if "`file'" != "`: word 1 of `files''" {
+        append using `file'
+    }
+}
+
+tempfile dataset_alldims
+save `dataset_alldims',  replace
+append using `dataset_dims'
+
+
+ qui parallel clean, e($LAST_PLL_ID) force
+mata: parallel_sandbox(2, "`parallelid'")
+ parallel clean, all force 
+ /*
+	split rownames, p(@)
+	capture drop Indicator
+	rename rownames1 Indicator
+	replace Indicator= regexr(Indicator, "^co.", "")
+	replace Indicator= regexr(Indicator, "^c.", "")
+	rename rownames2 dimension
+	split dimension, p(#)
+	local c : word count `varlist'
+	forvalues i=1/`c' {
+	local v "`:word `i' of `varlist''"
+	rename dimension`i' `v'
+	replace `v' = regexs(1) if regexm(`v', "([0-9]+)")
+	cap destring `v', replace
+	}
+	drop dimension 
+	*drop rownames
+*/	
+	order `varlist' Indicator b n_Obs N_subPop CV 
+	
+	
+	tempfile final_dataset
+	
+	save `final_dataset', replace
+	restore
+		
+	*quietly {
 	*Extracting variable labels
 	foreach v of local varlist {	
 	*Exploring labelsof command would reduce this number of line
@@ -283,31 +308,8 @@ foreach file of local files {
 	// store them in a temporary do-file
 	label save using `dolabs'
 	*Adding dimension combination labels in the sample frequency dataset
-	use `sample_n', clear
-	run `dolabs'
-	local c: word count `varlist'
-	forvalues i=1/`c' {
-			cap label list ld_`:word `i' of `varlist''
-			return list
-			local n_lev=`r(max)'
-		if (`"`:word `i' of `marginlabels''"'!="") {
-			di "TEST ONE `n_lev'"
-			gen `:word `i' of `varlist''_bis=int(`:word `i' of `varlist'')
-			drop `:word `i' of `varlist''
-			
-			rename `:word `i' of `varlist''_bis `:word `i' of `varlist''
-			replace `:word `i' of `varlist''=`n_lev' if `:word `i' of `varlist''==.
-		} 
-		else {	
-			di "TEST TWO"
-			drop if `:word `i' of `varlist''==.
-		}
-		
-		label values `:word `i' of `varlist'' ld_`:word `i' of `varlist''
-	}
-	save `sample_n', replace
-	
-	use `odp_tab', clear	
+	use `final_dataset', clear
+
 	// get the value labels
 	run `dolabs'
 	*see https://www.statalist.org/forums/forum/general-stata-discussion/general/251350-how-can-i-apply-value-labels-stored-in-different-dataset-into-my-primary-data
@@ -327,68 +329,72 @@ foreach file of local files {
 	foreach v of local varlist {
 		label values `v' ld_`v'		
 	}
+	
 	***********************************************
 	*** Create IndicatorName and Unit variables ***
 	***********************************************
 	*correction for ration
-		local c: word count `variable'
-		
-		forvalues i=1/`c' {
-			di "`:word `i' of `variable''"
-		replace Indicator= "`:word `i' of `variable''" if Indicator=="_ratio_`i'"
-		}
-		
-		
-	merge m:1 `varlist' Indicator using `sample_n'
+
 	
 	gen Parameter="`parameter'"
-	sort Indicator `varlist'
 	rename Indicator Variable
-	rename sample_n sample_freq
-	rename CV coef_variation
-	rename se standard_err
-	rename ll conf_int_ll
-	rename ul conf_int_ul
+	rename se standError
+	rename ll LL_confInt
+	rename ul UL_confInt
 	rename b Value
-	
-	* keep only dimensions where frequency exists
-	drop if sample_freq==.
-	
-	order `varlist' Variable Parameter  Value  sample_freq
 
+	
+	order `varlist' Variable Parameter  Value 
+	
+		*correction for ration
+		local c: word count `variable'
+	/*	
+		forvalues i=1/`c' {
+			di "`:word `i' of `variable''"
+		replace Variable= "`:word `i' of `variable''" if Variable=="_ratio_`i'"
+		}
+*/		
 	******************************************************************************
 	****** ADDING units if specicied**********************************************
 	******************************************************************************
-		local n_units: list sizeof units
+	local n_units: list sizeof units
+	local n_variable: list sizeof variable 
 
 	if (`n_units'!=0) {
+		
+		/* checking displaced in consistency check
 		if (`n_units'!=`n_variable') {
 			display as error "The options units and variable should have the same number of elements"
 			exit 498 // or any error code you want to return
 		}
-				
+	*/			
 		gen Unit=""
 		forvalues i=1/`c' {
 			replace Unit = "`:word `i' of `units''" if Variable=="`:word `i' of `variable''"
 		}
-			order `varlist' Variable Parameter  Value  Unit sample_freq
+			order `varlist' Variable Parameter  Value  Unit 
+			quietly replace Value=Value*100 if Unit=="%"
+	 quietly replace LL_confInt=LL_confInt*100 if Unit=="%"
+	 quietly replace UL_confInt=UL_confInt*100 if Unit=="%"
 
-	}
-	
-	*************************Unit***********************************************************
+	}	
 	
 	
+	 
+
+
 	***************************************************************************************
 	*** Adding indicator label if specified************************************************
 	***************************************************************************************
 	local n_indicatorname: list sizeof indicatorname
 	if (`n_indicatorname'!=0) {
+		/* 
 	local c: word count `variable'
 	if (`n_indicatorname'!=`n_variable') {
 		display as error "The options indicatorname and variable should have the same number of elements"
 		exit 498 // or any error code you want to return
 	}
-				
+*/ 				
 	gen IndicatorName=""
 	local c: word count `variable'
 	forvalues i=1/`c' {
@@ -396,38 +402,40 @@ foreach file of local files {
 		*cap replace IndicatorName = ustrregexra( IndicatorName ,`""   '"',"")  //issue de la gestion des apostrophes comme d'une... NB: ne pas mettre " das les labels
 		*cap replace IndicatorName = ustrregexra( IndicatorName ,"  '","") //issue de la gestion des apostrophes comme d'une...
 	}
-			order `varlist' Variable Parameter IndicatorName Value Unit sample_freq
+			order `varlist' Variable Parameter IndicatorName Value Unit 
 			cap replace IndicatorName = ustrregexra( IndicatorName ,"&","'")
 
 
 	}
 	
+	sort Variable 
 	
-	} // quietly
+	*} // quietly
 	
 	********************************************************
 	*************** formating indicator for ratio **********
 	********************************************************
-/*
 	if("`parameter'"=="ratio") {
 		
 		foreach v of local variable {
-		local var_2 = subinstr("`v'", "(", "", .)
-		local var_2 = subinstr("`var_2'", "_d)", "", .)
-		local pos = strpos("`var_2'", "/")
-		local denominator = substr("`var_2'", `pos'+1, .)
-		local numerator = substr("`var_2'", 1, `pos'-1)
+		local pos = strpos("`v'", "/")
+		local denominator = substr("`v'", `pos'+1, .)
+		local numerator = substr("`v'", 1, `pos'-1)
 		local numerator = subinstr("`numerator'", "_n", "", .)
+		local numerator = subinstr("`numerator'", "(", "", .)
+		local denominator = subinstr("`denominator'", "_d)", "", .)
+		*local denominator = subinstr("`denominator'", ")", "", .)
+*regexr(rownames, "^[^@]+", "variable")
 		
 		if ("`numerator'"=="`denominator'") { // if the ratio formula is in the form (ind2_n/ind2_d)
-			replace Indicator="`numerator'" if Indicator== "`v'"
+			replace Variable="`numerator'" if Variable== "`v'"
 		}
 	}
 
 	}
-*/
 
-*/
+
+
 end
 
 *include controle in case of hierarchical geographic variable, indication=> to many zero/missing value in sample frequencies

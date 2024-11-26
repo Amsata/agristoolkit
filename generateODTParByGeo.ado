@@ -65,7 +65,7 @@ END HELP FILE */
 
 *capture program drop generateODTPar
 
-cap program drop generateODTParByGeo
+*cap program drop generateODTParByGeo
 program define generateODTParByGeo
 		
 
