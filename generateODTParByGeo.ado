@@ -275,7 +275,9 @@ forvalues i=1/`n_geovar' {
 	else replace geoVar="`:word `i' of `geovarmarginlab''" if geoVar=="" & geoType=="`:word `i' of `hiergeovars''"
 }
 
-*replace geoType="`:word 1 of `geovarmarginlab''" if geoType==""
+replace geoType="`:word 1 of `geovarmarginlab''" if geoType==""
+replace geoVar="`:word 1 of `geovarmarginlab''" if geoVar==""
+
 	}
 	
 	***********************************************

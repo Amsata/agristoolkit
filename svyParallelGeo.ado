@@ -1,6 +1,5 @@
 
 cap program drop svyParallelGeo
-
 program svyParallelGeo
 
 args varlist hiergeovars variable parameter 
