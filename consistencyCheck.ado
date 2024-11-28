@@ -2,19 +2,19 @@
 cap program drop consistencyCheck
 program define consistencyCheck
 		
-	syntax varlist ,MARGINLABels(string asis) PARAMeter(string) VARiable(string asis) ///
-	[conditionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) ]
+	syntax [varlist(default=none)] , PARAMeter(string) VARiable(string asis) ///
+	[hiergeovars(string asis) MARGINLABels(string asis) conditionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) ]
 	
 	* TO DO
 		* take into account subpo
 		* take into account vctype is svy
 		*take into account conditionals
 		*control existence of variable in case ratio is specify like rat:var1/var2	
-		*detecter eventuel apostrophe sur les indicateur et signaler
 		
 	  /* Checking whereas parallel has been config */ 
         if length("$PLL_CLUSTERS") == 0 {
-                di "{error:You haven't set the number of clusters}" _n "{error:Please set it with: {cmd:parallel setclusters} {it:#}}"
+                display as error  "Error: You haven't set the number of clusters" 
+				display as error  "Error:Please set it with: {cmd:parallel setclusters} {it:#}" _newline
                 exit 198
         }
 
@@ -24,10 +24,10 @@ foreach ind of local indicatorname {
 	
 local pos = strpos("`ind'", "'")
 if (`pos'!=0) {	
-	local userInput = subinstr("`ind'", "'", "@", .)
-	display as error "Aspostrophe (') in indicator name (`ind') can cause computation issues" 
-	di as error "We suggest replacing them by @ and the final result we will replace @ by apostrophe" _newline
-	di as error "your imput should be '`userInput'' and the output without your intervention will be '`ind'' " _newline
+	local userInput = subinstr("`ind'", "'", "&", .)
+	display as error "Error: Aspostrophe ({cmd:'}) in indicator name ({cmd:`ind'}) can cause computation issues" 
+	di as error "We suggest replacing them by {cmd:&} and the final result we will replace {cmd:&} by {cmd:'}" _newline
+	di as error "your imput should be '{result:`userInput'}' and the output without your intervention will be {result:'`ind''} " _newline
 	exit 498
 	* https://www.stata.com/statalist/archive/2012-08/msg00924.html
 	*explore answers here to solve the apostrophe issue
@@ -40,19 +40,19 @@ if (`pos'!=0) {
 	****************************************************************************
 	cap which elabel
 	if _rc {
-		di as error "The elabel package is required. Please install it by running: ssc install elabel"
+		di as error "Error: The elabel package is required. Please install it by running: ssc install elabel"
 		exit 1
 	}
 
 	cap which tuples
 	if _rc {
-		di as error "The tuples package is required. Please install it by running: ssc install elabel"
+		di as error "Error: The tuples package is required. Please install it by running: ssc install elabel"
 		exit 1
 	}
 	
 	cap which parallel
 	if _rc {
-		di as error "The parallel package is required. Please install it by running: ssc install elabel"
+		di as error "Error:The parallel package is required. Please install it by running: ssc install elabel"
 		exit 1
 	}
 		
@@ -62,7 +62,7 @@ if (`pos'!=0) {
 	local dup_var: list dups variable
 	local size_dup_var: list sizeof dup_var
 	if (`size_dup_var'>0) {
-		display as error "There are duplicated variables in the option variable(`variable')"
+		display as error "Error: There are duplicated variables in the option variable(`variable')"
 		exit 498 // or any error code you want to return
 	}
 	***************************************************
@@ -71,9 +71,17 @@ if (`pos'!=0) {
 	local n_varlist: list sizeof varlist
 	local n_marginlabels: list sizeof marginlabels
 	local n_variable: list sizeof variable
+	local n_geovar: list sizeof hiergeovars
+
+	
+	if(`n_varlist'==0 & `n_geovar'==0) {
+		
+		display as error "The options {cmd:varlist} and {cmd:hiergeovars} cannot be both empty!"
+		exit 498
+	}
 	
 	if (`n_marginlabels'!=`n_varlist') {
-		di as error "The options varlist (`n_varlist' elements) and marginlabels (`n_marginlabels' element) should have the same number of elements"
+		di as error "Error: The options varlist (`n_varlist' elements) and marginlabels (`n_marginlabels' element) should have the same number of elements"
 		exit 498 // or any error code you want to return
 	}
 
@@ -84,7 +92,7 @@ if (`pos'!=0) {
 		count if missing(`v')
 		return list
 		if (`r(N)'>0) {
-			display as error "The dimension `v' should not contain missing values"
+			display as error "Error: The dimension `v' should not contain missing values"
 			exit 498 // or any error code you want to return
 		}
 	}
@@ -94,7 +102,7 @@ if (`pos'!=0) {
 	local input_in_par: list posof `"`parameter'"' in par
 	
 	if (`n_par'!=1 | `input_in_par'==0) {
-		display as error "argument 'parameter(`parameter')' must be either 'parameter(total)', 'parameter(mean)' or 'parameter(ratio)'"
+		display as error "Error: argument 'parameter(`parameter')' must be either 'parameter(total)', 'parameter(mean)' or 'parameter(ratio)'"
 		exit 498 // or any error code you want to return
 	}
 
@@ -106,13 +114,13 @@ if (`pos'!=0) {
 			
 		local pos_par = strpos("`v'", "(")
 		if (`pos_par'==0) {
-			display as error "Please enclose the ratio formula between parenthesis like (V1/V2) in `v'" 
+			display as error "Error: Please enclose the ratio formula between parenthesis like (V1/V2) in `v'" 
 			exit 498
 			}
 			
 		local pos_par = strpos("`v'", ")")
 		if (`pos_par'==0) {
-			display as error "Closing parenthesis missing in `v'"
+			display as error "Error: Closing parenthesis missing in `v'"
 			exit 498
 			}
 		*Removing parenthesis
@@ -122,7 +130,7 @@ if (`pos'!=0) {
 		local pos = strpos("`var_2'", "/")
 		*control if pos==0: invalid specification
 		if (`pos'==0) {
-			display as error "Invalid specification in `v' for ratio estimation. '/' missing"
+			display as error "Error: Invalid specification in `v' for ratio estimation. '/' missing"
 			exit 498
 			}
 			
@@ -131,12 +139,12 @@ if (`pos'!=0) {
 		local numerator = substr("`var_2'", 1, `pos'-1)
 		cap confirm variable `numerator', exact
 		if _rc {
-			display as error "variable `numerator' (in `v') not found"
+			display as error "Error: variable `numerator' (in `v') not found"
 			exit 498
 			}
 		cap confirm variable `denominator', exact
 		if _rc {
-			display as error "variable `denominator' (in `v') not found"
+			display as error "Error: variable `denominator' (in `v') not found"
 			exit 498
 			}
 		}
@@ -150,7 +158,7 @@ if (`pos'!=0) {
 	local n_indicatorname: list sizeof indicatorname
 if (`n_indicatorname'!=0) {
 	if (`n_indicatorname'!=`n_variable') {
-		display as error "The options indicatorname and variable should have the same number of elements"
+		display as error "Error: The options indicatorname and variable should have the same number of elements"
 		exit 498 // or any error code you want to return
 	} 				
 }
@@ -164,7 +172,7 @@ if (`n_indicatorname'!=0) {
 
 	if (`n_units'!=0) {
 		if (`n_units'!=`n_variable') {
-			display as error "The options units and variable should have the same number of elements"
+			display as error "Error: The options units and variable should have the same number of elements"
 			exit 498 // or any error code you want to return
 		}
 	}	

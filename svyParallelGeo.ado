@@ -3,7 +3,6 @@ cap program drop svyParallelGeo
 program svyParallelGeo
 
 args varlist hiergeovars variable parameter 
-
 	*tuples `varlist' // for looping over all dimensions
     local si: list sizeof variable
 	local s_varlist: list sizeof varlist
@@ -18,23 +17,18 @@ args varlist hiergeovars variable parameter
 	}
 	else {
 		local alldim "no"
-		*if ("`conditionals'"=="") {
-		local new_varlist "`:word `i' of `hiergeovars'' `varlist'"
-		tuples `varlist' 
-	*}
-	*else{
-	*	tuples `varlist', conditionals(`conditionals') 
-	*}
+	}
 	
-	*labels
-	
-	
-	
-	} 
 forvalues k=1/`s_geovars' {	
 	*if ("`conditionals'"=="") {
-		local new_varlist "`:word `k' of `hiergeovars'' `varlist'"
+		if(`s_varlist'==0) {
+			local new_varlist "`:word `k' of `hiergeovars''"
 		tuples `new_varlist' 
+		}
+		else {
+			local new_varlist "`:word `k' of `hiergeovars'' `varlist'"
+		tuples `new_varlist' 
+		}
 	*}
 	*else{
 	*	tuples `varlist', conditionals(`conditionals') 

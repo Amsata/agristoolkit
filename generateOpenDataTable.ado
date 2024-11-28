@@ -64,15 +64,16 @@ seealso[
 END HELP FILE */
 
 
-*cap program drop generateOpenDataTable
+cap program drop generateOpenDataTable
 program define generateOpenDataTable
 		
 
- syntax varlist ,marginlabels(string asis)  PARAMeter(string asis) ///
- VARiable(string asis) [hiergeovars(string asis) geovarmarginlab(string asis) ///
+ syntax [varlist(default=none)] , PARAMeter(string asis) ///
+ VARiable(string asis) [marginlabels(string asis) hiergeovars(string asis) geovarmarginlab(string asis) ///
  conditionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) ]
  
  local n_geovar: list sizeof hiergeovars
+  local n_varlist: list sizeof varlist
  local n_geovarmarginlab: list sizeof geovarmarginlab
 
  if(`n_geovarmarginlab'!=0 & `n_geovarmarginlab'>1) {
@@ -88,6 +89,10 @@ program define generateOpenDataTable
  
  foreach v of local hiergeovars {
 	local pos: list posof "`v'" in varlist
+	
+	di"`varlist'"
+	di "`pos'"
+	di"`v'"
 	if (`n_geovar'!=0 & `pos'>0) {
 		display as error "The variable `v' should be excluded from varlist"
 		exit 498
@@ -142,8 +147,8 @@ else {
 	return list
 	local mypath "`r(fn)'"
 	run `mypath'	
-	local parameter: list clean parameter
-	parallel, prog(svyParallelGeo)  setparallelid(`parallelid') keep nodata: svyParallelGeo "`varlist'" "`hiergeovars'" "`variable'" "`parameter'"
+	local parameter: list clean parameter	
+			parallel, prog(svyParallelGeo)  setparallelid(`parallelid') keep nodata: svyParallelGeo "" "`hiergeovars'" "`variable'" "`parameter'"
 }
 
 *ls __pll*.dta	
