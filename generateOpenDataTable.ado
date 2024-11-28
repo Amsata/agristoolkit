@@ -321,9 +321,9 @@ replace geoVar="`:word 1 of `geovarmarginlab''" if geoVar==""
 			replace Unit = "`:word `i' of `units''" if Variable=="`:word `i' of `variable''"
 		}
 			order `final_varlist' Variable Parameter  Value  Unit 
-			quietly replace Value=Value*100 if Unit=="%"
-	 quietly replace LL_confInt=LL_confInt*100 if Unit=="%"
-	 quietly replace UL_confInt=UL_confInt*100 if Unit=="%"
+	 *quietly replace Value=Value*100 if Unit=="%"
+	 *quietly replace LL_confInt=LL_confInt*100 if Unit=="%"
+	 *quietly replace UL_confInt=UL_confInt*100 if Unit=="%"
 
 	}	
 	
