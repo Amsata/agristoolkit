@@ -100,7 +100,7 @@ program define generateOpenDataTable
  }
  
 *if (`n_geovar'==0 ) {
-	quietly consistencyCheck `varlist' ,marginlabels(`marginlabels') param(`parameter') var(`variable') conditionals(`conditionals') indicator(`indicatorname') units(`units')
+	quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param(`parameter') hiergeovars(`hiergeovars') var(`variable') conditionals(`conditionals') indicator(`indicatorname') units(`units')
 *}
 *else {	
 /*	
