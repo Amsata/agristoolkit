@@ -3,20 +3,14 @@ cap program drop consistencyCheck
 program define consistencyCheck
 		
 	syntax [varlist(default=none)] , PARAMeter(string) VARiable(string asis) ///
-	[hiergeovars(string asis) MARGINLABels(string asis) conditionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) ]
+	[hiergeovars(string asis) MARGINLABels(string asis) conditionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) SETCluster(int 0)]
 	
 	* TO DO
 		* take into account subpo
 		* take into account vctype is svy
 		*take into account conditionals
 		*control existence of variable in case ratio is specify like rat:var1/var2	
-		
-	  /* Checking whereas parallel has been config */ 
-        if length("$PLL_CLUSTERS") == 0 {
-                display as error  "Error: You haven't set the number of clusters" 
-				display as error  "Error:Please set it with: {cmd:parallel setclusters} {it:#}" _newline
-                exit 198
-        }
+
 
 **detecting ' in indicator names		
 

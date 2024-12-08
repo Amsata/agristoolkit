@@ -70,14 +70,25 @@ program define generateOpenDataTable
 
  syntax [varlist(default=none)] , PARAMeter(string asis) ///
  VARiable(string asis) [marginlabels(string asis) hiergeovars(string asis) geovarmarginlab(string asis) ///
- conditionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) ]
+ conditionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) setcluster(integer 0)]
+ 
+ 
+ *setting the core**
+ 
+ di "`setcluster'"
+ if(`setcluster'>0) {
+ parallel initialize `setcluster'
+ } 
+ else if (`setcluster'<0) {
+ di as error "The number of cluser should not be negative"
+ exit 498
+ }
  
  local n_geovar: list sizeof hiergeovars
   local n_varlist: list sizeof varlist
  local n_geovarmarginlab: list sizeof geovarmarginlab
 
  if(`n_geovarmarginlab'!=0 & `n_geovarmarginlab'>1) {
- 	
 	display as error "The options geovarmarginlab should have on element!"
 	exit 498
  }
@@ -89,10 +100,6 @@ program define generateOpenDataTable
  
  foreach v of local hiergeovars {
 	local pos: list posof "`v'" in varlist
-	
-	di"`varlist'"
-	di "`pos'"
-	di"`v'"
 	if (`n_geovar'!=0 & `pos'>0) {
 		display as error "The variable `v' should be excluded from varlist"
 		exit 498
@@ -131,30 +138,57 @@ tempfile tmp_data_odt
 save `tmp_data_odt', replace
 global temp_file "`tmp_data_odt'"
 
-
 preserve
 
 if(`n_geovar'==0) {
 	findfile svyParallel.ado
-	return list
+	qui return list
 	local mypath "`r(fn)'"
 	run `mypath'
 	local parameter: list clean parameter
-	parallel, prog(svyParallel)  setparallelid(`parallelid') keep nodata: svyParallel "`varlist'" "`variable'" "`parameter'"
+	if(`setcluster'==0) {
+	svyParallel "`varlist'" "`variable'" "`parameter'" `setcluster'
+	tempfile dataset_dims
+	save `dataset_dims',  replace
+	} 
+	else {
+	parallel, prog(svyParallel)  setparallelid(`parallelid') keep nodata: svyParallel "`varlist'" "`variable'" "`parameter'" `setcluster'		 *ls __pll*.dta	
+	*Appending all files
+	local files: dir . files "__pll_*.dta"
+	* Step 2: Load the first dataset
+	use `: word 1 of `files'', clear
+	* Step 3: Loop through the remaining datasets and append them
+	foreach file of local files {
+		* Skip the first file since it's already loaded
+		if "`file'" != "`: word 1 of `files''" {
+			append using `file'
+		}
+}
+
+tempfile dataset_dims
+save `dataset_dims',  replace
+qui parallel clean, e($LAST_PLL_ID) force
+mata: parallel_sandbox(2, "`parallelid'")
+parallel clean, all force 
+}
+	
 }
 else {
 	findfile svyParallelGeo.ado
-	return list
+	qui return list
 	local mypath "`r(fn)'"
-	run `mypath'	
+	qui run `mypath'	
 	local parameter: list clean parameter	
-			parallel, prog(svyParallelGeo)  setparallelid(`parallelid') keep nodata: svyParallelGeo "" "`hiergeovars'" "`variable'" "`parameter'"
-}
-
-*ls __pll*.dta	
-
+			if (`setcluster'==0) {
+			svyParallelGeo "`varlist'" "`hiergeovars'" "`variable'" "`parameter'" `setcluster'
+			
+tempfile dataset_dims
+save `dataset_dims',  replace
+			}
+			else{
+			 parallel, prog(svyParallelGeo)  setparallelid(`parallelid') keep nodata: svyParallelGeo "`varlist'" "`hiergeovars'" "`variable'" "`parameter'" `setcluster'
+			 *ls __pll*.dta	
 *Appending all files
-
 local files: dir . files "__pll_*.dta"
 * Step 2: Load the first dataset
 use `: word 1 of `files'', clear
@@ -169,20 +203,29 @@ foreach file of local files {
 tempfile dataset_dims
 save `dataset_dims',  replace
 
-
  qui parallel clean, e($LAST_PLL_ID) force
 mata: parallel_sandbox(2, "`parallelid'")
  parallel clean, all force 
- 
-restore
+ }
+}
 
+
+restore
 preserve 
 
 findfile svyParallel.ado
-return list
+qui return list
 local mypath "`r(fn)'"
 run `mypath'
-parallel, prog(svyParallel)  setparallelid(`parallelid') keep nodata: svyParallel "" "`variable'" "`parameter'"
+
+if(`setcluster'==0) {
+svyParallel "" "`variable'" "`parameter'" `setcluster'
+tempfile dataset_alldims
+save `dataset_alldims',  replace
+append using `dataset_dims'
+}
+else {
+parallel, prog(svyParallel)  setparallelid(`parallelid') keep nodata: svyParallel "" "`variable'" "`parameter'" `setcluster'
 *ls __pll*.dta	
 
 local files: dir . files "__pll_*.dta"
@@ -195,27 +238,21 @@ foreach file of local files {
         append using `file'
     }
 }
-
 tempfile dataset_alldims
 save `dataset_alldims',  replace
 append using `dataset_dims'
 
-
-
  qui parallel clean, e($LAST_PLL_ID) force
 mata: parallel_sandbox(2, "`parallelid'")
  parallel clean, all force 
-	
+}
+
 
 quietly {	
 	if(`n_geovar'==0) local final_varlist "`varlist'"
 	else local final_varlist "geoType geoVar `varlist'"
-
 	order `final_varlist' Indicator b n_Obs N_subPop CV 
-	
-	
 	tempfile final_dataset
-	
 	save `final_dataset', replace
 
 	restore
@@ -321,10 +358,6 @@ replace geoVar="`:word 1 of `geovarmarginlab''" if geoVar==""
 			replace Unit = "`:word `i' of `units''" if Variable=="`:word `i' of `variable''"
 		}
 			order `final_varlist' Variable Parameter  Value  Unit 
-	 *quietly replace Value=Value*100 if Unit=="%"
-	 *quietly replace LL_confInt=LL_confInt*100 if Unit=="%"
-	 *quietly replace UL_confInt=UL_confInt*100 if Unit=="%"
-
 	}	
 	
 	***************************************************************************************
@@ -340,9 +373,7 @@ replace geoVar="`:word 1 of `geovarmarginlab''" if geoVar==""
 			order `final_varlist' Variable Parameter IndicatorName Value Unit 
 			cap replace IndicatorName = ustrregexra( IndicatorName ,"&","'")
 
-
 	}
-	
 	sort Variable 
 	
 	*} // quietly
