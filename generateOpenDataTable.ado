@@ -135,13 +135,13 @@ program define generateOpenDataTable
 *}
 		
 tempfile tmp_data_odt
-save `tmp_data_odt', replace
+qui save `tmp_data_odt', replace
 global temp_file "`tmp_data_odt'"
 
 preserve
 
 if(`n_geovar'==0) {
-	findfile svyParallel.ado
+	qui findfile svyParallel.ado
 	qui return list
 	local mypath "`r(fn)'"
 	run `mypath'
@@ -149,7 +149,7 @@ if(`n_geovar'==0) {
 	if(`setcluster'==0) {
 	svyParallel "`varlist'" "`variable'" "`parameter'" `setcluster'
 	tempfile dataset_dims
-	save `dataset_dims',  replace
+	qui save `dataset_dims',  replace
 	} 
 	else {
 	parallel, prog(svyParallel)  setparallelid(`parallelid') keep nodata: svyParallel "`varlist'" "`variable'" "`parameter'" `setcluster'		 *ls __pll*.dta	
@@ -161,12 +161,12 @@ if(`n_geovar'==0) {
 	foreach file of local files {
 		* Skip the first file since it's already loaded
 		if "`file'" != "`: word 1 of `files''" {
-			append using `file'
+			qui append using `file'
 		}
 }
 
 tempfile dataset_dims
-save `dataset_dims',  replace
+qui save `dataset_dims',  replace
 qui parallel clean, e($LAST_PLL_ID) force
 mata: parallel_sandbox(2, "`parallelid'")
 parallel clean, all force 
@@ -174,7 +174,7 @@ parallel clean, all force
 	
 }
 else {
-	findfile svyParallelGeo.ado
+	qui findfile svyParallelGeo.ado
 	qui return list
 	local mypath "`r(fn)'"
 	qui run `mypath'	
@@ -183,25 +183,25 @@ else {
 			svyParallelGeo "`varlist'" "`hiergeovars'" "`variable'" "`parameter'" `setcluster'
 			
 tempfile dataset_dims
-save `dataset_dims',  replace
+qui save `dataset_dims',  replace
 			}
 			else{
 			 parallel, prog(svyParallelGeo)  setparallelid(`parallelid') keep nodata: svyParallelGeo "`varlist'" "`hiergeovars'" "`variable'" "`parameter'" `setcluster'
 			 *ls __pll*.dta	
-*Appending all files
+*qui appending all files
 local files: dir . files "__pll_*.dta"
 * Step 2: Load the first dataset
 use `: word 1 of `files'', clear
-* Step 3: Loop through the remaining datasets and append them
+* Step 3: Loop through the remaining datasets and qui append them
 foreach file of local files {
     * Skip the first file since it's already loaded
     if "`file'" != "`: word 1 of `files''" {
-        append using `file'
+        qui append using `file'
     }
 }
 
 tempfile dataset_dims
-save `dataset_dims',  replace
+qui save `dataset_dims',  replace
 
  qui parallel clean, e($LAST_PLL_ID) force
 mata: parallel_sandbox(2, "`parallelid'")
@@ -213,7 +213,7 @@ mata: parallel_sandbox(2, "`parallelid'")
 restore
 preserve 
 
-findfile svyParallel.ado
+qui findfile svyParallel.ado
 qui return list
 local mypath "`r(fn)'"
 run `mypath'
@@ -221,8 +221,8 @@ run `mypath'
 if(`setcluster'==0) {
 svyParallel "" "`variable'" "`parameter'" `setcluster'
 tempfile dataset_alldims
-save `dataset_alldims',  replace
-append using `dataset_dims'
+qui save `dataset_alldims',  replace
+qui append using `dataset_dims'
 }
 else {
 parallel, prog(svyParallel)  setparallelid(`parallelid') keep nodata: svyParallel "" "`variable'" "`parameter'" `setcluster'
@@ -231,16 +231,16 @@ parallel, prog(svyParallel)  setparallelid(`parallelid') keep nodata: svyParalle
 local files: dir . files "__pll_*.dta"
 * Step 2: Load the first dataset
 use `: word 1 of `files'', clear
-* Step 3: Loop through the remaining datasets and append them
+* Step 3: Loop through the remaining datasets and qui append them
 foreach file of local files {
     * Skip the first file since it's already loaded
     if "`file'" != "`: word 1 of `files''" {
-        append using `file'
+        qui append using `file'
     }
 }
 tempfile dataset_alldims
-save `dataset_alldims',  replace
-append using `dataset_dims'
+qui save `dataset_alldims',  replace
+qui append using `dataset_dims'
 
  qui parallel clean, e($LAST_PLL_ID) force
 mata: parallel_sandbox(2, "`parallelid'")
@@ -253,7 +253,7 @@ quietly {
 	else local final_varlist "geoType geoVar `varlist'"
 	order `final_varlist' Indicator b n_Obs N_subPop CV 
 	tempfile final_dataset
-	save `final_dataset', replace
+	qui save `final_dataset', replace
 
 	restore
 		
@@ -298,7 +298,7 @@ quietly {
 			cap label list ld_`:word `i' of `varlist''
 			return list
 			local n_lev=`r(max)'
-			replace `:word `i' of `varlist''= `n_lev' if `:word `i' of `varlist''==.
+			qui replace `:word `i' of `varlist''= `n_lev' if `:word `i' of `varlist''==.
 		} 
 		else {
 			drop if `:word `i' of `varlist''==.
@@ -313,11 +313,11 @@ quietly {
 	if(`n_geovar'!=0) {
 forvalues i=1/`n_geovar' {		
 	if("`:word `i' of `geovarmarginlab''"=="") drop if geoVar=="" & geoType=="`:word `i' of `hiergeovars''"
-	else replace geoVar="`:word `i' of `geovarmarginlab''" if geoVar=="" & geoType=="`:word `i' of `hiergeovars''"
+	else qui replace geoVar="`:word `i' of `geovarmarginlab''" if geoVar=="" & geoType=="`:word `i' of `hiergeovars''"
 }
 
-replace geoType="`:word 1 of `geovarmarginlab''" if geoType==""
-replace geoVar="`:word 1 of `geovarmarginlab''" if geoVar==""
+qui replace geoType="`:word 1 of `geovarmarginlab''" if geoType==""
+qui replace geoVar="`:word 1 of `geovarmarginlab''" if geoVar==""
 
 	}
 	
@@ -342,7 +342,7 @@ replace geoVar="`:word 1 of `geovarmarginlab''" if geoVar==""
 	/*	
 		forvalues i=1/`c' {
 			di "`:word `i' of `variable''"
-		replace Variable= "`:word `i' of `variable''" if Variable=="_ratio_`i'"
+		qui replace Variable= "`:word `i' of `variable''" if Variable=="_ratio_`i'"
 		}
 */		
 	******************************************************************************
@@ -355,7 +355,7 @@ replace geoVar="`:word 1 of `geovarmarginlab''" if geoVar==""
 		gen Unit=""
 		local c: word count `variable'
 		forvalues i=1/`c' {
-			replace Unit = "`:word `i' of `units''" if Variable=="`:word `i' of `variable''"
+			qui replace Unit = "`:word `i' of `units''" if Variable=="`:word `i' of `variable''"
 		}
 			order `final_varlist' Variable Parameter  Value  Unit 
 	}	
@@ -368,10 +368,10 @@ replace geoVar="`:word 1 of `geovarmarginlab''" if geoVar==""
 	gen IndicatorName=""
 	local c: word count `variable'
 	forvalues i=1/`c' {
-		replace IndicatorName = `"`:word `i' of `indicatorname''"' if Variable=="`:word `i' of `variable''"
+		qui replace IndicatorName = `"`:word `i' of `indicatorname''"' if Variable=="`:word `i' of `variable''"
 	}
 			order `final_varlist' Variable Parameter IndicatorName Value Unit 
-			cap replace IndicatorName = ustrregexra( IndicatorName ,"&","'")
+			cap qui replace IndicatorName = ustrregexra( IndicatorName ,"&","'")
 
 	}
 	sort Variable 
@@ -394,7 +394,7 @@ replace geoVar="`:word 1 of `geovarmarginlab''" if geoVar==""
 *regexr(rownames, "^[^@]+", "variable")
 		
 		if ("`numerator'"=="`denominator'") { // if the ratio formula is in the form (ind2_n/ind2_d)
-			replace Variable="`numerator'" if Variable== "`v'"
+			qui replace Variable="`numerator'" if Variable== "`v'"
 		}
 	}
 

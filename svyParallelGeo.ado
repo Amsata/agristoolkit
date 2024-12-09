@@ -42,7 +42,7 @@ forvalues k=1/`s_geovars' {
 			if("`alldim'"=="no") local tuple "`tuple`j''" 
 			else local tuple "`new_varlist'"
 			local var "`:word `i' of `variable''"
-	di"GeoVar-`:word `k' of `hiergeovars'' : Generation `parameter' of `var'  over `tuple'..."
+	di"GeoVar-{cmd:`:word `k' of `hiergeovars''} : Generating {cmd:`parameter'} of {cmd:`var'}  over {cmd:`tuple'}..."
 quietly{
 		use "$temp_file", clear
 

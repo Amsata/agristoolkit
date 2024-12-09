@@ -34,8 +34,8 @@
 				else local tuple "`varlist'"
 				local var "`:word `i' of `variable''"
 				
-				if("`alldim'"=="no") di"Generation `parameter' of `var'  over `tuple'..."
-				else di"Generation `parameter' of `var' in the population..."
+				if("`alldim'"=="no") di"Generating {cmd: `parameter'} of {cmd:`var'}  over {cmd:`tuple'}..."
+				else di"Generating {cmd:`parameter'} of {cmd:`var'} in the population/sub-population..."
 				
 
 			quietly{

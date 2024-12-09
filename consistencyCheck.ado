@@ -67,13 +67,13 @@ if (`pos'!=0) {
 	local n_variable: list sizeof variable
 	local n_geovar: list sizeof hiergeovars
 
-	
+/*	
 	if(`n_varlist'==0 & `n_geovar'==0) {
 		
 		display as error "The options {cmd:varlist} and {cmd:hiergeovars} cannot be both empty!"
 		exit 498
 	}
-	
+*/	
 	if (`n_marginlabels'!=`n_varlist') {
 		di as error "Error: The options varlist (`n_varlist' elements) and marginlabels (`n_marginlabels' element) should have the same number of elements"
 		exit 498 // or any error code you want to return
