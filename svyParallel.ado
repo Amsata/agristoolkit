@@ -32,21 +32,16 @@
 				*tuples `varlist'
 				if("`alldim'"=="no") local tuple "`tuple`j''" 
 				else local tuple "`varlist'"
-				local var "`:word `i' of `variable''"
-				
+				local var "`:word `i' of `variable''"				
 				if("`alldim'"=="no") di"Generating {cmd: `parameter'} of {cmd:`var'}  over {cmd:`tuple'}..."
 				else di"Generating {cmd:`parameter'} of {cmd:`var'} in the population/sub-population..."
-				
-
 			quietly{
 			use "$temp_file", clear
 
 			************************************************************************
 			*****check if there are hierarchical structure between 2 variables******
 			************************************************************************	
-				quietly svyEstimate `tuple' , param(`parameter') var(`var') alldim(`alldim')
-
-				
+				quietly svyEstimate `tuple' , param(`parameter') var(`var') alldim(`alldim')				
 			if (init==0) {
 			save `odp_tab', replace
 			scalar def init=1
@@ -54,11 +49,8 @@
 			else {
 			 append using `odp_tab'
 			 save `odp_tab', replace
-			}
-			
-			}
-			
-			
+			}			
+			}		
 			*restore // restore the iniial dataset for the continuation of the loop on tuplesS
 		}
 		}	
@@ -78,19 +70,12 @@
 				
 			if($pll_instance == `core') {
 			m: parallel_sandbox(5)  
-
-			use "$temp_file", clear
-
-			
+			use "$temp_file", clear			
 			************************************************************************
 			*****check if there are hierarchical structure between 2 variables******
 			************************************************************************	
 				quietly svyEstimate `tuple' , param(`parameter') var(`var') alldim(`alldim')
-
 			save __pll_`parallelid'_$pll_instance.dta, replace
-			*append using `odp_tab', force
-			*save `odp_tab', replace
-			*restore // restore the iniial dataset for the continuation of the loop on tuples
 			}
 		}
 		}	

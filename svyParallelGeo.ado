@@ -1,4 +1,3 @@
-
 cap program drop svyParallelGeo
 program svyParallelGeo
 

@@ -9,26 +9,59 @@ program define consistencyCheck
 		* take into account subpo
 		* take into account vctype is svy
 		*take into account conditionals
-		*control existence of variable in case ratio is specify like rat:var1/var2	
-
-
-**detecting ' in indicator names		
-
-foreach ind of local indicatorname {
-	
-local pos = strpos("`ind'", "'")
-if (`pos'!=0) {	
-	local userInput = subinstr("`ind'", "'", "&", .)
-	display as error "Error: Aspostrophe ({cmd:'}) in indicator name ({cmd:`ind'}) can cause computation issues" 
-	di as error "We suggest replacing them by {cmd:&} and the final result we will replace {cmd:&} by {cmd:'}" _newline
-	di as error "your imput should be '{result:`userInput'}' and the output without your intervention will be {result:'`ind''} " _newline
-	exit 498
-	* https://www.stata.com/statalist/archive/2012-08/msg00924.html
-	*explore answers here to solve the apostrophe issue
-}
-}
 		
-		
+	*Control existence of duplicated variable
+	local dup_var: list dups variable
+	local size_dup_var: list sizeof dup_var
+	if (`size_dup_var'>0) {
+		display as error "The variable {cmd: `dup_var'} are duplicated in {cmd: `variable'}"
+		exit 498 // or any error code you want to return
+	}
+
+	* control if a variable exist
+	if "`parameter'"!="ratio" {
+		foreach v of local variable {
+			cap confirm variable `v', exact
+				if _rc {
+					display as error "variable `v' not found in the data"
+					exit 498
+					}
+		}
+	}
+	*control if dimension variables are labelled
+	if "`varlist'"!="" {
+		foreach v of local varlist {
+			local lbl: value label `v'
+			if "`lbl'" == "" {
+				display as error "The dimension variable `v' should be labbelled."
+				exit 498
+			} 
+		}
+	}
+
+	if "`hiergeovars'"!="" {
+		foreach v of local hiergeovars {
+			local lbl: value label `v'
+			if "`lbl'" == "" {
+				display as error "The dimension variable `v' should be labbelled."
+				exit 498
+			} 
+		}
+	}
+
+	**detecting ' in indicator names		
+	foreach ind of local indicatorname {
+	local pos = strpos("`ind'", "'")
+	if (`pos'!=0) {	
+		local userInput = subinstr("`ind'", "'", "&", .)
+		display as error "Error: Aspostrophe ({cmd:'}) in indicator name ({cmd:`ind'}) can cause computation issues" 
+		di as error "We suggest replacing them by {cmd:&} and the final result we will replace {cmd:&} by {cmd:'}" _newline
+		di as error "your imput should be '{result:`userInput'}' and the output without your intervention will be {result:'`ind''} " _newline
+		exit 498
+		* https://www.stata.com/statalist/archive/2012-08/msg00924.html
+		*explore answers here to solve the apostrophe issue
+	}
+	}
 	****************************************************************************
 	********************* Checking dependancies*********************************
 	****************************************************************************
