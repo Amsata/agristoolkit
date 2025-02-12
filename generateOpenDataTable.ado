@@ -78,45 +78,13 @@ program define generateOpenDataTable
 	
 	*Ajouter du versioning dans la package github
 	
-	
-	
+	quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param(`parameter') hiergeovars(`hiergeovars') ///
+	var(`variable') conditionals(`conditionals') indicator(`indicatorname') units(`units') setcluster(`setcluster')
 
-	
 	local n_geovar: list sizeof hiergeovars
 	local n_varlist: list sizeof varlist
 	local n_geovarmarginlab: list sizeof geovarmarginlab
-
-	if(`n_geovarmarginlab'!=0 & `n_geovarmarginlab'>1) {
-		display as error "The options geovarmarginlab should have on element!"
-		exit 498
-	}
-	
-	if (`n_geovar'==1) {
-		display as error "geovar should contain at least 2 hierarchical geographic variable!"
-		exit 498
-	}
-
-	foreach v of local hiergeovars {
-		local pos: list posof "`v'" in varlist
-		if (`n_geovar'!=0 & `pos'>0) {
-			display as error "The variable `v' should be excluded from varlist"
-			exit 498
-		}
-	}
-
-	quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param(`parameter') hiergeovars(`hiergeovars') ///
-	var(`variable') conditionals(`conditionals') indicator(`indicatorname') units(`units')
-
-	*set cluster if specified
-		if(`setcluster'>0) {
-		parallel initialize `setcluster'
-	} 
-	else if (`setcluster'<0) {
-		di as error "The number of cluser should not be negative"
-		exit 498
-	}
-	
-	
+	  
 	tempfile tmp_data_odt
 	qui save `tmp_data_odt', replace
 	global temp_file "`tmp_data_odt'"

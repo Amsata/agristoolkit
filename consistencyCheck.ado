@@ -3,13 +3,38 @@ cap program drop consistencyCheck
 program define consistencyCheck
 		
 	syntax [varlist(default=none)] , PARAMeter(string) VARiable(string asis) ///
-	[hiergeovars(string asis) MARGINLABels(string asis) conditionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) SETCluster(int 0)]
+	[hiergeovars(string asis) MARGINLABels(string asis) conditionals(string asis) svySE(string) ///
+	subpop(string asis) UNITs(string asis) INDICATORname(string asis) SETCluster(int 0) equal_lenth(int 0)]
 	
 	* TO DO
 		* take into account subpo
 		* take into account vctype is svy
 		*take into account conditionals
+		*order the different check 
 		
+		
+		local n_geovar: list sizeof hiergeovars
+	   local n_varlist: list sizeof varlist
+	  local n_geovarmarginlab: list sizeof geovarmarginlab
+
+	if(`n_geovarmarginlab'!=0 & `n_geovarmarginlab'>1) {
+		display as error "The options geovarmarginlab should have on element!"
+		exit 498
+	}
+	
+	if (`n_geovar'==1) {
+		display as error "geovar should contain at least 2 hierarchical geographic variable!"
+		exit 498
+	}
+
+	foreach v of local hiergeovars {
+		local pos: list posof "`v'" in varlist
+		if (`n_geovar'!=0 & `pos'>0) {
+			display as error "The variable `v' should be excluded from varlist"
+			exit 498
+		}
+	}
+	
 	*Control existence of duplicated variable
 	local dup_var: list dups variable
 	local size_dup_var: list sizeof dup_var
@@ -138,10 +163,11 @@ program define consistencyCheck
 	*******************************************************
 	if ("`parameter'"=="ratio") {
 		foreach v of local variable {
-			
+		
+		
 		local pos_par = strpos("`v'", "(")
 		if (`pos_par'==0) {
-			display as error "Error: Please enclose the ratio formula between parenthesis like (V1/V2) in `v'" 
+			display as error "Error: Please enclose the ratio formula between parenthesis like (V1/V2) or (nyname:V1/V2) in `v'" 
 			exit 498
 			}
 			
@@ -150,9 +176,13 @@ program define consistencyCheck
 			display as error "Error: Closing parenthesis missing in `v'"
 			exit 498
 			}
+			
 		*Removing parenthesis
 		local var_2 = subinstr("`v'", "(", "", .)
 		local var_2 = subinstr("`var_2'", ")", "", .)
+		
+		****
+		local var_2=substr("`var_2'", strpos("`var_2'", ":") + 1, .)
 
 		local pos = strpos("`var_2'", "/")
 		*control if pos==0: invalid specification
@@ -177,19 +207,19 @@ program define consistencyCheck
 		}
 		
 	}
-	
-	
+
+if `equal_lenth'==0 {	
 	***************************************************************************************
 	*** Adding indicator label if specified************************************************
 	***************************************************************************************
 	local n_indicatorname: list sizeof indicatorname
-if (`n_indicatorname'!=0) {
-	if (`n_indicatorname'!=`n_variable') {
-		display as error "Error: The options indicatorname and variable should have the same number of elements"
-		exit 498 // or any error code you want to return
-	} 				
-}
-	
+	if (`n_indicatorname'!=0) {
+		if (`n_indicatorname'!=`n_variable') {
+			display as error "Error: The options indicatorname and variable should have the same number of elements"
+			exit 498 // or any error code you want to return
+		} 				
+	}
+		
 ***************************************************************************************
 *** Adding indicator label if specified************************************************
 ***************************************************************************************
@@ -203,7 +233,16 @@ if (`n_indicatorname'!=0) {
 			exit 498 // or any error code you want to return
 		}
 	}	
-	
+}
+		*set cluster if specified
+		if(`setcluster'>0) {
+		quietly parallel initialize `setcluster'
+	} 
+	else if (`setcluster'<0) {
+		di as error "The number of cluser should not be negative"
+		exit 498
+	}
+		
 
 end
 
