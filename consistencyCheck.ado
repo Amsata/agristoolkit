@@ -13,9 +13,9 @@ program define consistencyCheck
 		*order the different check 
 		
 		
-		local n_geovar: list sizeof hiergeovars
-	   local n_varlist: list sizeof varlist
-	  local n_geovarmarginlab: list sizeof geovarmarginlab
+	local n_geovar: list sizeof hiergeovars
+	local n_varlist: list sizeof varlist
+	local n_geovarmarginlab: list sizeof geovarmarginlab
 
 	if(`n_geovarmarginlab'!=0 & `n_geovarmarginlab'>1) {
 		display as error "The options geovarmarginlab should have on element!"
@@ -74,19 +74,7 @@ program define consistencyCheck
 		}
 	}
 
-	**detecting ' in indicator names		
-	foreach ind of local indicatorname {
-	local pos = strpos("`ind'", "'")
-	if (`pos'!=0) {	
-		local userInput = subinstr("`ind'", "'", "&", .)
-		display as error "Error: Aspostrophe ({cmd:'}) in indicator name ({cmd:`ind'}) can cause computation issues" 
-		di as error "We suggest replacing them by {cmd:&} and the final result we will replace {cmd:&} by {cmd:'}" _newline
-		di as error "your imput should be '{result:`userInput'}' and the output without your intervention will be {result:'`ind''} " _newline
-		exit 498
-		* https://www.stata.com/statalist/archive/2012-08/msg00924.html
-		*explore answers here to solve the apostrophe issue
-	}
-	}
+
 	****************************************************************************
 	********************* Checking dependancies*********************************
 	****************************************************************************
