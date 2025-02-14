@@ -69,13 +69,6 @@ program define generateOpenDataTable
 	syntax [varlist(default=none)] , PARAMeter(string asis) VARiable(string asis) [marginlabels(string asis) hiergeovars(string asis) ///
 	geovarmarginlab(string asis) conditionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) setcluster(integer 0)]
 	
-	************Amelioration*************************
-	* pour enlever l'ordre entre les indicateurs et les unité et labels,
-		* Metre "Variable@Nom de l'indicateur". à l'intérieur du code, extraitre "Variable" et faire "replace NomIndicateur="Variable@Nom de l'indicateur" if Variable=="Variable" "
-		*remplacer "Variable@" par vide dans le nom de l'indicateurs
-	*Faire la meme chose pour les unités
-	* Permettre des codes comme "Variable1-Variable4@%"
-	
 	*Ajouter du versioning dans la package github
 	
 	quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param(`parameter') hiergeovars(`hiergeovars') ///
@@ -289,30 +282,20 @@ program define generateOpenDataTable
 		if (`n_indicatorname'!=0) {	
 			gen IndicatorName=""
 			local c: word count `variable'
-			forvalues i=1/`c' {
-				qui replace IndicatorName = `"`:word `i' of `indicatorname''"' if Variable=="`:word `i' of `variable''"
+			local i = 1  // Initialize the iteration counter
+			foreach ind_name of local indicatorname {
+				qui replace IndicatorName = "`ind_name'" if Variable=="`:word `i' of `variable''"
+				 local i = `i' + 1  // Increment the counter
 			}
 			order `final_varlist' Variable Parameter IndicatorName Value Unit 
-			cap qui replace IndicatorName = ustrregexra( IndicatorName ,"&","'")
+			*cap qui replace IndicatorName = ustrregexra( IndicatorName ,"&","'")
 		}
 		sort Variable 
 		
 		************************************************************************
 		*************** formating indicator for ratio **************************
 		************************************************************************
-		if("`parameter'"=="ratio") {
-			foreach v of local variable {
-				local pos = strpos("`v'", "/")
-				local denominator = substr("`v'", `pos'+1, .)
-				local numerator = substr("`v'", 1, `pos'-1)
-				local numerator = subinstr("`numerator'", "_n", "", .)
-				local numerator = subinstr("`numerator'", "(", "", .)
-				local denominator = subinstr("`denominator'", "_d)", "", .)
-				if ("`numerator'"=="`denominator'") { // if the ratio formula is in the form (ind2_n/ind2_d)
-					qui replace Variable="`numerator'" if Variable== "`v'"
-				}
-			}
-		}
+
 	} // quietly
 
 end
