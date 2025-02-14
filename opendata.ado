@@ -63,7 +63,7 @@ seealso[
 
 END HELP FILE */
 
-program drop extract_macro_elements
+cap program drop extract_macro_elements
 program define extract_macro_elements, rclass
     args mymac start_elem end_elem
 
@@ -88,6 +88,40 @@ program define extract_macro_elements, rclass
     return local subset `"`collect'"'
 end
 
+cap program drop expand_varlist
+program define expand_varlist, rclass
+    args varlist
+
+    local expanded_list ""
+
+    foreach word in `varlist' {
+        // Check if the word contains a range (indicated by "-")
+        if regexm("`word'", "^-|-$") == 0 & strpos("`word'", "-") {
+            local start_var = substr("`word'", 1, strpos("`word'", "-") - 1)
+            local end_var = substr("`word'", strpos("`word'", "-") + 1, .)
+            
+            local temp_list ""
+            local found = 0
+            foreach var of varlist * {
+                if "`var'" == "`start_var'" {
+                    local found = 1
+                }
+                if `found' {
+                    local temp_list "`temp_list' `var'"
+                }
+                if "`var'" == "`end_var'" {
+                    continue, break
+                }
+            }
+            local expanded_list "`expanded_list' `temp_list'"
+        }
+        else {
+            local expanded_list "`expanded_list' `word'"
+        }
+    }
+
+    return local expanded "`expanded_list'"
+end
 
 cap program drop opendata
 program define opendata
@@ -100,7 +134,19 @@ program define opendata
 	local n_ratio: list sizeof ratio
 	local n_indicatorname: list sizeof indicatorname
 	local n_unit: list sizeof units
+	
+	qui expand_varlist "`mean'"
+	local mean `r(expanded)'
+	
+	qui expand_varlist "`total'"
+	local total `r(expanded)'
+	
 
+	if (`n_mean'==0 & `n_total'==0 & `n_ratio'==0) {
+		display as error "The options {cmd: mean}, {cmd:total} and {cmd: ratio} cannot be all empty."
+		exit 480
+	}
+	
 	local all_variable "`mean' `total' `ratio'"
 	
 		if (`n_indicatorname'!=0) {
