@@ -10,5 +10,11 @@ F consistencyCheck.ado
 F expand_varlist.ado
 F extract_macro_elements.ado
 F genMDTbyParam.ado
+F genMDTbyParam.sthlp
 F genmdt.ado
 F mat_to_ds.ado
+F setup_anonymization.ado
+F setup_anonymization.sthlp
+F svyEstimate.ado
+F svyParallel.ado
+F svyParallelGeo.ado
