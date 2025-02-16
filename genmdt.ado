@@ -255,12 +255,24 @@ tempfile opendata_dst
 					local var_before=substr("`varname'", 1, `detect_minus' - 1)
 					local var_after=substr("`varname'", `detect_minus' + 1,.)
 					***CASE where ratio is specified as (myrat:var1/varN) and unit is specied as "rat1-ratN@%"
-					
+					local posof_var_before: list posof "`var_before'" in all_variable
+					if `posof_var_before'>0 { // not a case where ratio is specified (rat:var1/var2)
 					extract_macro_elements "`all_variable'" "`var_before'" "`var_after'"
 					local vars_in "`r(subset)'"
-					foreach v of local vars_in {
-						qui replace Unit="`ind'" if Variable=="`v'"
-						qui replace Unit="`ind'" if Variable=="`v'"
+						foreach v of local vars_in {
+							qui replace Unit="`ind'" if Variable=="`v'"
+							qui replace Unit="`ind'" if Variable=="`v'"
+						}
+					}
+					else {
+						extract_before_colon "`all_variable'"
+						local res_before_colon "`r(extracted)'"
+						extract_macro_elements "`all_variable'" "`var_before'" "`var_after'"
+						local vars_in "`r(subset)'"
+						foreach v of local vars_in {
+							qui replace Unit="`ind'" if Variable=="`v'"
+							qui replace Unit="`ind'" if Variable=="`v'"
+						}
 					}
 				}
 			}
