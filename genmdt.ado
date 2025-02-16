@@ -67,7 +67,7 @@ END HELP FILE */
 program define genmdt
 		
 	syntax [varlist(default=none)] , [ mean(string asis) total(string asis) ratio(string asis) MARGINlabels(string asis) HIERGEOvars(string asis) ///
-	GEOMARGINlabel(string asis) CONDitionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) setCLUSTER(integer 0)]
+	GEOMARGINlabel(string asis) CONDitionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) setcluster(integer 0)]
 		
 		
 	* For ratio specified ad ( (rat1:VI/VE)  (rat2:VI/V2)  (rat3:VI/V3) (rat4:VI/V4)), allow unit specification like 'rat1-rat4@unit' instead of "(rat1:VI/VE)-(rat4:VI/V4)@unit"
