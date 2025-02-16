@@ -63,72 +63,15 @@ seealso[
 
 END HELP FILE */
 
-cap program drop extract_macro_elements
-program define extract_macro_elements, rclass
-    args mymac start_elem end_elem
-
-    // Convert macro to a list
-    tokenize `"`mymac'"'
-
-    local collect ""
-    local inside = 0  // Flag to start collecting elements
-
-    forvalues i = 1/`=_N' {
-        if "``i''" == "`start_elem'" {
-            local inside = 1  // Start collecting
-        }
-        if `inside' {
-            local collect "`collect' ``i''"
-        }
-        if "``i''" == "`end_elem'" {
-            continue, break  // Stop exactly at the end element
-        }
-    }
-
-    return local subset `"`collect'"'
-end
-
-cap program drop expand_varlist
-program define expand_varlist, rclass
-    args varlist
-
-    local expanded_list ""
-
-    foreach word in `varlist' {
-        // Check if the word contains a range (indicated by "-")
-        if regexm("`word'", "^-|-$") == 0 & strpos("`word'", "-") {
-            local start_var = substr("`word'", 1, strpos("`word'", "-") - 1)
-            local end_var = substr("`word'", strpos("`word'", "-") + 1, .)
-            
-            local temp_list ""
-            local found = 0
-            foreach var of varlist * {
-                if "`var'" == "`start_var'" {
-                    local found = 1
-                }
-                if `found' {
-                    local temp_list "`temp_list' `var'"
-                }
-                if "`var'" == "`end_var'" {
-                    continue, break
-                }
-            }
-            local expanded_list "`expanded_list' `temp_list'"
-        }
-        else {
-            local expanded_list "`expanded_list' `word'"
-        }
-    }
-
-    return local expanded "`expanded_list'"
-end
-
-cap program drop opendata
+*cap program drop opendata
 program define opendata
 		
 	syntax [varlist(default=none)] , [ mean(string asis) total(string asis) ratio(string asis) marginlabels(string asis) hiergeovars(string asis) ///
 	geovarmarginlab(string asis) conditionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) setcluster(integer 0)]
 		
+		
+	* For ratio specified ad ( (rat1:VI/VE)  (rat2:VI/V2)  (rat3:VI/V3) (rat4:VI/V4)), allow unit specification like 'rat1-rat4@unit' instead of "(rat1:VI/VE)-(rat4:VI/V4)@unit"
+	*utiliser la specification "Var@marginlabel" pour l'option marginlabel.
 	local n_mean: list sizeof mean
 	local n_total: list sizeof total
 	local n_ratio: list sizeof ratio
@@ -168,7 +111,7 @@ program define opendata
 					}
 				}
 				else {		
-					display as error " '{cmd: @}' is missing in the indicator name specification" _newline 
+					display as error "Eerror in '{cmd:`ind'}': '{cmd: @}' is missing in the indicator name specification" _newline 
 					display as error "The indicator name should be specified as followed: {cmd: 'variableName@title of the indicator'} "
 					exit 480
 				}
@@ -279,8 +222,21 @@ tempfile opendata_dst
 				local varname=substr("`ind'", 1, strpos("`ind'", "@") - 1)
 				qui replace IndicatorName="`ind'" if Variable=="`varname'"
 				qui replace IndicatorName = substr(IndicatorName, strpos(IndicatorName, "@") + 1, .)
-				qui replace IndicatorName = ustrregexra( IndicatorName ,"&","'")
-			}			
+			}
+			
+			unab all_vars: *
+			// Step 2: Create a new order, moving "res" before "ger"
+			local neworder ""
+			foreach var in `all_vars' {
+				if "`var'" == "Value" {
+					local neworder "`neworder' IndicatorName"  // Insert "res" before "ger"
+				}
+				if "`var'" != "IndicatorName" {
+					local neworder "`neworder' `var'"  // Keep other variables in order
+				}
+			}
+		 order `neworder'
+
 		}
 
 		if (`n_unit'!=0) {
@@ -295,7 +251,9 @@ tempfile opendata_dst
 				}
 				else {
 					local var_before=substr("`varname'", 1, `detect_minus' - 1)
-					local var_after=substr("`varname'", `detect_minus' + 1,.)			
+					local var_after=substr("`varname'", `detect_minus' + 1,.)
+					***CASE where ratio is specified as (myrat:var1/varN) and unit is specied as "rat1-ratN@%"
+					
 					extract_macro_elements "`all_variable'" "`var_before'" "`var_after'"
 					local vars_in "`r(subset)'"
 					foreach v of local vars_in {
@@ -305,6 +263,18 @@ tempfile opendata_dst
 				}
 			}
 			qui replace Unit = substr(Unit, strpos(Unit, "@") + 1, .)
+			unab all_vars: *
+			// Step 2: Create a new order, moving "res" before "ger"
+			local neworder ""
+			foreach var in `all_vars' {
+				if "`var'" == "n_Obs" {
+					local neworder "`neworder' Unit"  // Insert "res" before "ger"
+				}
+				if "`var'" != "Unit" {
+					local neworder "`neworder' `var'"  // Keep other variables in order
+				}
+			}
+		 order `neworder'
 		}
 		
 		
