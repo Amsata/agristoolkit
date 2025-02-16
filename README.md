@@ -1,19 +1,19 @@
 _v. 0_  
 
-`agriSurveyTools` : Data processing, analysis and dissemination
-===============================================================
+`agriSurveyToolkit` : agrisToolkit
+==================================
 
 Description
 -----------
 
-Data processing, analysis and dissemination
+processing, analysisng and disseminating agricultural survey data
 
 ### License
-MIT
+Creative Commons Attribution 4.0
 
 Author
 ------
 
 **Amsata Niang**  
-FAO  
-amsata_niang@yahoo.fr  
+Statistician  
+amsata.niang@fao.org  

@@ -63,7 +63,7 @@ seealso[
 
 END HELP FILE */
 
-cap program drop generateOpenDataTable
+*cap program drop generateOpenDataTable
 program define generateOpenDataTable
 		
 	syntax [varlist(default=none)] , PARAMeter(string asis) VARiable(string asis) [marginlabels(string asis) hiergeovars(string asis) ///

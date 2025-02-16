@@ -1,8 +1,8 @@
 v 0
 d Materials by Amsata Niang
-d FAO
-d amsata_niang@yahoo.fr
+d Statistician
+d amsata.niang@fao.org
 
-d 'agriSurveyTools': Data processing, analysis and dissemination
+d 'agriSurveyToolkit': processing, analysisng and disseminating agricultural survey data
 
-p agriSurveyTools
+p agriSurveyToolkit

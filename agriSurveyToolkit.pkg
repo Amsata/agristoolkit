@@ -1,0 +1,19 @@
+v 0
+d 'AGRISURVEYTOOLKIT': agrisToolkit
+d 
+d processing, analysisng and disseminating agricultural survey data
+d 
+d Distribution-Date:   20250216
+d License: Creative Commons Attribution 4.0
+d 
+F consistencyCheck.ado
+F expand_varlist.ado
+F extract_macro_elements.ado
+F generateOpenDataTable.ado
+F generateOpenDataTable.sthlp
+F mat_to_ds.ado
+F opendata.ado
+F setup_anonymization.ado
+F setup_anonymization.sthlp
+F svyParallel.ado
+F svyParallelGeo.ado
