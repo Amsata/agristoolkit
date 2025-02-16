@@ -267,7 +267,14 @@ tempfile opendata_dst
 					else {
 						extract_before_colon "`all_variable'"
 						local res_before_colon "`r(extracted)'"
-						extract_macro_elements "`all_variable'" "`var_before'" "`var_after'"
+						
+						extract_before_colon "`var_before'"
+						local var_before_colon "`r(extracted)'"
+						
+						extract_before_colon "`var_after'"
+						local var_after_colon "`r(extracted)'"
+						
+						extract_macro_elements "`all_variable'" "`var_before_colon'" "`var_after_colon'"
 						local vars_in "`r(subset)'"
 						foreach v of local vars_in {
 							qui replace Unit="`ind'" if Variable=="`v'"
