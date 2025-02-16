@@ -173,17 +173,17 @@ program define genmdt
 	
 	if `n_mean'>0 {	
 		quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param("mean") hiergeovars(`hiergeovars') ///
-		var(`mean') conditionals(`conditionals') indicator(`indicatorname') units(`units') setcluster(`setcluster') 
+		var(`mean') conditionals(`conditionals') setcluster(`setcluster') 
 	}
 
 	if `n_total'>0 {
 		quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param("total") hiergeovars(`hiergeovars') ///
-		var(`total') conditionals(`conditionals') indicator(`indicatorname') units(`units') setcluster(`setcluster') 
+		var(`total') conditionals(`conditionals') setcluster(`setcluster') 
 	}
 
 	if `n_ratio'>0 {
 		quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param("ratio") hiergeovars(`hiergeovars') ///
-		var(`ratio') conditionals(`conditionals') indicator(`indicatorname') units(`units') setcluster(`setcluster') 
+		var(`ratio') conditionals(`conditionals') setcluster(`setcluster') 
 	}
 	
 tempfile opendata_dst
