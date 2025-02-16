@@ -8,6 +8,7 @@ d License: Creative Commons Attribution 4.0
 d 
 F consistencyCheck.ado
 F expand_varlist.ado
+F extract_before_colon.ado
 F extract_macro_elements.ado
 F genMDTbyParam.ado
 F genMDTbyParam.sthlp
