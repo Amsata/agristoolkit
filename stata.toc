@@ -3,6 +3,6 @@ d Materials by Amsata Niang
 d Statistician
 d amsata.niang@fao.org
 
-d 'agriSurveyToolkit': processing, analysisng and disseminating agricultural survey data
+d 'agristoolkit': processing, analysisng and disseminating agricultural survey and census data
 
-p agriSurveyToolkit
+p agristoolkit

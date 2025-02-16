@@ -1,12 +1,12 @@
 _v. 0_  
 
-`agriSurveyToolkit` : agrisToolkit
-==================================
+`agristoolkit` : A toolkit for agricultural surveys and census
+==============================================================
 
 Description
 -----------
 
-processing, analysisng and disseminating agricultural survey data
+processing, analysisng and disseminating agricultural survey and census data
 
 ### License
 Creative Commons Attribution 4.0
