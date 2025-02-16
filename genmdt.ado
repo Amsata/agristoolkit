@@ -100,16 +100,22 @@ program define genmdt
 				if `pos'>0 {
 					local varname=substr("`ind'", 1, strpos("`ind'", "@") - 1)
 					*verifier si la variable est dans la list des variable a estimer
-					local pos_var=strpos("`all_variable'","`varname'")
+					local pos_var: list posof "`varname'" in all_variable
 					if `pos'==1 {
 						display as error "error in '{cmd:`ind'}': Please put the variable name before {cmd:@}" _newline 
 						display as error "The indicator name should be specified as followed: {cmd: 'variableName@title of the indicator'} "
 						exit 480
 					}
 					else if `pos_var'==0 {
+						extract_before_colon "`all_variable'"
+						local res_before_colon "`r(extracted)'"
+					    local pos_var: list posof "`varname'" in all_variable
+
+						if `pos_var'==0 {
 						display as error "Eerror in '{cmd:`ind'}': {cmd: `varname'} is not a valid variable name" _newline 
 						display as error "The indicator name should be specified as followed: {cmd: 'variableName@title of the indicator'} "
 						exit 480
+						}
 					}
 				}
 				else {		
@@ -127,7 +133,7 @@ program define genmdt
 			if `pos'>0 {
 				local varname=substr("`ind'", 1, strpos("`ind'", "@") - 1)
 				*verifier si la variable est dans la list des variable a estimer
-				local pos_var=strpos("`all_variable'","`varname'")
+				local pos_var: list posof "`varname'" in all_variable
 				
 				if `pos'==1 {
 					display as error "error in '{cmd: `ind'}' : Please put a variable name before {cmd:@}" _newline 
@@ -139,25 +145,41 @@ program define genmdt
 					if `detect_minus'>0 {
 						local var_before=substr("`varname'", 1, `detect_minus' - 1)
 						local var_after=substr("`varname'", `detect_minus' + 1,.)
-						local pos_var_b=strpos("`all_variable'","`var_before'")
-						local pos_var_a=strpos("`all_variable'","`var_after'")
+						local pos_var_b:list posof "`var_before'" in all_variable
+						local pos_var_a:list posof "`var_after'" in all_variable
 						if `pos_var_b'==0 {
+							extract_before_colon "`all_variable'"
+							local res_before_colon "`r(extracted)'"
+							local pos_var_b: list posof "`varname'" in res_before_colon
+							if `pos_var_b'==0 {
 							display as error "error in '{cmd: `ind'}': {cmd: `var_before'} is not a valid variable name" _newline 
 							display as error "The unit should be specified as followed: {cmd: 'var1-var2@unit'} "
 							exit 480
+							}
 						}
 					
 					    if `pos_var_a'==0 {
-							display as error "error in '{cmd: `ind'}': {cmd: `var_after'} is not a valid variable name" _newline 
-							display as error "The unit should be specified as followed: {cmd: 'var1-var2@unit'} "
-							exit 480
+							extract_before_colon "`all_variable'"
+							local res_before_colon "`r(extracted)'"
+							local pos_var_a: list posof "`varname'" in res_before_colon
+							if `pos_var_a'==0 {
+								display as error "error in '{cmd: `ind'}': {cmd: `var_after'} is not a valid variable name" _newline 
+								display as error "The unit should be specified as followed: {cmd: 'var1-var2@unit'} "
+								exit 480
+							}
 						}
 
 					}
 					else {
-						display as error "error in '{cmd: `ind'}': {cmd: `varname'} is not a valid variable name" _newline 
-						display as error "The unit should be specified as followed: {cmd: 'variableName@unit'} "
-						exit 480
+						extract_before_colon "`all_variable'"
+						local res_before_colon "`r(extracted)'"
+					    local pos_var: list posof "`varname'" in res_before_colon
+
+						if `pos_var'==0 {
+							display as error "Eerror in '{cmd:`ind'}': {cmd: `varname'} is not a valid variable name" _newline 
+							display as error "The indicator name should be specified as followed: {cmd: 'variableName@title of the indicator'} "
+							exit 480
+						}
 					}
 				}
 			}
@@ -217,6 +239,14 @@ tempfile opendata_dst
 	use `opendata_dst', clear
 	
 	
+		***some adjustment for ratio
+		
+		qui gen position=strpos(Variable, ":")
+		qui replace Variable = substr(Variable, 1,strpos(Variable, ":")- 1) if position>0
+		qui replace Variable = substr(Variable, strpos(Variable, "(") + 1, .) if position>0
+		drop position
+		
+		
 		if (`n_indicatorname'!=0) {
 			gen IndicatorName=""
 			foreach ind of local indicatorname {
@@ -254,6 +284,9 @@ tempfile opendata_dst
 				else {
 					local var_before=substr("`varname'", 1, `detect_minus' - 1)
 					local var_after=substr("`varname'", `detect_minus' + 1,.)
+					di "`var_before'" 
+					di "`var_after'"
+					stop
 					***CASE where ratio is specified as (myrat:var1/varN) and unit is specied as "rat1-ratN@%"
 					local posof_var_before: list posof "`var_before'" in all_variable
 					if `posof_var_before'>0 { // not a case where ratio is specified (rat:var1/var2)
@@ -267,14 +300,7 @@ tempfile opendata_dst
 					else {
 						extract_before_colon "`all_variable'"
 						local res_before_colon "`r(extracted)'"
-						
-						extract_before_colon "`var_before'"
-						local var_before_colon "`r(extracted)'"
-						
-						extract_before_colon "`var_after'"
-						local var_after_colon "`r(extracted)'"
-						
-						extract_macro_elements "`all_variable'" "`var_before_colon'" "`var_after_colon'"
+						extract_macro_elements "`res_before_colon'" "`var_before'" "`var_after'"
 						local vars_in "`r(subset)'"
 						foreach v of local vars_in {
 							qui replace Unit="`ind'" if Variable=="`v'"
@@ -298,13 +324,6 @@ tempfile opendata_dst
 		 order `neworder'
 		}
 		
-		
-		***some adjustment for ratio
-		
-		qui gen position=strpos(Variable, ":")
-		qui replace Variable = substr(Variable, 1,strpos(Variable, ":")- 1) if position>0
-		qui replace Variable = substr(Variable, strpos(Variable, "(") + 1, .) if position>0
-		drop position
 
 	****************************************************************************
 	******************LABEL INDICATOR AND UNITS IF PROVIDED*********************
