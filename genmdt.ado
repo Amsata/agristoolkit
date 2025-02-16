@@ -72,6 +72,8 @@ program define genmdt
 		
 	* For ratio specified ad ( (rat1:VI/VE)  (rat2:VI/V2)  (rat3:VI/V3) (rat4:VI/V4)), allow unit specification like 'rat1-rat4@unit' instead of "(rat1:VI/VE)-(rat4:VI/V4)@unit"
 	*utiliser la specification "Var@marginlabel" pour l'option marginlabel.
+	*Ajouter du versioning dans la package github
+
 	local n_mean: list sizeof mean
 	local n_total: list sizeof total
 	local n_ratio: list sizeof ratio
@@ -171,17 +173,17 @@ program define genmdt
 	
 	if `n_mean'>0 {	
 		quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param("mean") hiergeovars(`hiergeovars') ///
-		var(`mean') conditionals(`conditionals') indicator(`indicatorname') units(`units') setcluster(`setcluster') equal_lenth(1)
+		var(`mean') conditionals(`conditionals') indicator(`indicatorname') units(`units') setcluster(`setcluster') 
 	}
 
 	if `n_total'>0 {
 		quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param("total") hiergeovars(`hiergeovars') ///
-		var(`total') conditionals(`conditionals') indicator(`indicatorname') units(`units') setcluster(`setcluster') equal_lenth(1)
+		var(`total') conditionals(`conditionals') indicator(`indicatorname') units(`units') setcluster(`setcluster') 
 	}
 
 	if `n_ratio'>0 {
 		quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param("ratio") hiergeovars(`hiergeovars') ///
-		var(`ratio') conditionals(`conditionals') indicator(`indicatorname') units(`units') setcluster(`setcluster') equal_lenth(1)
+		var(`ratio') conditionals(`conditionals') indicator(`indicatorname') units(`units') setcluster(`setcluster') 
 	}
 	
 tempfile opendata_dst

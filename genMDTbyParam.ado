@@ -67,13 +67,8 @@ cap program drop genMDTbyParam
 program define genMDTbyParam
 		
 	syntax [varlist(default=none)] , PARAMeter(string asis) VARiable(string asis) [MARGINlabels(string asis) HIERGEOvars(string asis) ///
-	GEOMARGINlabel(string asis) CONDitionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) setcluster(integer 0)]
+	GEOMARGINlabel(string asis) CONDitionals(string asis) svySE(string) subpop(string asis) setcluster(integer 0)]
 	
-	*Ajouter du versioning dans la package github
-	
-	quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param(`parameter') hiergeovars(`hiergeovars') ///
-	var(`variable') conditionals(`conditionals') indicator(`indicatorname') units(`units') setcluster(`setcluster')
-
 	local n_geovar: list sizeof hiergeovars
 	local n_varlist: list sizeof varlist
 	local n_geomarginlabel: list sizeof geomarginlabel
@@ -149,7 +144,6 @@ program define genMDTbyParam
 
 	restore
 	preserve 
-
 	qui findfile svyParallel.ado
 	qui return list
 	local mypath "`r(fn)'"
@@ -170,8 +164,7 @@ program define genMDTbyParam
 		* Step 3: Loop through the remaining datasets and qui append them
 		foreach file of local files {
 			* Skip the first file since it's already loaded
-			if ("`file'" != "`: word 1 of `files''") qui append using `file'
-			
+			if ("`file'" != "`: word 1 of `files''") qui append using `file'		
 		}
 		
 		tempfile dataset_alldims
@@ -187,18 +180,18 @@ program define genMDTbyParam
 		if(`n_geovar'==0) local final_varlist "`varlist'"
 		else local final_varlist "geoType geoVar `varlist'"
 		
-		order `final_varlist' Indicator b n_Obs N_subPop CV 
+		order `final_varlist' Indicator b n_Obs N_subPop CV_pct
 		
 		tempfile final_dataset
 		qui save `final_dataset', replace
 
 		restore
 		* Extracting variable labels
-		*foreach v of local varlist {	
+		foreach v of local varlist {	
 			*Exploring labelsof command would reduce this number of line
-		*	local old_vl: value label `v'
-		*	elabel copy `old_vl' ld_`v' 
-		*}
+			local old_vl: value label `v'
+			elabel copy `old_vl' ld_`v' 
+		}
 		* Adding the value label for the magins of dimensions
 		local n_marginlabels: list sizeof marginlabels
 		*local c: word count `varlist'
@@ -209,8 +202,6 @@ program define genMDTbyParam
 				local pos=strpos("`name'", "@")
 				local varname=substr("`name'", 1, strpos("`name'", "@") - 1)
 				local new_val_lab=substr("`name'", strpos("`name'", "@") + 1, .)
-				local old_vl: value label `varname'
-				elabel copy `old_vl' ld_`varname' 
 				cap label list ld_`varname'
 				return list
 				local n_lev=`r(max)'+1
@@ -244,23 +235,6 @@ program define genMDTbyParam
 			drop if `v'==.
 			label values `v' ld_`v'	
 		}
-/*		
-		forvalues i=1/`c' {
-			if ("`:word `i' of `marginlabels''"!="") {
-				cap label list ld_`:word `i' of `varlist''
-				return list
-				local n_lev=`r(max)'
-				qui replace `:word `i' of `varlist''= `n_lev' if `:word `i' of `varlist''==.
-			} 
-			else {
-				drop if `:word `i' of `varlist''==.
-			}
-		}
-
-		foreach v of local varlist {
-			label values `v' ld_`v'		
-		}
-		*/
 
 		if(`n_geovar'!=0) {
 			forvalues i=1/`n_geovar' {		
@@ -271,57 +245,14 @@ program define genMDTbyParam
 			qui replace geoVar="`:word 1 of `geomarginlabel''" if geoVar==""
 		}
 		
-		************************************************************************
-		*** Create IndicatorName and Unit variables ****************************
-		************************************************************************
-		*correction for ration
 		gen Parameter="`parameter'"
 		rename Indicator Variable
 		rename se standError
 		rename ll LL_confInt
 		rename ul UL_confInt
 		rename b Value
-
 		order `final_varlist' Variable Parameter  Value 
-		*correction for ration
-		local c: word count `final_varlist'	
-		
-		************************************************************************
-		****** ADDING units if specicied ***************************************
-		************************************************************************
-		local n_units: list sizeof units
-		local n_variable: list sizeof variable 
-
-		if (`n_units'!=0) {
-			gen Unit=""
-			local c: word count `variable'
-			forvalues i=1/`c' {
-				qui replace Unit = "`:word `i' of `units''" if Variable=="`:word `i' of `variable''"
-			}
-			order `final_varlist' Variable Parameter  Value  Unit 
-		}	
-
-		************************************************************************
-		*** Adding indicator label if specified*********************************
-		************************************************************************
-		local n_indicatorname: list sizeof indicatorname
-		if (`n_indicatorname'!=0) {	
-			gen IndicatorName=""
-			local c: word count `variable'
-			local i = 1  // Initialize the iteration counter
-			foreach ind_name of local indicatorname {
-				qui replace IndicatorName = "`ind_name'" if Variable=="`:word `i' of `variable''"
-				 local i = `i' + 1  // Increment the counter
-			}
-			order `final_varlist' Variable Parameter IndicatorName Value Unit 
-			*cap qui replace IndicatorName = ustrregexra( IndicatorName ,"&","'")
-		}
-		sort Variable 
-		
-		************************************************************************
-		*************** formating indicator for ratio **************************
-		************************************************************************
-
+	
 	} // quietly
 
 end

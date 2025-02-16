@@ -4,7 +4,7 @@ program define consistencyCheck
 		
 	syntax [varlist(default=none)] , PARAMeter(string) VARiable(string asis) ///
 	[hiergeovars(string asis) MARGINLABels(string asis) conditionals(string asis) svySE(string) ///
-	subpop(string asis) UNITs(string asis) INDICATORname(string asis) setcluster(int 0) equal_lenth(int 0)]
+	subpop(string asis) setcluster(int 0)]
 	
 	* TO DO
 		* take into account subpo
@@ -210,33 +210,6 @@ program define consistencyCheck
 		}
 		
 	}
-
-if `equal_lenth'==0 {	
-	***************************************************************************************
-	*** Adding indicator label if specified************************************************
-	***************************************************************************************
-	local n_indicatorname: list sizeof indicatorname
-	if (`n_indicatorname'!=0) {
-		if (`n_indicatorname'!=`n_variable') {
-			display as error "Error: The options indicatorname and variable should have the same number of elements"
-			exit 498 // or any error code you want to return
-		} 				
-	}
-		
-***************************************************************************************
-*** Adding indicator label if specified************************************************
-***************************************************************************************
-	
-	local n_units: list sizeof units
-	local n_variable: list sizeof variable
-
-	if (`n_units'!=0) {
-		if (`n_units'!=`n_variable') {
-			display as error "Error: The options units and variable should have the same number of elements"
-			exit 498 // or any error code you want to return
-		}
-	}	
-}
 		*set cluster if specified
 		if(`setcluster'>0) {
 		quietly parallel initialize `setcluster'
