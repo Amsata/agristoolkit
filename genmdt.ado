@@ -64,10 +64,10 @@ seealso[
 END HELP FILE */
 
 *cap program drop opendata
-program define opendata
+program define genmdt
 		
-	syntax [varlist(default=none)] , [ mean(string asis) total(string asis) ratio(string asis) marginlabels(string asis) hiergeovars(string asis) ///
-	geovarmarginlab(string asis) conditionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) setcluster(integer 0)]
+	syntax [varlist(default=none)] , [ mean(string asis) total(string asis) ratio(string asis) MARGINlabels(string asis) HIERGEOvars(string asis) ///
+	GEOMARGINlabel(string asis) CONDitionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) setCLUSTER(integer 0)]
 		
 		
 	* For ratio specified ad ( (rat1:VI/VE)  (rat2:VI/V2)  (rat3:VI/V3) (rat4:VI/V4)), allow unit specification like 'rat1-rat4@unit' instead of "(rat1:VI/VE)-(rat4:VI/V4)@unit"
@@ -188,16 +188,16 @@ tempfile opendata_dst
 
 	if `n_mean'>0 {
 		preserve
-		generateOpenDataTable `varlist', parameter("mean") variable(`mean') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
-		geovarmarginlab(`geovarmarginlab') conditionals(`conditionals') svySE(`svySE') subpop(`subpop') setcluster(`setcluster')
+		genMDTbyParam `varlist', parameter("mean") variable(`mean') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
+		geomarginlabel(`geomarginlabel') conditionals(`conditionals') svySE(`svySE') subpop(`subpop') setcluster(`setcluster')
 		save `opendata_dst', replace
 		restore
 	}
 	
 	if `n_total'>0 {
 		preserve
-		generateOpenDataTable `varlist', parameter("total") variable(`total') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
-		geovarmarginlab(`geovarmarginlab') conditionals(`conditionals') svySE(`svySE') subpop(`subpop') setcluster(`setcluster')
+		genMDTbyParam `varlist', parameter("total") variable(`total') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
+		geomarginlabel(`geomarginlabel') conditionals(`conditionals') svySE(`svySE') subpop(`subpop') setcluster(`setcluster')
 		capture append using `opendata_dst'
 		save `opendata_dst', replace
 		restore
@@ -205,8 +205,8 @@ tempfile opendata_dst
 		
 	if `n_ratio'>0 {
 		preserve
-		generateOpenDataTable `varlist', parameter("ratio") variable(`ratio') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
-		geovarmarginlab(`geovarmarginlab') conditionals(`conditionals') svySE(`svySE') subpop(`subpop') setcluster(`setcluster')
+		genMDTbyParam `varlist', parameter("ratio") variable(`ratio') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
+		geomarginlabel(`geomarginlabel') conditionals(`conditionals') svySE(`svySE') subpop(`subpop') setcluster(`setcluster')
 		capture append using `opendata_dst'
 		save `opendata_dst', replace
 		restore

@@ -2,7 +2,7 @@
 title[a command to setup working directory and necessary files and folder for anonymization]
 
 desc[
- {cmd:generateODT} generate multi-dimentional statisticial tables destined to open Data Africa plateform
+ {cmd:genMDTbyParam} generate multi-dimentional statisticial tables destined to open Data Africa plateform
  or for other potential use.
 ] 
 
@@ -63,11 +63,11 @@ seealso[
 
 END HELP FILE */
 
-*cap program drop generateOpenDataTable
-program define generateOpenDataTable
+cap program drop genMDTbyParam
+program define genMDTbyParam
 		
-	syntax [varlist(default=none)] , PARAMeter(string asis) VARiable(string asis) [marginlabels(string asis) hiergeovars(string asis) ///
-	geovarmarginlab(string asis) conditionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) setcluster(integer 0)]
+	syntax [varlist(default=none)] , PARAMeter(string asis) VARiable(string asis) [MARGINlabels(string asis) HIERGEOvars(string asis) ///
+	GEOMARGINlabel(string asis) CONDitionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) setcluster(integer 0)]
 	
 	*Ajouter du versioning dans la package github
 	
@@ -76,7 +76,7 @@ program define generateOpenDataTable
 
 	local n_geovar: list sizeof hiergeovars
 	local n_varlist: list sizeof varlist
-	local n_geovarmarginlab: list sizeof geovarmarginlab
+	local n_geomarginlabel: list sizeof geomarginlabel
 	  
 	tempfile tmp_data_odt
 	qui save `tmp_data_odt', replace
@@ -88,7 +88,7 @@ program define generateOpenDataTable
 		qui findfile svyParallel.ado
 		qui return list
 		local mypath "`r(fn)'"
-		run `mypath'
+		run "`mypath'"
 		local parameter: list clean parameter
 		
 		if(`setcluster'==0) {
@@ -119,7 +119,7 @@ program define generateOpenDataTable
 		qui findfile svyParallelGeo.ado
 		qui return list
 		local mypath "`r(fn)'"
-		qui run `mypath'	
+		qui run "`mypath'"	
 		local parameter: list clean parameter	
 		if (`setcluster'==0) {
 			svyParallelGeo "`varlist'" "`hiergeovars'" "`variable'" "`parameter'" `setcluster'
@@ -153,7 +153,7 @@ program define generateOpenDataTable
 	qui findfile svyParallel.ado
 	qui return list
 	local mypath "`r(fn)'"
-	run `mypath'
+	run "`mypath'"
 
 	if(`setcluster'==0) {
 		svyParallel "" "`variable'" "`parameter'" `setcluster'
@@ -194,25 +194,33 @@ program define generateOpenDataTable
 
 		restore
 		* Extracting variable labels
-		foreach v of local varlist {	
+		*foreach v of local varlist {	
 			*Exploring labelsof command would reduce this number of line
-			local old_vl: value label `v'
-			elabel copy `old_vl' ld_`v' 
-		}
+		*	local old_vl: value label `v'
+		*	elabel copy `old_vl' ld_`v' 
+		*}
 		* Adding the value label for the magins of dimensions
-		local c: word count `varlist'
-		forvalues i=1/`c' {
-			if ("`:word `i' of `marginlabels''"!="") {
-				cap label list ld_`:word `i' of `varlist''
+		local n_marginlabels: list sizeof marginlabels
+		*local c: word count `varlist'
+		local i = 1  // Initialize the iteration counter
+		*local i = `i' + 1  // Increment the counter
+		if (`n_marginlabels'>0) {
+			foreach name of local marginlabels {
+				local pos=strpos("`name'", "@")
+				local varname=substr("`name'", 1, strpos("`name'", "@") - 1)
+				local new_val_lab=substr("`name'", strpos("`name'", "@") + 1, .)
+				local old_vl: value label `varname'
+				elabel copy `old_vl' ld_`varname' 
+				cap label list ld_`varname'
 				return list
 				local n_lev=`r(max)'+1
-				cap elabel list ld_`:word `i' of `varlist''
+				cap elabel list ld_`varname'
 				return list 
 				local lev `r(values)'
 				local ap: list posof `"`n_lev'"' in lev
-				if (`ap'==0) label define ld_`:word `i' of `varlist'' `n_lev' "`:word `i' of `marginlabels''", add	
-			}
-		}	
+				if (`ap'==0) label define ld_`varname' `n_lev' "`new_val_lab'", add	
+			}	
+		}
 		
 		tempfile  dolabs
 		label save using `dolabs' // store them in a temporary do-file
@@ -220,6 +228,23 @@ program define generateOpenDataTable
 		run `dolabs' // get the value labels
 		* see https://www.statalist.org/forums/forum/general-stata-discussion/general/251350-how-can-i-apply-value-labels-stored-in-different-dataset-into-my-primary-data
 		local c: word count `varlist'
+		
+		if (`n_marginlabels'>0) {
+			foreach name of local marginlabels {
+				local pos=strpos("`name'", "@")
+				local varname=substr("`name'", 1, strpos("`name'", "@") - 1)
+				cap label list ld_`varname'
+				return list
+				local n_lev=`r(max)'
+				qui replace `varname'= `n_lev' if `varname'==.
+			}	
+		}
+		
+		foreach v of local varlist {
+			drop if `v'==.
+			label values `v' ld_`v'	
+		}
+/*		
 		forvalues i=1/`c' {
 			if ("`:word `i' of `marginlabels''"!="") {
 				cap label list ld_`:word `i' of `varlist''
@@ -235,14 +260,15 @@ program define generateOpenDataTable
 		foreach v of local varlist {
 			label values `v' ld_`v'		
 		}
+		*/
 
 		if(`n_geovar'!=0) {
 			forvalues i=1/`n_geovar' {		
-				if("`:word `i' of `geovarmarginlab''"=="") drop if geoVar=="" & geoType=="`:word `i' of `hiergeovars''"
-				else qui replace geoVar="`:word `i' of `geovarmarginlab''" if geoVar=="" & geoType=="`:word `i' of `hiergeovars''"
+				if("`:word `i' of `geomarginlabel''"=="") drop if geoVar=="" & geoType=="`:word `i' of `hiergeovars''"
+				else qui replace geoVar="`:word `i' of `geomarginlabel''" if geoVar=="" & geoType=="`:word `i' of `hiergeovars''"
 			}
-			qui replace geoType="`:word 1 of `geovarmarginlab''" if geoType==""
-			qui replace geoVar="`:word 1 of `geovarmarginlab''" if geoVar==""
+			qui replace geoType="`:word 1 of `geomarginlabel''" if geoType==""
+			qui replace geoVar="`:word 1 of `geomarginlabel''" if geoVar==""
 		}
 		
 		************************************************************************
