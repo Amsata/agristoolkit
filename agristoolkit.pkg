@@ -9,12 +9,6 @@ d
 F consistencyCheck.ado
 F expand_varlist.ado
 F extract_macro_elements.ado
-F generateOpenDataTable.ado
-F generateOpenDataTable.sthlp
+F genMDTbyParam.ado
 F genmdt.ado
 F mat_to_ds.ado
-F setup_anonymization.ado
-F setup_anonymization.sthlp
-F svyEstimate.ado
-F svyParallel.ado
-F svyParallelGeo.ado
