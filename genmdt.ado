@@ -109,7 +109,7 @@ program define genmdt
 					else if `pos_var'==0 {
 						extract_before_colon "`all_variable'"
 						local res_before_colon "`r(extracted)'"
-					    local pos_var: list posof "`varname'" in all_variable
+					    local pos_var: list posof "`varname'" in res_before_colon
 
 						if `pos_var'==0 {
 						display as error "Eerror in '{cmd:`ind'}': {cmd: `varname'} is not a valid variable name" _newline 
@@ -150,8 +150,8 @@ program define genmdt
 						if `pos_var_b'==0 {
 							extract_before_colon "`all_variable'"
 							local res_before_colon "`r(extracted)'"
-							local pos_var_b: list posof "`varname'" in res_before_colon
-							if `pos_var_b'==0 {
+							local pos_var_b2: list posof "`var_before'" in res_before_colon
+							if `pos_var_b2'==0 {
 							display as error "error in '{cmd: `ind'}': {cmd: `var_before'} is not a valid variable name" _newline 
 							display as error "The unit should be specified as followed: {cmd: 'var1-var2@unit'} "
 							exit 480
@@ -161,8 +161,8 @@ program define genmdt
 					    if `pos_var_a'==0 {
 							extract_before_colon "`all_variable'"
 							local res_before_colon "`r(extracted)'"
-							local pos_var_a: list posof "`varname'" in res_before_colon
-							if `pos_var_a'==0 {
+							local pos_var_a2: list posof "`var_after'" in res_before_colon
+							if `pos_var_a2'==0 {
 								display as error "error in '{cmd: `ind'}': {cmd: `var_after'} is not a valid variable name" _newline 
 								display as error "The unit should be specified as followed: {cmd: 'var1-var2@unit'} "
 								exit 480
@@ -284,9 +284,6 @@ tempfile opendata_dst
 				else {
 					local var_before=substr("`varname'", 1, `detect_minus' - 1)
 					local var_after=substr("`varname'", `detect_minus' + 1,.)
-					di "`var_before'" 
-					di "`var_after'"
-					stop
 					***CASE where ratio is specified as (myrat:var1/varN) and unit is specied as "rat1-ratN@%"
 					local posof_var_before: list posof "`var_before'" in all_variable
 					if `posof_var_before'>0 { // not a case where ratio is specified (rat:var1/var2)

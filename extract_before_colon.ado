@@ -10,6 +10,9 @@ program define extract_before_colon, rclass
 			 local before_colon=subinstr("`before_colon'", "(", "", .)
             local result "`result' `before_colon'"
         }
+		else {
+		   local result "`result' `elem'"
+		}
     }
 
     return local extracted "`result'"  // Store the result in r() for retrieval
