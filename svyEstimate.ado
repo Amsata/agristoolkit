@@ -1,14 +1,10 @@
-
 program define svyEstimate
-		
 	syntax [varlist] ,PARAMeter(string) VARiable(string asis) ///
 	[conditionals(string asis) svySE(string) subpop(string asis) alldim(string asis) ]
-
 		quietly {
 		************************************************************************
 		*** Generate estimate over dimension the given dimension combination ***
 		************************************************************************
-		
 		if("`alldim'"=="yes") svy: `parameter' `variable'
 		else svy, over(`varlist'): `parameter' `variable'
 		qui return list
@@ -27,14 +23,12 @@ program define svyEstimate
 		unab all_vars: *
 		rename `:word 2 of `all_vars'' n_Obs // or word(`all_vars', 1)
 		save `dataset_n_obs', replace
-		
 		mat_to_ds N_subpop	   
 		tempfile dataset_N_subpop
 		order rownames
 		unab all_vars: *
 		rename `:word 2 of `all_vars'' N_subPop // or word(`all_vars', 1)
 		save `dataset_N_subpop', replace
-		
 		* Estimating coefficient of variation
 		estat cv
 		matrix define CV = r(cv)'
@@ -46,7 +40,6 @@ program define svyEstimate
 		merge 1:1 rownames using `dataset_n_obs', nogen
 		merge 1:1 rownames using `dataset_N_subpop', nogen
 		if("`parameter'"=="ratio") replace rownames = regexr(rownames, "^[^@]+", "`variable'")
-		
 		if ("`alldim'"!="yes") {
 		   split rownames, p(@)
 			capture drop Indicator
@@ -64,18 +57,9 @@ program define svyEstimate
 			}
 			drop dimension 
 			*drop rownames
-	}
-	else {
-		gen Indicator=rownames
-	}
-		*break 498
-		**************************************************************************
-		*** Extract correct dimension name and merging with sample frequencies (possible from Stata 17 ***
-		*************************************************************************
-		
-		
+		}
+		else {
+			gen Indicator=rownames
 		} //quietly
 	
 end
-
-*include controle in case of hierarchical geographic variable, indication=> to many zero/missing value in sample frequencies
