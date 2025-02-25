@@ -102,10 +102,7 @@ program svyParallelGeo
 							drop `:word `k' of `hiergeovars''
 						}
 						*drop rownames
-					if (c(os)=="Windows") local saving = `"`c(tmpdir)'__pll_`parallelid'_$pll_instance.dta"'
-					else local saving = `"`c(tmpdir)'/__pll_`parallelid'_$pll_instance.dta"'
-
-						save `saving', replace
+						save __pll_`parallelid'_$pll_instance.dta, replace
 					}	
 				}
 			}	

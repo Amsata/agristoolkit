@@ -53,12 +53,8 @@ program svyParallel
 					***************************************************************
 					*check if there are hierarchical structure between 2 variables*
 					***************************************************************
-					quietly svyEstimate `tuple' , param(`parameter') var(`var') alldim(`alldim')
-					
-					if (c(os)=="Windows") local saving = `"`c(tmpdir)'__pll_`parallelid'_$pll_instance.dta"'
-					else local saving = `"`c(tmpdir)'/__pll_`parallelid'_$pll_instance.dta"'
-		
-					save  `saving', replace
+					quietly svyEstimate `tuple' , param(`parameter') var(`var') alldim(`alldim')		
+					save  __pll_`parallelid'_$pll_instance.dta, replace
 				}
 			}
 		}	
