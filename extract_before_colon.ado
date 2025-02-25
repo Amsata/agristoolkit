@@ -1,6 +1,8 @@
 program define extract_before_colon, rclass
-    args input_macro    
+    args input_macro
+    
     local result ""  // Initialize an empty local to store the extracted elements
+
     foreach elem of local input_macro {
 	local pos=strpos("`elem'", ":")
         if `pos'> 0 {  // Check if ":" exists in the element
@@ -12,5 +14,6 @@ program define extract_before_colon, rclass
 		   local result "`result' `elem'"
 		}
     }
+
     return local extracted "`result'"  // Store the result in r() for retrieval
 end

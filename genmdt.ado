@@ -2,7 +2,7 @@
 title[a command to setup working directory and necessary files and folder for anonymization]
 
 desc[
- {cmd:genmdt} generate multi-dimentional statisticial tables destined to open Data Africa plateform
+ {cmd:generateODT} generate multi-dimentional statisticial tables destined to open Data Africa plateform
  or for other potential use.
 ] 
 
@@ -68,11 +68,11 @@ program define genmdt
 		
 	syntax [varlist(default=none)] , [ mean(string asis) total(string asis) ratio(string asis) MARGINlabels(string asis) HIERGEOvars(string asis) ///
 	GEOMARGINlabel(string asis) CONDitionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) setcluster(integer 0)]
-	
+		
+		
+	* For ratio specified ad ( (rat1:VI/VE)  (rat2:VI/V2)  (rat3:VI/V3) (rat4:VI/V4)), allow unit specification like 'rat1-rat4@unit' instead of "(rat1:VI/VE)-(rat4:VI/V4)@unit"
+	*utiliser la specification "Var@marginlabel" pour l'option marginlabel.
 	*Ajouter du versioning dans la package github
-	*Test if indicatorname can contain quotes "
-	*Simplify gen scalar init in saving by cap append and then save
-	*check if the specified conditional is valid
 
 	local n_mean: list sizeof mean
 	local n_total: list sizeof total
@@ -81,10 +81,12 @@ program define genmdt
 	local n_unit: list sizeof units
 	
 	qui expand_varlist "`mean'"
-	local mean `r(expanded)'	
+	local mean `r(expanded)'
+	
 	qui expand_varlist "`total'"
 	local total `r(expanded)'
 	
+
 	if (`n_mean'==0 & `n_total'==0 & `n_ratio'==0) {
 		display as error "The options {cmd: mean}, {cmd:total} and {cmd: ratio} cannot be all empty."
 		exit 480
@@ -123,6 +125,7 @@ program define genmdt
 				}
 			}			
 		}
+
 
 		if (`n_unit'!=0) {
 		foreach ind of local units {
@@ -188,26 +191,28 @@ program define genmdt
 		}			
 	}
 	
+	
+	
 	if `n_mean'>0 {	
-		quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param("mean") hiergeovars(`hiergeovars') 				///
+		quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param("mean") hiergeovars(`hiergeovars') ///
 		var(`mean') conditionals(`conditionals') setcluster(`setcluster') 
 	}
 
 	if `n_total'>0 {
-		quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param("total") hiergeovars(`hiergeovars') 	    	 ///
+		quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param("total") hiergeovars(`hiergeovars') ///
 		var(`total') conditionals(`conditionals') setcluster(`setcluster') 
 	}
 
 	if `n_ratio'>0 {
-		quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param("ratio") hiergeovars(`hiergeovars') var(`ratio') ///
-		conditionals(`conditionals') setcluster(`setcluster') 
+		quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param("ratio") hiergeovars(`hiergeovars') ///
+		var(`ratio') conditionals(`conditionals') setcluster(`setcluster') 
 	}
 	
-	tempfile opendata_dst
+tempfile opendata_dst
 
 	if `n_mean'>0 {
 		preserve
-		genMDTbyParam `varlist', parameter("mean") variable(`mean') marginlabels(`marginlabels') hiergeovars(`hiergeovars') 	 ///
+		genMDTbyParam `varlist', parameter("mean") variable(`mean') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
 		geomarginlabel(`geomarginlabel') conditionals(`conditionals') svySE(`svySE') subpop(`subpop') setcluster(`setcluster')
 		save `opendata_dst', replace
 		restore
@@ -215,7 +220,7 @@ program define genmdt
 	
 	if `n_total'>0 {
 		preserve
-		genMDTbyParam `varlist', parameter("total") variable(`total') marginlabels(`marginlabels') hiergeovars(`hiergeovars') 	 ///
+		genMDTbyParam `varlist', parameter("total") variable(`total') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
 		geomarginlabel(`geomarginlabel') conditionals(`conditionals') svySE(`svySE') subpop(`subpop') setcluster(`setcluster')
 		capture append using `opendata_dst'
 		save `opendata_dst', replace
@@ -233,14 +238,15 @@ program define genmdt
 	
 	use `opendata_dst', clear
 	
-		***in case ratio is specified as (RatioName:Num/Den) consider "RatioName" as name of the ratio in the output variable "Variable"	
+	
+		***some adjustment for ratio
+		
 		qui gen position=strpos(Variable, ":")
 		qui replace Variable = substr(Variable, 1,strpos(Variable, ":")- 1) if position>0
 		qui replace Variable = substr(Variable, strpos(Variable, "(") + 1, .) if position>0
-		drop position	
-	****************************************************************************
-	******************LABEL INDICATOR AND UNITS IF PROVIDED*********************
-	****************************************************************************
+		drop position
+		
+		
 		if (`n_indicatorname'!=0) {
 			gen IndicatorName=""
 			foreach ind of local indicatorname {
@@ -249,20 +255,22 @@ program define genmdt
 				qui replace IndicatorName="`ind'" if Variable=="`varname'"
 				qui replace IndicatorName = substr(IndicatorName, strpos(IndicatorName, "@") + 1, .)
 			}
-			*Reordering variables in IndicatorName is specified: Insert IndocatorName before "Value"
+			
 			unab all_vars: *
+			// Step 2: Create a new order, moving "res" before "ger"
 			local neworder ""
 			foreach var in `all_vars' {
 				if "`var'" == "Value" {
-					local neworder "`neworder' IndicatorName" 
+					local neworder "`neworder' IndicatorName"  // Insert "res" before "ger"
 				}
 				if "`var'" != "IndicatorName" {
-					local neworder "`neworder' `var'" 
+					local neworder "`neworder' `var'"  // Keep other variables in order
 				}
 			}
 		 order `neworder'
+
 		}
-		
+
 		if (`n_unit'!=0) {
 			gen Unit=""
 			foreach ind of local units {
@@ -298,15 +306,25 @@ program define genmdt
 					}
 				}
 			}
-			qui replace Unit = substr(Unit, strpos(Unit, "@") + 1, .) // remove "Variable@Unit" in the Unit output variable
-			*Reordering variable if units is specified: put Unit after the variable "Value"
+			qui replace Unit = substr(Unit, strpos(Unit, "@") + 1, .)
 			unab all_vars: *
+			// Step 2: Create a new order, moving "res" before "ger"
 			local neworder ""
 			foreach var in `all_vars' {
-				if ("`var'" == "n_Obs") local neworder "`neworder' Unit"		
-				if ("`var'" != "Unit") local neworder "`neworder' `var'" 
+				if "`var'" == "n_Obs" {
+					local neworder "`neworder' Unit"  // Insert "res" before "ger"
+				}
+				if "`var'" != "Unit" {
+					local neworder "`neworder' `var'"  // Keep other variables in order
+				}
 			}
-			order `neworder'
+		 order `neworder'
 		}
+		
+
+	****************************************************************************
+	******************LABEL INDICATOR AND UNITS IF PROVIDED*********************
+	****************************************************************************
+	
 end
 
