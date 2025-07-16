@@ -55,5 +55,4 @@ mar2023=createAgrisvy(svyName =`svyName' , ///
                       type = `type' ); ///
 options(usethis.allow_nested_project = TRUE); ///
 setup_anonymization(mar2023,overwrite = `overwrite')
-
 end
