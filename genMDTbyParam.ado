@@ -67,7 +67,7 @@ cap program drop genMDTbyParam
 program define genMDTbyParam
 		
 	syntax [varlist(default=none)] , PARAMeter(string asis) VARiable(string asis) [MARGINlabels(string asis) HIERGEOvars(string asis) ///
-	GEOMARGINlabel(string asis) CONDitionals(string asis) svySE(string) subpop(string asis) setcluster(integer 0)]
+	GEOMARGINlabel(string) CONDitionals(string asis) svySE(string) subpop(string asis) setcluster(integer 0)]
 	
 	local n_geovar: list sizeof hiergeovars
 	local n_varlist: list sizeof varlist
@@ -237,22 +237,37 @@ program define genMDTbyParam
 		}
 
 		if(`n_geovar'!=0) {
-			forvalues i=1/`n_geovar' {		
-				if("`:word `i' of `geomarginlabel''"=="") drop if geoVar=="" & geoType=="`:word `i' of `hiergeovars''"
-				else qui replace geoVar="`:word `i' of `geomarginlabel''" if geoVar=="" & geoType=="`:word `i' of `hiergeovars''"
-			}
-			qui replace geoType="`:word 1 of `geomarginlabel''" if geoType==""
-			qui replace geoVar="`:word 1 of `geomarginlabel''" if geoVar==""
+
+		local size_geomarginlabel: list sizeof geomarginlabel
+			if(`size_geomarginlabel'==0){
+				drop if geoVar==.
+			} 
+			else{
+			
+				cap label list labels_geovars
+				return list
+				local n_lev=`r(max)'+1
+				label define labels_geovars `n_lev' `"`geomarginlabel'"', add	
+				qui label list labels_geovars
+				la li labels_geovars
+				qui replace geoVar= `r(max)' if missing(geoVar) & geoType==""
+				qui replace geoVar= `r(max)' if missing(geoVar) & geoType=="`:word 1 of `hiergeovars''"
+				label val geoVar labels_geovars
+				qui replace geoType=`"`geomarginlabel'"' if geoVar== `r(max)'
+				drop if missing(geoVar)
+			} 
+			
 		}
-		
+	
 		gen Parameter="`parameter'"
 		rename Indicator Variable
 		rename se standError
 		rename ll LL_confInt
 		rename ul UL_confInt
 		rename b Value
+		format Value %15.2f
 		order `final_varlist' Variable Parameter  Value 
-	
+
 	} // quietly
 
 end
