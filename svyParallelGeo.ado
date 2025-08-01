@@ -130,13 +130,16 @@ forvalues k=1/`s_geovars' {
 		************************************************************************	
 			quietly svyEstimate `tuple' , param(`parameter') var(`var') alldim(`alldim')
 			gen geoType="`:word `k' of `hiergeovars''"
+
+			
 			capture confirm variable `:word `k' of `hiergeovars''
 			if _rc == 0 {
 				run `dolabs'
 				label values `:word `k' of `hiergeovars'' ld_`:word `k' of `hiergeovars''
-				decode `:word `k' of `hiergeovars'', gen(geoVar)
-				drop `:word `k' of `hiergeovars''
+				ren `:word `k' of `hiergeovars'' geoVar
+
 			}
+			
 	*drop rownames
 			
 		save __pll_`parallelid'_$pll_instance.dta, replace
