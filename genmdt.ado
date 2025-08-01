@@ -67,7 +67,7 @@ END HELP FILE */
 program define genmdt
 		
 	syntax [varlist(default=none)] , [ mean(string asis) total(string asis) ratio(string asis) MARGINlabels(string asis) HIERGEOvars(string asis) ///
-	GEOMARGINlabel(string asis) CONDitionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) setcluster(integer 0)]
+	GEOMARGINlabel(string) CONDitionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) setcluster(integer 0)]
 		
 		
 	* For ratio specified ad ( (rat1:VI/VE)  (rat2:VI/V2)  (rat3:VI/V3) (rat4:VI/V4)), allow unit specification like 'rat1-rat4@unit' instead of "(rat1:VI/VE)-(rat4:VI/V4)@unit"
@@ -79,6 +79,42 @@ program define genmdt
 	local n_ratio: list sizeof ratio
 	local n_indicatorname: list sizeof indicatorname
 	local n_unit: list sizeof units
+	local n_geovars: list sizeof hiergeovars
+
+	*******creating unique variable label for geovars
+	
+if(`n_geovars'>0) {
+
+	quietly{
+		local old_vl: value label `:word 1 of `hiergeovars''
+		elabel copy `old_vl' labels_geovars
+		qui elabel list labels_geovars
+		local max_val=`r(max)'
+
+		foreach v of local hiergeovars {
+			if("`v'" != "`:word 1 of `hiergeovars''") {
+				local old_vl: value label `v'
+				elabel copy `old_vl' `v'_labels
+				qui elabel list `v'_labels
+				local valeur="`r(values)'"
+				local text=`"`r(labels)'"'
+				local len_label=`r(k)'
+				local max_final=cond(`max_val'>`r(max)',`max_val',`r(max)')
+
+				di "`len_label'"
+				forvalues i=1/`len_label' {
+					local j=`max_final'+`:word `i' of `valeur''
+					di "max=`max_val' :i=`:word `i' of `valeur'' :j=`j'"
+					qui recode `v' `:word `i' of `valeur''=`j'
+					label define labels_geovars `j' `"`:word `i' of `text''"',add
+					}
+				
+				label val `v' labels_geovars
+			}
+		}
+	}
+}
+
 	
 	qui expand_varlist "`mean'"
 	local mean `r(expanded)'
