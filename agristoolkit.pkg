@@ -7,7 +7,7 @@ d Distribution-Date:   20250804
 d License: Creative Commons Attribution 4.0
 d 
 F consistencyCheck.ado
-F erase_after_hash
+F erase_after_hash.ado
 F expand_varlist.ado
 F extract_before_colon.ado
 F extract_macro_elements.ado
