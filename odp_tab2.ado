@@ -10,7 +10,7 @@ program define odp_tab2, rclass
 
 	if ("`indvar'"=="") local indvar "Variable"
 	if ("`indicatorname'"=="") local indicatorname "IndicatorName"
-	if ("`value'"=="") local value "Value"
+	if ("`value'"=="") local value "Value_str"
 	
 	**start message 
 	preserve
@@ -66,7 +66,7 @@ reshape wide `by', i(`varlist') j(sp)
 foreach v of local varlist {
 tostring  `v',gen(`v'_bis)
 drop `v' 
- ren `v'_bis `v'
+ sren `v'_bis `v'
 replace `v'="`v'"
 }
 

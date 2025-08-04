@@ -9,7 +9,7 @@ program define odp_tab, rclass
 ****************defining default name for variables ****************************
 	if ("`indvar'"=="") local indvar "Variable"
 	if ("`indicatorname'"=="") local indicatorname "IndicatorName"
-	if ("`value'"=="") local value "Value"
+	if ("`value'"=="") local value "Value_str"
 	
 ***************extract PATH, SHEET NAME and START CELL NUMBER from outfile ********
     local outfile = trim("`outfile'")  // Strip leading/trailing whitespace
