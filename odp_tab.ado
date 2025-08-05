@@ -123,6 +123,7 @@ program define odp_tab, rclass
 	********replacing "." with the specified decimal ex. ","
 	unab all_vars: *
 	local indvar2:list all_vars-varlist
+	if ("`rowtotal'"!="") local indvar2:list indvar2-rowtotal
 	if ("`decimal'"!="") {
 		foreach v of local indvar2 {
 			replace `v' = subinstr(`v', ".", "`decimal'", .)
