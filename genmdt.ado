@@ -290,8 +290,8 @@ tempfile opendata_dst
 				local varname=substr("`ind'", 1, strpos("`ind'", "@") - 1)
 				qui replace IndicatorName="`ind'" if Variable=="`varname'"
 				qui replace IndicatorName = substr(IndicatorName, strpos(IndicatorName, "@") + 1, .)
-				replace IndicatorName = subinstr(IndicatorName, "***", " ", .)
-				replace IndicatorName = subinstr(IndicatorName, "&&&", "'", .)
+				qui replace IndicatorName = subinstr(IndicatorName, "***", " ", .)
+				qui replace IndicatorName = subinstr(IndicatorName, "&&&", "'", .)
 			}
 			
 			unab all_vars: *
