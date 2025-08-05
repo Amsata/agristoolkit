@@ -66,7 +66,7 @@ reshape wide `by', i(`varlist') j(sp)
 foreach v of local varlist {
 tostring  `v',gen(`v'_bis)
 drop `v' 
- sren `v'_bis `v'
+ ren `v'_bis `v'
 replace `v'="`v'"
 }
 
