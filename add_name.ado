@@ -1,14 +1,21 @@
-
+cap program drop add_name
 program define add_name, rclass
 
 syntax anything, [start]
 
+local anything `anything'
+local newtext = subinstr("`anything'", "'", "&&&", .)
+local newtext = subinstr("`newtext'", " ", "***", .)
+
 if ("`start'"!="") {
-    local combined `anything'
-	cap macro drop _global myresult
+    local combined `" `"`newtext'"' "'
+	cap macro drop _global indicatornames
 }
 else {
-local combined = `"`"$indicatornames"' `anything'"'
+
+local gobmac "$indicatornames"
+
+local combined = `"`gobmac' `"`newtext'"'"'
 }
-    global indicatornames `"`combined'"'
+    global indicatornames "`combined'"
 end
