@@ -3,10 +3,11 @@ program define odp_tab, rclass
 		
 	syntax [varlist(default=none)] [if], [  tabtitle(string asis) outfile(string) indicator(string asis) indicatorname(varlist) indvar(varlist) value(varlist) rowtotal (string) DECimal(string)]
 
-	
+	local indicatorbis=subinstr(`"`indicator'"', ",", " ", .)
+	local s:list sizeof indicatorbis
 	local indicator2
-	foreach v of local indicator {
-	if ("`v'"!=",") local indicator2= "`indicator2' `v'"
+	foreach v of local indicatorbis {
+	local indicator2= "`indicator2' `v'"
 	}
 
 	di as result `"Generating table: {cmd:`tabtitle'}..."'
