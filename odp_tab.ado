@@ -1,8 +1,14 @@
+cap program drop odp_tab
 program define odp_tab, rclass
 		
 	syntax [varlist(default=none)] [if], [  tabtitle(string asis) outfile(string) indicator(string asis) indicatorname(varlist) indvar(varlist) value(varlist) rowtotal (string) DECimal(string)]
 
 	
+	local indicator2
+	foreach v of local indicator {
+	if ("`v'"!=",") local indicator2= "`indicator2' `v'"
+	}
+
 	di as result `"Generating table: {cmd:`tabtitle'}..."'
 	
 	quietly {
@@ -51,7 +57,23 @@ program define odp_tab, rclass
 		exit 1
 	}
 
-	reshape wide tablabel, i(`varlist') j(`indvar') string
+	************create order****************
+	gen indvar2=.
+	local n_ind:list sizeof indicator2
+	forvalues i=1/`n_ind' {
+	replace indvar2=`i' if `indvar'== "`:word `i' of `indicator2''"
+	}
+	cap label drop ind_label
+	label define ind_label 1 "`:word 1 of `indicator2''"
+		forvalues i=2/`n_ind' {
+			label define ind_label `i' `"`:word `i' of `indicator2''"', add
+		}
+	label val indvar2 ind_label
+	drop `indvar'
+	ren indvar2 `indvar'
+	*************end order creation ***********
+	
+	reshape wide tablabel, i(`varlist') j(`indvar')
 
 	foreach v of local varlist {
 		tostring  `v',gen(`v'_bis)
@@ -79,6 +101,24 @@ program define odp_tab, rclass
 	keep if inlist(`indvar',`indicator')
 	keep  `varlist' `indvar' `value'
 
+	
+	************create order****************
+	gen indvar2=.
+	local n_ind:list sizeof indicator2
+	forvalues i=1/`n_ind' {
+	replace indvar2=`i' if `indvar'== "`:word `i' of `indicator2''"
+	}
+	cap label drop ind_label
+	label define ind_label 1 "`:word 1 of `indicator2''"
+		forvalues i=2/`n_ind' {
+			label define ind_label `i' `"`:word `i' of `indicator2''"', add
+		}
+	label val indvar2 ind_label
+	drop `indvar'
+	ren indvar2 `indvar'
+	*************end order creation ***********
+	
+	
 	****************number of masked cells and cells with zero ***************
 	gen strrrr=`value'
 	replace strrrr="0" if strrrr=="0[w]"
@@ -95,7 +135,7 @@ program define odp_tab, rclass
 	local per_zero_cells=round(`per_zero_cells')
 	drop strrrr strrrr_bis
 	
-	reshape wide `value', i(`varlist') j(`indvar') string
+	reshape wide `value', i(`varlist') j(`indvar')
 
 	*********adding rowtoal if sceified****************************************
 	if ("`rowtotal'"!="") {
@@ -168,5 +208,6 @@ program define odp_tab, rclass
 }
 
 return local cellEnd `TabCellEnd_num'+4
+
 end
 	
