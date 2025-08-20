@@ -1,8 +1,9 @@
+cap program drop odp_tab3
 program define odp_tab3, rclass
 		
 		 **  tablabelvar(varlist) indvar(varlist)
 		*syntax [varlist(default=none)] [if], [  tabtitle(string asis) outfile(string) indicator(string asis) indicatorname(varlist) indvar(varlist) value(varlist)]
-	syntax [varlist(default=none)] [if] , [ outfile(string) indicator(string) indvar(varlist) value(varlist) by(varlist) rowtotal(string) decimal(string asis) indicatorname(varlist)]
+	syntax [varlist(default=none)] [if] , [ outfile(string) indicator(string) indvar(varlist) value(varlist) by(varlist) rowtotal(string) decimal(string asis) indicatorname(varlist) replace]
 	
 	***extract path, sheet name and start cell num from outfile
     // Strip leading/trailing whitespace
@@ -28,15 +29,17 @@ program define odp_tab3, rclass
 	local counter=0
 	foreach ind of local indicator {
 	if (`counter'==0) {
-		odp_tab2 `varlist' `if' ,  outfile("`path'", "`sheet_name'", `cell_start_num') indicator(`ind') indvar(`indvar') value(`value') by(`by') rowtotal(`rowtotal') decimal(`decimal') indicatorname(`indicatorname')
+		odp_tab2 `varlist' `if' ,  outfile(`outfile') indicator(`ind') indvar(`indvar') value(`value') by(`by') rowtotal(`rowtotal') decimal(`decimal') indicatorname(`indicatorname') `replace'
 		
 		local counter=1
 	}
 	else {
-			odp_tab2 `varlist' `if' ,  outfile("`path'", "`sheet_name'",`r(cellEnd)') indicator(`ind') indvar(`indvar') value(`value') by(`by') rowtotal(`rowtotal') decimal(`decimal') indicatorname(`indicatorname')
+			odp_tab2 `varlist' `if' ,  outfile("`path'", "`sheet_name'",  `r(tab_end_line)',`r(tab_start_cell_letter)') indicator(`ind') indvar(`indvar') value(`value') by(`by') rowtotal(`rowtotal') decimal(`decimal') indicatorname(`indicatorname')
 	}  
 	
 	}
-	return local cellEnd `r(cellEnd)'
-
+return scalar tab_start_line=`r(tab_start_line)'
+return local tab_start_cell_letter= "`r(tab_start_cell_letter)'"
+return local tab_end_cell_letter="`r(tab_end_cell_letter)'"
+return scalar tab_end_line=`r(tab_end_line)'
 end

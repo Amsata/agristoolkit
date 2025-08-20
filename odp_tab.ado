@@ -1,16 +1,21 @@
 cap program drop odp_tab
 program define odp_tab, rclass
 		
-	syntax [varlist(default=none)] [if], [  tabtitle(string asis) outfile(string) indicator(string asis) indicatorname(varlist) indvar(varlist) value(varlist) rowtotal (string) DECimal(string)]
+	syntax [varlist(default=none)] [if], [  tabtitle(string asis) truncate header(string asis) outfile(string) indicator(string asis) indicatorname(varlist) indvar(varlist) value(varlist) rowtotal (string) DECimal(string) replace]
 
 	local indicatorbis=subinstr(`"`indicator'"', ",", " ", .)
 	local s:list sizeof indicatorbis
+	local size_varlist:list sizeof varlist
+	local size_tabtitle:list sizeof tabtitle
+	local size_rowtotal:list sizeof rowtotal
+
+	local size_header: list sizeof header
 	local indicator2
 	foreach v of local indicatorbis {
 	local indicator2= "`indicator2' `v'"
 	}
 
-	di as result `"Generating table: {cmd:`tabtitle'}..."'
+	if(`size_tabtitle'>0) di as result `"Generating table: {cmd:`tabtitle'}..."'
 	
 	quietly {
 ****************defining default name for variables ****************************
@@ -24,15 +29,16 @@ program define odp_tab, rclass
     local path = trim("`1'") // Assign values
     local sheet_name = trim("`3'") // Assign values
     local cell_start_num   = trim("`5'") // Assign values
-	
-	if ("`sheet_name'"=="") {
-		local sheet_name "TABLES"
-		local cell_start_num=1
-	}
+	local cell_start   = trim("`7'") // Assign values
+
+	if ("`sheet_name'"=="") local sheet_name "TABLES"
+	if ("`cell_start_num'"=="") local cell_start_num=1
+	if ("`cell_start'"=="") local cell_start "A"
 	
 		
 	putexcel set "`path'", modify sheet("`sheet_name'")  
 	local alphabet "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z"  // TO DO: expand AA AB AC etc to increase the capability of the fuction
+	local col_num_start_cell:list posof "`cell_start'" in alphabet
 
 	preserve
 
@@ -45,9 +51,12 @@ program define odp_tab, rclass
 	
 	
 /************* SETTING THE TABLE COLUMN HEADINGS ********************************/
-	local TabTitleCell_num=`TitleCell_num'+1
-	local TitleCell="A`TitleCell_num'"
-	local TabTitleCell="A`TabTitleCell_num'"
+	if (`size_header'>0) local TabTitleCell_num=`TitleCell_num'+2
+	else local TabTitleCell_num=`TitleCell_num'+1
+	local TitleCell="`cell_start'`TitleCell_num'"
+	local TabTitleCell="`cell_start'`TabTitleCell_num'"
+	
+
 
 	if ("`if'"!="") keep `if'
 	keep if inlist(`indvar', `indicator')
@@ -77,25 +86,53 @@ program define odp_tab, rclass
 	reshape wide tablabel, i(`varlist') j(`indvar')
 
 	foreach v of local varlist {
-		tostring  `v',gen(`v'_bis)
-		drop `v' 
-		ren `v'_bis `v'
+	
+		if "`: value label `v''" != "" {
+			tostring  `v', gen(`v'_bis)
+			drop `v' 
+			ren `v'_bis `v'
+			}
+			
 		replace `v'="`v'"
 	}
-	
-	keep if _n==1
 
-	if ("`rowtotal'"!="") gen Total= "`rowtotal'"
+	keep if _n==1
+	
+	if ("`truncate'"!="") drop `varlist'
+
+	if (`size_rowtotal'!=0) gen Total= `"`rowtotal'"'
 	local end_num=`TabTitleCell_num'+1
-	local cell_end "A`end_num'"
-	if (`cell_start_num'==1) export excel using "`path'",  sheet("`sheet_name'", replace)  cell(`TabTitleCell')
+	local cell_end "`cell_start'`end_num'"
+	if ("`replace'"!="") export excel using "`path'",  sheet("`sheet_name'", replace)  cell(`TabTitleCell')
 	else export excel using "`path'",  sheet("`sheet_name'", modify)  cell(`TabTitleCell')
 
 	qui describe
-	local EndTabTitleCell="`:word `r(k)' of `alphabet''`TabTitleCell_num'"
+	local leng_tab=`r(k)'+`col_num_start_cell'-1
+	local leng_tab_final=`r(k)'+`col_num_start_cell'
+	local tab_end_cell_letter="`:word `leng_tab' of `alphabet''"
+	local tab_after_end_cell_letter="`:word `leng_tab_final' of `alphabet''"
+
+	local EndTabTitleCell="`:word `leng_tab' of `alphabet''`TabTitleCell_num'"
 	putexcel (`TabTitleCell':`EndTabTitleCell'), border(all, thin) bold font("Arial",10)  vcenter txtwrap
 	restore
 
+		****specify header cell
+	if(`size_header'>0){
+	local line_header_cell=`TitleCell_num'+1
+	if("`truncate'"=="") local pos_header_cell=`col_num_start_cell'+`size_varlist'
+	else local pos_header_cell=`col_num_start_cell'
+	local letter_header_cell= "`:word `pos_header_cell' of `alphabet''"
+	local header_cell_start= "`letter_header_cell'`line_header_cell'"
+	local header_cell_end="`tab_end_cell_letter'`line_header_cell'"
+	putexcel `header_cell_start'=`header',bold font("Arial",10) border(all, medium)
+	*putexcel `header_cell_start',
+	
+	di "header_cell_end: `header_cell_start'"
+	di "header_cell_end=`header_cell_end'"
+
+	putexcel (`header_cell_start':`header_cell_end'), merge  hcenter  vcenter
+	}
+	
 /*****************************  FILLING TABLE CELLS ****************************/
 	preserve
 	if "`if'"!="" keep `if'
@@ -139,7 +176,7 @@ program define odp_tab, rclass
 	reshape wide `value', i(`varlist') j(`indvar')
 
 	*********adding rowtoal if sceified****************************************
-	if ("`rowtotal'"!="") {
+	if (`size_rowtotal'!=0) {
 		*because of label it connot compute sum
 		unab all_vars: *
 		local indvar2:list all_vars-varlist
@@ -153,6 +190,7 @@ program define odp_tab, rclass
 		egen Total=rowtotal(`r(varlist)')
 		ds addd_*
 		drop `r(varlist)'
+		local rowtot_name="Total"
 	}
 
 	if ("`decimal'"==",") {
@@ -164,51 +202,68 @@ program define odp_tab, rclass
 	********replacing "." with the specified decimal ex. ","
 	unab all_vars: *
 	local indvar2:list all_vars-varlist
-	if ("`rowtotal'"!="") local indvar2:list indvar2-rowtotal
+	if (`size_rowtotal'!=0) local indvar2:list indvar2-rowtot_name
 	if ("`decimal'"!="") {
 		foreach v of local indvar2 {
 			replace `v' = subinstr(`v', ".", "`decimal'", .)
 		}
 	}
 
+	if ("`truncate'"!="") drop `varlist'
+
 	export excel using  "`path'", sheet("`sheet_name'", modify) cell(`cell_end')
 	
 ********************************************************************************
 ***************************TABLE FORMATING**************************************
 ********************************************************************************
-	putexcel `TitleCell' = `tabtitle'
+	if (`size_tabtitle'!=0) putexcel `TitleCell' = `tabtitle'
 	qui count 
 	local TabCellEnd_num=`r(N)'+`end_num'-1
-	local TabCellEnd= "A`TabCellEnd_num'"
+	local TabCellEnd= "`cell_start'`TabCellEnd_num'"
 
 	qui describe
-	local EndTabCell="`:word `r(k)' of `alphabet''`TabCellEnd_num'"
+	local leng_tab=`r(k)'+`col_num_start_cell'-1
+	local EndTabCell="`:word `leng_tab' of `alphabet''`TabCellEnd_num'"
+	
+
 	*putexcel (`TabCellEnd':`EndTabCell'), border(top, thin) bold font("Arial",10) // if margin is absent
-	putexcel (`TabCellEnd':`EndTabCell'), border(bottom, thin) 
-	putexcel (`TabTitleCell':`TabCellEnd'), border(right, thin) bold font("Arial",10)
-	putexcel (`EndTabTitleCell':`EndTabCell'), border(right, thin) font("Arial",10)
+	if (`size_header'==0) putexcel (`TabCellEnd':`EndTabCell'), border(bottom, thin) 
+	else  putexcel (`TabCellEnd':`EndTabCell'), border(bottom, medium) 
+	
+	if ("`truncate'"=="") putexcel (`TabTitleCell':`TabCellEnd'), border(right, thin) bold font("Arial",10)
+	putexcel (`TabTitleCell':`TabCellEnd'), border(left, thin)  
+	
+	if ("`truncate'"=="") putexcel (`EndTabTitleCell':`EndTabCell'), border(right, thin) font("Arial",10)
+	else putexcel (`EndTabTitleCell':`EndTabCell'), border(right, medium) font("Arial",10)
 	putexcel (`TabTitleCell':`EndTabCell'),  hcenter vcenter
 	putexcel (`cell_end':`EndTabCell'),  nformat(number_d2) font("Arial",9) right
-	putexcel (`TabTitleCell':`TabCellEnd'),  left
+	
+	if ("`truncate'"=="") putexcel (`TabTitleCell':`TabCellEnd'),  left
+	else putexcel (`TabTitleCell':`TabCellEnd'),  right border(left, medium)
+	if (`size_header'>0 & "`truncate'"=="" ) putexcel (`TabTitleCell':`TabCellEnd'), border(right, medium)
+	
 	putexcel (`TitleCell'),  left font("Arial",10,"blue") italic
 
 	************ Masked cells footnote
 	local maskedCellNote_cell_num=`TabCellEnd_num'+1
-	local empy_cell_meta="A`maskedCellNote_cell_num'"
+	local empy_cell_meta="`cell_start'`maskedCellNote_cell_num'"
 	local maskedCellNote="Percentage of masked cells: `per_masked_cells'%"
 	putexcel `empy_cell_meta' = "`maskedCellNote'"
 	putexcel (`empy_cell_meta'),  left font("Arial",9,"red") italic
 
 	**************** Zero cells footnote
 	local zeroCellNote_cell_num=`TabCellEnd_num'+2
-	local zero_cell_meta="A`zeroCellNote_cell_num'"
+	local zero_cell_meta="`cell_start'`zeroCellNote_cell_num'"
 	local zeroCellNote="Percentage of cells with value zero(0): `per_zero_cells'%"
 	putexcel `zero_cell_meta' = "`zeroCellNote'"
 	putexcel (`zero_cell_meta'),  left font("Arial",9,"red") italic
 	restore
 }
 
-return local cellEnd `TabCellEnd_num'+4
+return scalar tab_start_line=`cell_start_num'
+return local tab_start_cell_letter="`cell_start'"
+return local tab_end_cell_letter="`tab_after_end_cell_letter'"
+return scalar tab_end_line=`TabCellEnd_num'+4
 
 end
 	
