@@ -1,26 +1,20 @@
 cap program drop odp_tab
 program define odp_tab, rclass
 		
-	syntax [varlist(default=none)] [if], [  tabtitle(string asis) truncate header(string asis) outfile(string) indicator(string asis) indicatorname(varlist) indvar(varlist) value(varlist) rowtotal (string) DECimal(string) replace]
-
-	local indicatorbis=subinstr(`"`indicator'"', ",", " ", .)
-	local s:list sizeof indicatorbis
+	syntax [varlist(default=none)] [if], [  tabtitle(string asis) truncate header(string asis) outfile(string) indicator(string asis) indicatorname(varlist) indvar(varlist) value(varlist) rowtotal (string) DECimal(string) valid (string) replace]
+ 
 	local size_varlist:list sizeof varlist
 	local size_tabtitle:list sizeof tabtitle
 	local size_rowtotal:list sizeof rowtotal
-
 	local size_header: list sizeof header
-	local indicator2
-	foreach v of local indicatorbis {
-	local indicator2= "`indicator2' `v'"
-	}
+	local size_valid: list sizeof valid
 
 	if(`size_tabtitle'>0) di as result `"Generating table: {cmd:`tabtitle'}..."'
 	
 	quietly {
 ****************defining default name for variables ****************************
 	if ("`indvar'"=="") local indvar "Variable"
-	if ("`indicatorname'"=="") local indicatorname "IndicatorName"
+	if ("`indicatorn0ame'"=="") local indicatorname "IndicatorName"
 	if ("`value'"=="") local value "Value_str"
 	
 ***************extract PATH, SHEET NAME and START CELL NUMBER from outfile ********
@@ -37,8 +31,8 @@ program define odp_tab, rclass
 	
 		
 	putexcel set "`path'", modify sheet("`sheet_name'")  
-	local alphabet "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z"  // TO DO: expand AA AB AC etc to increase the capability of the fuction
-	local col_num_start_cell:list posof "`cell_start'" in alphabet
+local alphabet "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC AD AE AF AG AH AI AJ AK AL AM AN AO AP AQ AR AS AT AU AV AW AX AY AZ BA BA BC BD BE BF BG BH BI BJ BK BL BM BN BO BP BQ BR BS BT BU BV BW BX BY BZ CA CB CC CD CE CF CG CH CI CJ CK CL CM CN CO CP CQ CR CS CT CU CV CW CX CY CZ DA DB DC DD DE DF DG DH DI DJ DK DL DM DN DO DP DQ DR DS DT DU DV DW DX DY DZ EA EB EC ED EE EF EG EH EI EJ EK EL EM EN EO EP EQ ER ES ET EU EV EW EX EY EZ"
+local col_num_start_cell:list posof "`cell_start'" in alphabet
 
 	preserve
 
@@ -59,24 +53,73 @@ program define odp_tab, rclass
 
 
 	if ("`if'"!="") keep `if'
-	keep if inlist(`indvar', `indicator')
+	
+	gen keepflag = 0
+	foreach d of local indicator {
+		replace keepflag = 1 if `indvar' == "`d'"
+	}
+	keep if keepflag==1
+	drop keepflag
+	
+	tempfile filtered_dataset
+	save `filtered_dataset', replace
+	
 	keep `varlist' `indvar' tablabel
 	cap isid `varlist' `indvar'
 	if _rc {
 		di as error "Error: `varlist' and `indvar' do not uniquely identify row in the dataset of the given subset specify in '`if'' !"
 		exit 1
 	}
+	order `varlist' `indvar' tablabel
+	tempfile dataset_to_use
+	save `dataset_to_use', replace
+	
+	****************************************************************************
+	*********** ADDING VALID IF ALL INDICATOR HAVE THE SAME POPULATION**********
+	****************************************************************************
+	use  `filtered_dataset', clear
+	keep `varlist' `indvar' N_subPop
+	replace N_subPop=round(N_subPop)
+	reshape wide N_subPop, i(`varlist') j(`indvar') string
+	ds N_subPop*
+	local N_subPop_var `r(varlist)'
+	local n_variable: list sizeof N_subPop_var
+	local first_variable `:word 1 of `N_subPop_var''
+	egen som_Obs=rsum(`N_subPop_var')
+	gen som_Obs2=`first_variable'*`n_variable'
+	gen diff=som_Obs-som_Obs2
+	cap su diff
+	local max_diff=`r(max)'
 
+	if (`max_diff'==0) {
+
+	use `filtered_dataset',clear
+	keep if `indvar' =="`:word 1 of `indicator''"
+	keep `varlist' `indvar'
+	replace `indvar'="Valid"
+	local indicator Valid `indicator'
+	if (`size_valid'==0) gen tablabel="Valid"
+	else gen tablabel="`valid'"
+	order `varlist' `indvar' tablabel
+	tempfile valid_dataset
+	save `valid_dataset', replace
+	}
+
+*********************************************
+use `dataset_to_use',clear
+if (`max_diff'==0) append using `valid_dataset'
+	
+	
 	************create order****************
 	gen indvar2=.
-	local n_ind:list sizeof indicator2
+	local n_ind:list sizeof indicator
 	forvalues i=1/`n_ind' {
-	replace indvar2=`i' if `indvar'== "`:word `i' of `indicator2''"
+	replace indvar2=`i' if `indvar'== "`:word `i' of `indicator''"
 	}
 	cap label drop ind_label
-	label define ind_label 1 "`:word 1 of `indicator2''"
+	label define ind_label 1 "`:word 1 of `indicator''"
 		forvalues i=2/`n_ind' {
-			label define ind_label `i' `"`:word `i' of `indicator2''"', add
+			label define ind_label `i' `"`:word `i' of `indicator''"', add
 		}
 	label val indvar2 ind_label
 	drop `indvar'
@@ -84,6 +127,16 @@ program define odp_tab, rclass
 	*************end order creation ***********
 	
 	reshape wide tablabel, i(`varlist') j(`indvar')
+	
+	*fill all the missing
+	
+			unab all_vars: *
+			local indvar_bis:list all_vars-varlist
+
+		foreach v of local indvar_bis {
+			gsort -`v'
+			replace `v' = `v'[_n-1] if missing(`v') & _n > 1
+		}
 
 	foreach v of local varlist {
 	
@@ -114,8 +167,6 @@ program define odp_tab, rclass
 
 	local EndTabTitleCell="`:word `leng_tab' of `alphabet''`TabTitleCell_num'"
 	putexcel (`TabTitleCell':`EndTabTitleCell'), border(all, thin) bold font("Arial",10)  vcenter txtwrap
-	restore
-
 		****specify header cell
 	if(`size_header'>0){
 	local line_header_cell=`TitleCell_num'+1
@@ -134,22 +185,51 @@ program define odp_tab, rclass
 	}
 	
 /*****************************  FILLING TABLE CELLS ****************************/
+/*
 	preserve
 	if "`if'"!="" keep `if'
-	keep if inlist(`indvar',`indicator')
-	keep  `varlist' `indvar' `value'
-
 	
+	gen keepflag = 0
+	foreach d of local indicator {
+		replace keepflag = 1 if `indvar' == "`d'"
+	}
+	keep if keepflag
+	drop keepflag
+	*keep if inlist(`indvar',`indicator')
+*/
+	
+
+	*********************ADDING VALID*********************************
+	
+	if (`max_diff'==0) {
+	use `filtered_dataset',clear
+	keep if  `indvar'=="`:word 2 of `indicator''"
+	keep `varlist' `indvar' N_subPop
+	replace N_subPop=round(N_subPop)
+	gen `value' = string(N_subPop, "%15.2f")
+	drop N_subPop
+	replace `indvar'="Valid"
+	order `varlist' `indvar' `value'
+	tempfile valid_dataset
+	save `valid_dataset', replace
+	}
+	
+	use `filtered_dataset', clear
+	keep  `varlist' `indvar' `value'
+	order `varlist' `indvar' `value'
+	if (`max_diff'==0) append using `valid_dataset'
+	
+
 	************create order****************
 	gen indvar2=.
-	local n_ind:list sizeof indicator2
+	local n_ind:list sizeof indicator
 	forvalues i=1/`n_ind' {
-	replace indvar2=`i' if `indvar'== "`:word `i' of `indicator2''"
+	replace indvar2=`i' if `indvar'== "`:word `i' of `indicator''"
 	}
 	cap label drop ind_label
-	label define ind_label 1 "`:word 1 of `indicator2''"
+	label define ind_label 1 "`:word 1 of `indicator''"
 		forvalues i=2/`n_ind' {
-			label define ind_label `i' `"`:word `i' of `indicator2''"', add
+			label define ind_label `i' `"`:word `i' of `indicator''"', add
 		}
 	label val indvar2 ind_label
 	drop `indvar'
@@ -179,7 +259,11 @@ program define odp_tab, rclass
 	if (`size_rowtotal'!=0) {
 		*because of label it connot compute sum
 		unab all_vars: *
-		local indvar2:list all_vars-varlist
+		local nom_valid="Value_str1"
+		local indvar2:list all_vars-varlist 
+		
+		if(`max_diff'==0) local indvar2: list indvar2-nom_valid
+
 		foreach v of local indvar2 {
 			gen `v'_bis=`v'
 			replace `v'_bis="0" if `v'_bis=="0[w]"
@@ -192,7 +276,6 @@ program define odp_tab, rclass
 		drop `r(varlist)'
 		local rowtot_name="Total"
 	}
-
 	if ("`decimal'"==",") {
 		foreach v of local indvar2 {
 			replace `v' = subinstr(`v', ".", ",", .)
@@ -202,7 +285,13 @@ program define odp_tab, rclass
 	********replacing "." with the specified decimal ex. ","
 	unab all_vars: *
 	local indvar2:list all_vars-varlist
+	
 	if (`size_rowtotal'!=0) local indvar2:list indvar2-rowtot_name
+	
+	foreach v of local indvar2 {
+	replace `v'="[-]" if `v'==""
+}
+	
 	if ("`decimal'"!="") {
 		foreach v of local indvar2 {
 			replace `v' = subinstr(`v', ".", "`decimal'", .)
@@ -242,7 +331,7 @@ program define odp_tab, rclass
 	else putexcel (`TabTitleCell':`TabCellEnd'),  right border(left, medium)
 	if (`size_header'>0 & "`truncate'"=="" ) putexcel (`TabTitleCell':`TabCellEnd'), border(right, medium)
 	
-	putexcel (`TitleCell'),  left font("Arial",10,"blue") italic
+	putexcel (`TitleCell'),  font("Arial",10,"blue") italic
 
 	************ Masked cells footnote
 	local maskedCellNote_cell_num=`TabCellEnd_num'+1

@@ -40,7 +40,7 @@ local n_tabtitle :list sizeof tabtitle
 quietly {
 
 	******
-local alphabet "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z"
+local alphabet "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC AD AE AF AG AH AI AJ AK AL AM AN AO AP AQ AR AS AT AU AV AW AX AY AZ BA BA BC BD BE BF BG BH BI BJ BK BL BM BN BO BP BQ BR BS BT BU BV BW BX BY BZ"
 local col_num_start_cell:list posof "`cell_start'" in alphabet
 
 putexcel set "`path'", modify sheet("`sheet_name'")  
@@ -66,7 +66,16 @@ gen sp=`by'
 
 reshape wide `by', i(`varlist') j(sp) 
 
+		*fill all the missing
+	
+			unab all_vars: *
+			local indvar_bis:list all_vars-varlist
 
+		foreach v of local indvar_bis {
+			gsort -`v'
+			replace `v' = `v'[_n-1] if missing(`v') & _n > 1
+		}
+	
 foreach v of local varlist {
 
 	if "`: value label `v''" != "" {
@@ -148,7 +157,13 @@ if ("`rowtotal'"!="") {
 unab all_vars: *
 local indvar2:list all_vars-varlist
 
+
+
 if ("`rowtotal'"!="") local indvar2:list indvar2-rowtotal
+
+foreach v of local indvar2 {
+	replace `v'="[-]" if `v'==""
+}
 
 if ("`decimal'"!="") {
 	foreach v of local indvar2 {
