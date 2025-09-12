@@ -1,4 +1,5 @@
 
+cap program drop svyEstimate
 program define svyEstimate
 		
 	syntax [varlist] ,PARAMeter(string) VARiable(string asis) ///
@@ -17,18 +18,18 @@ program define svyEstimate
 		matrix define n_subpop= e(_N)'	
 		matrix define N_subpop= e(_N_subp)'	
 
-		mat_to_ds T		   
+		mat_to_ds T "yes"		   
 		tempfile res_estimation
 		save `res_estimation', replace
 		
-		mat_to_ds n_subpop	   
+		mat_to_ds n_subpop "no"	   
 		tempfile dataset_n_obs
 		order rownames
 		unab all_vars: *
 		rename `:word 2 of `all_vars'' n_Obs // or word(`all_vars', 1)
 		save `dataset_n_obs', replace
 		
-		mat_to_ds N_subpop	   
+		mat_to_ds N_subpop	"no"   
 		tempfile dataset_N_subpop
 		order rownames
 		unab all_vars: *
@@ -38,7 +39,7 @@ program define svyEstimate
 		* Estimating coefficient of variation
 		estat cv
 		matrix define CV = r(cv)'
-		mat_to_ds CV
+		mat_to_ds CV "yes"
 		*renaming the variable to CV
 		unab all_vars: *
 		rename `:word 1 of `all_vars'' CV_pct // or word(`all_vars', 1)

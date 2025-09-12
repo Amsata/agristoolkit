@@ -227,16 +227,37 @@ if(`n_geovars'>0) {
 		}			
 	}
 	
+
+local mean_bis
+
+	foreach v of local mean {
+		quietly summarize `v'
+		* if the number of nonmissing obs > 0, keep it
+		if r(N) > 0 {
+			local mean_bis `mean_bis' `v'
+		}
+	}
 	
 	
 	if `n_mean'>0 {	
 		quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param("mean") hiergeovars(`hiergeovars') ///
-		var(`mean') conditionals(`conditionals') setcluster(`setcluster') 
+		var(`mean_bis') conditionals(`conditionals') setcluster(`setcluster') 
 	}
 
+	
+local total_bis
+
+	foreach v of local total {
+		quietly summarize `v'
+		* if the number of nonmissing obs > 0, keep it
+		if r(N) > 0 {
+			local total_bis `total_bis' `v'
+		}
+	}
+	
 	if `n_total'>0 {
 		quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param("total") hiergeovars(`hiergeovars') ///
-		var(`total') conditionals(`conditionals') setcluster(`setcluster') 
+		var(`total_bis') conditionals(`conditionals') setcluster(`setcluster') 
 	}
 
 	if `n_ratio'>0 {
@@ -248,7 +269,7 @@ tempfile opendata_dst
 
 	if `n_mean'>0 {
 		preserve
-		genMDTbyParam `varlist', parameter("mean") variable(`mean') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
+		genMDTbyParam `varlist', parameter("mean") variable(`mean_bis') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
 		geomarginlabel(`geomarginlabel') conditionals(`conditionals') svySE(`svySE') subpop(`subpop') setcluster(`setcluster')
 		save `opendata_dst', replace
 		restore
@@ -256,7 +277,7 @@ tempfile opendata_dst
 	
 	if `n_total'>0 {
 		preserve
-		genMDTbyParam `varlist', parameter("total") variable(`total') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
+		genMDTbyParam `varlist', parameter("total") variable(`total_bis') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
 		geomarginlabel(`geomarginlabel') conditionals(`conditionals') svySE(`svySE') subpop(`subpop') setcluster(`setcluster')
 		capture append using `opendata_dst'
 		save `opendata_dst', replace

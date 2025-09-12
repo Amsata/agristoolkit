@@ -58,6 +58,8 @@ quietly{
 		************************************************************************	
 			quietly svyEstimate `tuple' , param(`parameter') var(`var') alldim(`alldim')
 			gen geoType="`:word `k' of `hiergeovars''"
+
+			
 			capture confirm variable `:word `k' of `hiergeovars''
 			if _rc == 0 {
 				run `dolabs'
