@@ -48,7 +48,7 @@ if (`size_by'==0) {
 			foreach d of local indicator {
 			qui replace keepflag = 1 if `indvar' == "`d'"
 				}
-			qui count if `over'==`v' & keepflag==1
+			qui count `if' &  `over'==`v' & keepflag==1
 			local nobs = r(N)
 			di "`lbl'..."
 			drop keepflag
@@ -68,7 +68,7 @@ if (`size_by'==0) {
 			else {
 				local lbl : label (`over') `v'
 				
-				if (`nobs'>0) {
+				if (`nobs'>0) { // nobs in init==0
 				local line_start=`r(tab_start_line)'
 				local start_cell="`r(tab_end_cell_letter)'"
 				local tab_end_line=`r(tab_end_line)'
@@ -76,15 +76,17 @@ if (`size_by'==0) {
 				}
 				else {
 				local line_start=`tab_start_line'
-				local start_cell="`r(tab_end_cell_letter)'"
+				local tmp1 "`r(tab_end_cell_letter)'"
+				if ("`tmp1'"!="") local start_cell="`r(tab_end_cell_letter)'"
 				local tab_end_line=`tab_end_line'
-				local tab_end_cell_letter="`r(tab_end_cell_letter)'"
+				local tmp2 "`r(tab_end_cell_letter)'"
+				if ("`tmp2'"!="") local tab_end_cell_letter="`r(tab_end_cell_letter)'"
 				}
 			gen keepflag = 0
 			foreach d of local indicator {
 				qui replace keepflag = 1 if `indvar' == "`d'"
 				}
-			qui count if `over'==`v' & keepflag==1
+			qui count `if' & `over'==`v' & keepflag==1
 			local nobs = r(N)
 			di "`lbl'..."
 			drop keepflag
