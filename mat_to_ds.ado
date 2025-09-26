@@ -33,8 +33,9 @@ seealso[
 ]
 
 END HELP FILE */
+	cap program drop mat_to_ds
 	program mat_to_ds
-	args T
+	args T col
 	matrix input = `T' 
 	local rownames : rowfullnames T
 	local c : word count `rownames'
@@ -47,9 +48,19 @@ END HELP FILE */
 	*clear
 	*preserve
 	drop _all
-	svmat `T', names(col)
+	
+	if ("`col'"=="yes") {
+	svmat `T',names(col)
+	}
+	else {
+	svmat `T'
+	}
 	*xsvmat T, names(col) norestore stata 16 for name storage		   
 	// add matrix row names to dataset
+	*tempfile dst
+	*xsvmat `T', rowname(rownames) names(col) list(, abbr(32)) saving(`dst', replace)
+	*use `dst', clear
+
 	gen rownames = ""
 	forvalues i = 1/`c' {
 		quietly replace rownames = "`:word `i' of `rownames''" in `i'
