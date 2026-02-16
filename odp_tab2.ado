@@ -162,7 +162,7 @@ local indvar2:list all_vars-varlist
 if ("`rowtotal'"!="") local indvar2:list indvar2-rowtotal
 
 foreach v of local indvar2 {
-	replace `v'="[-]" if `v'==""
+	replace `v'="[:]" if `v'==""
 }
 
 if ("`decimal'"!="") {

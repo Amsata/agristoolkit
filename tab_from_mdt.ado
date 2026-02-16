@@ -30,7 +30,8 @@ local size_if: list sizeof if
 	local cell_start_num=1
 	}
 	
-		if regexm("`indicator'", "^regex=") {
+	
+	if regexm("`indicator'", "^regex=") {
 	preserve
         // Extract the pattern from the option
         local pat : subinstr local indicator "regex=" "", all

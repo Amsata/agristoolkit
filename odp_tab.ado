@@ -14,7 +14,7 @@ program define odp_tab, rclass
 	quietly {
 ****************defining default name for variables ****************************
 	if ("`indvar'"=="") local indvar "Variable"
-	if ("`indicatorn0ame'"=="") local indicatorname "IndicatorName"
+	if ("`indicatorname'"=="") local indicatorname "IndicatorName"
 	if ("`value'"=="") local value "Value_str"
 	
 ***************extract PATH, SHEET NAME and START CELL NUMBER from outfile ********
@@ -51,7 +51,6 @@ local col_num_start_cell:list posof "`cell_start'" in alphabet
         *di `"Matched values: `matched_values'"'
 		restore
     }
-	
 	
 	preserve
 
