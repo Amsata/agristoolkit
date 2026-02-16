@@ -66,7 +66,7 @@ END HELP FILE */
 *cap program drop opendata
 program define genmdt
 		
-	syntax [varlist(default=none)] , [ mean(string asis) total(string asis) ratio(string asis) MARGINlabels(string asis) HIERGEOvars(string asis) ///
+	syntax [varlist(default=none)] , [ mean(string asis) total(string asis) ratio(string asis) MARGINlabels(string asis) HIERGEOvars(string asis) integer(string asis) ///
 	GEOMARGINlabel(string) CONDitionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) setcluster(integer 0)]
 		
 		
@@ -80,7 +80,7 @@ program define genmdt
 	local n_indicatorname: list sizeof indicatorname
 	local n_unit: list sizeof units
 	local n_geovars: list sizeof hiergeovars
-
+	local n_integer: list sizeof integer
 	*******creating unique variable label for geovars
 	
 if(`n_geovars'>0) {
@@ -122,7 +122,10 @@ if(`n_geovars'>0) {
 	qui expand_varlist "`total'"
 	local total `r(expanded)'
 	
-
+	if(`n_integer'>0){
+		qui expand_varlist "`integer'"
+		local integer `r(expanded)'
+	}
 	if (`n_mean'==0 & `n_total'==0 & `n_ratio'==0) {
 		display as error "The options {cmd: mean}, {cmd:total} and {cmd: ratio} cannot be all empty."
 		exit 480
@@ -377,6 +380,26 @@ tempfile opendata_dst
 					local neworder "`neworder' `var'"  // Keep other variables in order
 				}
 			}
+			****convertir les entoer
+			replace Value=Value*100 if Unit=="%"
+			replace LL_confInt=LL_confInt*100 if Unit=="%"
+			replace UL_confInt=UL_confInt*100 if Unit=="%"
+			replace standError=standError*100 if Unit=="%"
+
+			gen Value_str=string(Value, "%15.2f")
+			
+			if(`n_integer'>0){
+				local size_integer: list sizeof integer
+				if(`size_integer'>0){
+					foreach v of local integer{
+					replace Value=round(Value) if Variable=="`v'"
+					replace Value_str=string(round(Value), "%15.0f") if Variable=="`v'"
+					
+					}
+				}
+			}
+			
+			
 		 order `neworder'
 		}
 		
