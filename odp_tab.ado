@@ -34,6 +34,25 @@ program define odp_tab, rclass
 local alphabet "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC AD AE AF AG AH AI AJ AK AL AM AN AO AP AQ AR AS AT AU AV AW AX AY AZ BA BA BC BD BE BF BG BH BI BJ BK BL BM BN BO BP BQ BR BS BT BU BV BW BX BY BZ CA CB CC CD CE CF CG CH CI CJ CK CL CM CN CO CP CQ CR CS CT CU CV CW CX CY CZ DA DB DC DD DE DF DG DH DI DJ DK DL DM DN DO DP DQ DR DS DT DU DV DW DX DY DZ EA EB EC ED EE EF EG EH EI EJ EK EL EM EN EO EP EQ ER ES ET EU EV EW EX EY EZ"
 local col_num_start_cell:list posof "`cell_start'" in alphabet
 
+
+	if regexm("`indicator'", "^regex=") {
+	preserve
+        // Extract the pattern from the option
+        local pat : subinstr local indicator "regex=" "", all
+		local pat:list clean pat
+        // Keep only observations matching the regex
+        tempvar keep_obs
+        gen byte `keep_obs' = regexm(`indvar', `"`pat'"')
+
+        // Collect unique values
+        levelsof `indvar' if `keep_obs', local(matched_values)
+		local indicator: list clean matched_values
+        // Display or store in local macro
+        *di `"Matched values: `matched_values'"'
+		restore
+    }
+	
+	
 	preserve
 
 	***extract indocator labels from the variable containing the indicator name	
@@ -81,6 +100,11 @@ local col_num_start_cell:list posof "`cell_start'" in alphabet
 	keep `varlist' `indvar' N_subPop
 	replace N_subPop=round(N_subPop)
 	reshape wide N_subPop, i(`varlist') j(`indvar') string
+	ds, has(type numeric)
+	mkmat `r(varlist)', matrix(M)
+	mat list M
+	mata: allcols_equal("M", "max_diff")
+	/*
 	ds N_subPop*
 	local N_subPop_var `r(varlist)'
 	local n_variable: list sizeof N_subPop_var
@@ -90,7 +114,7 @@ local col_num_start_cell:list posof "`cell_start'" in alphabet
 	gen diff=som_Obs-som_Obs2
 	cap su diff
 	local max_diff=`r(max)'
-
+	*/
 	if (`max_diff'==0) {
 
 	use `filtered_dataset',clear
@@ -107,7 +131,7 @@ local col_num_start_cell:list posof "`cell_start'" in alphabet
 
 *********************************************
 use `dataset_to_use',clear
-if (`max_diff'==0) append using `valid_dataset'
+if (`max_diff'==0 & `size_valid'>0) append using `valid_dataset'
 	
 	
 	************create order****************
@@ -217,7 +241,7 @@ if (`max_diff'==0) append using `valid_dataset'
 	use `filtered_dataset', clear
 	keep  `varlist' `indvar' `value'
 	order `varlist' `indvar' `value'
-	if (`max_diff'==0) append using `valid_dataset'
+	if (`max_diff'==0 & `size_valid'>0) append using `valid_dataset'
 	
 
 	************create order****************
@@ -289,7 +313,7 @@ if (`max_diff'==0) append using `valid_dataset'
 	if (`size_rowtotal'!=0) local indvar2:list indvar2-rowtot_name
 	
 	foreach v of local indvar2 {
-	replace `v'="[-]" if `v'==""
+	replace `v'="[:]" if `v'==""
 }
 	
 	if ("`decimal'"!="") {
@@ -326,7 +350,6 @@ if (`max_diff'==0) append using `valid_dataset'
 	else putexcel (`EndTabTitleCell':`EndTabCell'), border(right, medium) font("Arial",10)
 	putexcel (`TabTitleCell':`EndTabCell'),  hcenter vcenter
 	putexcel (`cell_end':`EndTabCell'),  nformat(number_d2) font("Arial",9) right
-	
 	if ("`truncate'"=="") putexcel (`TabTitleCell':`TabCellEnd'),  left
 	else putexcel (`TabTitleCell':`TabCellEnd'),  right border(left, medium)
 	if (`size_header'>0 & "`truncate'"=="" ) putexcel (`TabTitleCell':`TabCellEnd'), border(right, medium)
@@ -356,3 +379,20 @@ return scalar tab_end_line=`TabCellEnd_num'+4
 
 end
 	
+
+	mata:
+void allcols_equal(string scalar matname, string scalar localname)
+{
+    real matrix M
+    real scalar all_equal
+
+    // Load Stata matrix into Mata
+    M = st_matrix(matname)
+
+    // Check if all columns equal the first one
+    all_equal = all(M :== M[,1])
+
+    // Put result into a local macro in Stata
+    st_local(localname, strofreal(all_equal))
+}
+end

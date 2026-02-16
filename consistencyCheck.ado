@@ -16,6 +16,9 @@ program define consistencyCheck
 	local n_geovar: list sizeof hiergeovars
 	local n_varlist: list sizeof varlist
 	local n_geovarmarginlab: list sizeof geovarmarginlab
+	
+	*verifier que les dimensions sont des variables labéliser
+	*TO DO list
 
 	if(`n_geovarmarginlab'!=0 & `n_geovarmarginlab'>1) {
 		display as error "The options geovarmarginlab should have on element!"

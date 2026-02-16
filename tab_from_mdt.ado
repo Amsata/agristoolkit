@@ -9,6 +9,7 @@ program define tab_from_mdt, rclass
 local number_ind: list sizeof indicator
 local size_by: list sizeof by
 local size_over: list sizeof over
+local size_if: list sizeof if
 
 	if ("`indvar'"=="") local indvar "Variable"
 	if ("`indicatorname'"=="") local indicatorname "IndicatorName"
@@ -29,6 +30,23 @@ local size_over: list sizeof over
 	local cell_start_num=1
 	}
 	
+		if regexm("`indicator'", "^regex=") {
+	preserve
+        // Extract the pattern from the option
+        local pat : subinstr local indicator "regex=" "", all
+		local pat:list clean pat
+        // Keep only observations matching the regex
+        tempvar keep_obs
+        gen byte `keep_obs' = regexm(`indvar', `"`pat'"')
+
+        // Collect unique values
+        levelsof `indvar' if `keep_obs', local(matched_values)
+		local indicator: list clean matched_values
+        // Display or store in local macro
+        *di `"Matched values: `matched_values'"'
+		restore
+    }
+	
 if (`size_by'==0) {
 	if(`size_over'==0) {
 		odp_tab `varlist' `if' , tabtitle(`tabtitle') outfile(`outfile') indicator(`indicator') indicatorname(`indicatorname')  ///
@@ -48,13 +66,17 @@ if (`size_by'==0) {
 			foreach d of local indicator {
 			qui replace keepflag = 1 if `indvar' == "`d'"
 				}
-			qui count `if' &  `over'==`v' & keepflag==1
+			if(`size_if'>0) qui count `if' &  `over'==`v' & keepflag==1
+			else qui count if `over'==`v' & keepflag==1
+			else 
 			local nobs = r(N)
 			di "`lbl'..."
 			drop keepflag
 				*keep if `over'==`v'
 				if ( `nobs'>0) {
-				odp_tab `varlist' `if' 	 & `over'==`v', tabtitle(`tabtitle') outfile(`outfile') indicator(`indicator') indicatorname(`indicatorname') indvar(`indvar') ///
+				if(`size_if'>0) odp_tab `varlist' `if' 	 & `over'==`v', tabtitle(`tabtitle') outfile(`outfile') indicator(`indicator') indicatorname(`indicatorname') indvar(`indvar') ///
+				value(`value') rowtotal(`rowtotal') decimal(`decimal')  header("`lbl'") valid (`valid') `replace'
+				else odp_tab `varlist' if `over'==`v', tabtitle(`tabtitle') outfile(`outfile') indicator(`indicator') indicatorname(`indicatorname') indvar(`indvar') ///
 				value(`value') rowtotal(`rowtotal') decimal(`decimal')  header("`lbl'") valid (`valid') `replace'
 				local init=1
 				local tab_start_cell_letter_in="`r(tab_start_cell_letter)'"
@@ -86,7 +108,8 @@ if (`size_by'==0) {
 			foreach d of local indicator {
 				qui replace keepflag = 1 if `indvar' == "`d'"
 				}
-			qui count `if' & `over'==`v' & keepflag==1
+			if(`size_if'>0) qui count `if' &  `over'==`v' & keepflag==1
+			else qui count if `over'==`v' & keepflag==1
 			local nobs = r(N)
 			di "`lbl'..."
 			drop keepflag
@@ -94,7 +117,8 @@ if (`size_by'==0) {
 				*preserve 
 				*keep if `over'==`v'
 				if ( `nobs'>0) {
-				odp_tab `varlist' `if' & `over'==`v' , outfile("`path'", "`sheet_name'", `line_start',`start_cell') indicator(`indicator') indicatorname(`indicatorname')  indvar(`indvar') value(`value') rowtotal(`rowtotal') decimal(`decimal')  header("`lbl'") valid(`valid') truncate
+				if(`size_if'>0) odp_tab `varlist' `if' & `over'==`v' , outfile("`path'", "`sheet_name'", `line_start',`start_cell') indicator(`indicator') indicatorname(`indicatorname')  indvar(`indvar') value(`value') rowtotal(`rowtotal') decimal(`decimal')  header("`lbl'") valid(`valid') truncate
+				else odp_tab `varlist' if `over'==`v' , outfile("`path'", "`sheet_name'", `line_start',`start_cell') indicator(`indicator') indicatorname(`indicatorname')  indvar(`indvar') value(`value') rowtotal(`rowtotal') decimal(`decimal')  header("`lbl'") valid(`valid') truncate
 				}
 				else {
 				local tab_start_line=`line_start'
