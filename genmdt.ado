@@ -38,11 +38,7 @@ opt2[subpop() {cmd:(}[{varname}] [{it:{help if}}]{cmd:)}}identify a subpopulatio
 
 
 example[
- {stata genmdt Region sex ,marginlabels("Region@Wakanda" "Sex@Both") 
- ratio ((WII=I3_n/I3_d)) mean(AGE) total(AG_PARCELLE) ///
-	indicatorname("WII@Women entrepreneurship index" "AGE@Age of the households head" "AG_PARCELLE@Total number of agricultural parcels") ///
-	units("WII%" "AGE@Years" "AG_PARCELLE@Parcel")}
-	
+ {stata genmdt Region sex ,marginlabels("Region@Wakanda" "Sex@Both") ratio ((WII=I3_n/I3_d)) mean(AGE) total(AG_PARCELLE)  indicatorname("WII@Women entrepreneurship index" "AGE@Age of the households head" "AG_PARCELLE@Total number of agricultural parcels") units("WII%" "AGE@Years" "AG_PARCELLE@Parcel")}
  ]
  
  
