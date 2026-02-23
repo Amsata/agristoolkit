@@ -110,11 +110,7 @@
 {marker examples}{...}
 {title:Examples}
 
- {stata genmdt Region sex ,marginlabels("Region@Wakanda" "Sex@Both") 
- ratio ((WII=I3_n/I3_d)) mean(AGE) total(AG_PARCELLE) ///
-	indicatorname("WII@Women entrepreneurship index" "AGE@Age of the households head" "AG_PARCELLE@Total number of agricultural parcels") ///
-	units("WII%" "AGE@Years" "AG_PARCELLE@Parcel")}
-	
+ {stata genmdt Region sex ,marginlabels("Region@Wakanda" "Sex@Both") ratio ((WII=I3_n/I3_d)) mean(AGE) total(AG_PARCELLE)  indicatorname("WII@Women entrepreneurship index" "AGE@Age of the households head" "AG_PARCELLE@Total number of agricultural parcels") units("WII%" "AGE@Years" "AG_PARCELLE@Parcel")}
 
 
 {title:References}
@@ -132,9 +128,9 @@
 {title:Author}
 {p}
 
-Amsata Niang, Food and Agriculture Organization of the United Nations FAO.
+Amsata Niang, Food and Agriculture Organization of the United Nations.
 
-Email {browse "mailto:amsata_niang@yahoo.fr":amsata_niang@yahoo.fr}
+Email {browse "mailto:amsata.niang@fao.org":amsata.niang@fao.org}
 
 
 

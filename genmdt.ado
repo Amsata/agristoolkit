@@ -43,8 +43,8 @@ example[
  
  
 author[Amsata Niang]
-institute[Food and Agriculture Organization of the United Nations FAO]
-email[amsata_niang@yahoo.fr]
+institute[Food and Agriculture Organization of the United Nations]
+email[amsata.niang@fao.org]
 
 
 freetext[
