@@ -1,46 +1,48 @@
 /* START HELP FILE
-title[a command to setup working directory and necessary files and folder for anonymization]
+title[a command to generate multi-dimentional table from statistical survey]
 
 desc[
- {cmd:generateODT} generate multi-dimentional statisticial tables destined to open Data Africa plateform
- or for other potential use.
+ {cmd:genmdt} generate multi-dimentional statisticial tables from statistical survey.
 ] 
 
-opt[varlist() list of of variables (domains) over which estimates will be creatd.]
-opt[marginlabels() specify the labels of margins of variables in varlist.]
-opt[parameter() parameter to be estimated in the domains (total, mean or ratio).]
-opt[variable() variable the value of which will be used to generate the specified parameter in 'parameter'.]
+opt[varlist() list of of variables (domains or dimensions) over which estimates will be generated.]
+opt[marginlabels() specify the labels of margins of domains specified in  in varlist.]
+opt[hiergeovars() used to specify geographic variables that have hierachical link.]
+opt[geomarginlabel() used specify the label of the geographic variables in case hiergeovars is used]
+opt[mean() used to spefify list of variables for which average will be estimated]
+opt[total() used to spefify list of variables for which total will be estimated]
+opt[ratio() used to spefify list of variables for which ratio will be estimated]
+opt[integer() used to spefify list of variables for which estimates will be display as integer (and not with decimal)]
 opt[conditionals() eliminate tuples (of dimensions in varlist) according to specified conditions.]
 opt[indicatorname() a comprehensive and informative label of the indicator generated with variables specified in 'variable'.]
-opt[units() units of the parameter generated with variable in 'variable'.]
+opt[units() used to spefify units of the variable that will be estimates with mean, total or ratio .]
+opt[setcluster() used to spefify the number of cores in case one wants genrrate the multi-dimentional table with parallel computing.]
 opt[svySE() units of the parameter generated with variable in 'variable'.]
 opt[subpop() {cmd:(}[{varname}] [{it:{help if}}]{cmd:)}}identify a subpopulation]
 
 
-
-opt2[varlist() list of of variables (domains) over which estimates will be creatd.]
-opt2[marginlabels() specify the labels of margins of variables in varlist.]
-opt2[parameter() parameter to be estimated in the domains (total, mean or ratio).]
-opt2[variable() variable the value of which will be used to generate the specified parameter in 'parameter'.]
+opt2[varlist() list of of variables (domains or dimensions) over which estimates will be generated.]
+opt2[marginlabels() specify the labels of margins of domains specified in  in varlist.]
+opt2[hiergeovars() used to specify geographic variables that have hierachical link.]
+opt2[geomarginlabel() used specify the label of the geographic variables in case hiergeovars is used]
+opt2[mean() used to spefify list of variables for which average will be estimated]
+opt2[total() used to spefify list of variables for which total will be estimated]
+opt2[ratio() used to spefify list of variables for which ratio will be estimated]
+opt2[integer() used to spefify list of variables for which estimates will be display as integer (and not with decimal)]
 opt2[conditionals() eliminate tuples (of dimensions in varlist) according to specified conditions.]
 opt2[indicatorname() a comprehensive and informative label of the indicator generated with variables specified in 'variable'.]
-opt2[units() units of the parameter generated with variable in 'variable'.]
+opt2[units() used to spefify units of the variable that will be estimates with mean, total or ratio .]
+opt2[setcluster() used to spefify the number of cores in case one wants genrrate the multi-dimentional table with parallel computing.]
 opt2[svySE() units of the parameter generated with variable in 'variable'.]
-opt2[subpop() {cmd:(}[{varname}] [{it:{help if}}]{cmd:)}}identify a subpopulation	]
+opt2[subpop() {cmd:(}[{varname}] [{it:{help if}}]{cmd:)}}identify a subpopulation]
 
 
 example[
- {stata generateODT Region sex ,marginlabels("All households" "Wakanda") param("ratio") var((I3_n/I3_d)) ///
-	indicatorname("Women entrepreneurship index") ///
-	units("")}
+ {stata genmdt Region sex ,marginlabels("Region@Wakanda" "Sex@Both") 
+ ratio ((WII=I3_n/I3_d)) mean(AGE) total(AG_PARCELLE) ///
+	indicatorname("WII@Women entrepreneurship index" "AGE@Age of the households head" "AG_PARCELLE@Total number of agricultural parcels") ///
+	units("WII%" "AGE@Years" "AG_PARCELLE@Parcel")}
 	
-	 {stata generateODT Region sex ,marginlabels("All households" "Wakanda") param("mean") var(hh_member) ///
-	indicatorname("Average households size") ///
-	units("people")}
-	
-		 {stata generateODT Region sex ,marginlabels("All households" "Wakanda") param("total") var(production) ///
-	indicatorname("Crop production") ///
-	units("MT")}
  ]
  
  
@@ -66,7 +68,7 @@ END HELP FILE */
 *cap program drop opendata
 program define genmdt
 		
-	syntax [varlist(default=none)] , [ mean(string asis) total(string asis) ratio(string asis) MARGINlabels(string asis) HIERGEOvars(string asis) integer(string asis) ///
+	syntax [varlist(default=none)] , [ MARGINlabels(string asis) mean(string asis) total(string asis) ratio(string asis) HIERGEOvars(string asis) integer(string asis) ///
 	GEOMARGINlabel(string) CONDitionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) setcluster(integer 0)]
 		
 		
