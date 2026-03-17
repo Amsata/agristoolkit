@@ -19,6 +19,15 @@ program define consistencyCheck
 	
 	*verifier que les dimensions sont des variables labéliser
 	*TO DO list
+	
+	
+		qui svyset 
+		if("`r(wvar)'"=="" & "`weight1'"!="") {
+		di as smcl as err "To use the command genmdt, the survey design has to be declared"
+		exit 498
+		}
+		local pweight `r(wvar)'
+
 
 	if(`n_geovarmarginlab'!=0 & `n_geovarmarginlab'>1) {
 		display as error "The options geovarmarginlab should have on element!"
@@ -156,7 +165,7 @@ program define consistencyCheck
 	}
 	
 	local n_par: list sizeof parameter
-	local par "total mean ratio"
+	local par "total mean ratio median"
 	local input_in_par: list posof `"`parameter'"' in par
 	
 	if (`n_par'!=1 | `input_in_par'==0) {

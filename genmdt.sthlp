@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 1.0 23 Feb 2026}{...}
+{* *! version 1.0 11 Mar 2026}{...}
 {vieweralsosee "" "--"}{...}
 {vieweralsosee "Install command2" "ssc install command2"}{...}
 {vieweralsosee "Help command2 (if installed)" "help command2"}{...}
@@ -43,7 +43,7 @@
 
 {synopt:{opt :svySE(string)}}  
 
-{synopt:{opt subpop(string asis)}} {cmd:(}[{varname}
+{synopt:{opt subpop}{cmd:(}[{varname}] [{help if:if}]{cmd:)}}identify a subpopulation{p_end}
 
 {synopt:{opt unit:s(string asis)}} used to spefify units of the variable that will be estimates with mean, total or ratio .
 
@@ -94,7 +94,7 @@
 {opt :svySE(string)}  
 
 {phang}
-{opt subpop(string asis)} {cmd:(}[{varname}
+{opt subpop(string asis)} {cmd:(}[{it:varname}
 
 {phang}
 {opt unit:s(string asis)} used to spefify units of the variable that will be estimates with mean, total or ratio .
