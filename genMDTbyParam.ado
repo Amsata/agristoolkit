@@ -24,12 +24,12 @@ program define genMDTbyParam
 		local parameter: list clean parameter
 		
 		if(`setcluster'==0) {
-			svyParallel "`varlist'" "`variable'" "`parameter'" `subpop' `setcluster'
+			svyParallel "`varlist'" "`variable'" "`parameter'" `setcluster'
 			tempfile dataset_dims
 			qui save `dataset_dims',  replace
 		} 
 		else {
-			parallel, prog(svyParallel)  setparallelid(`parallelid') keep nodata: svyParallel "`varlist'" "`variable'" "`parameter'" `subpop' `setcluster'
+			parallel, prog(svyParallel)  setparallelid(`parallelid') keep nodata: svyParallel "`varlist'" "`variable'" "`parameter'" `setcluster'
 			
 			******************* Appending all files ****************************
 			local files: dir . files "__pll_*.dta" 		//   Step 1: list all datasets to be appended
@@ -54,12 +54,12 @@ program define genMDTbyParam
 		qui run "`mypath'"	
 		local parameter: list clean parameter	
 		if (`setcluster'==0) {
-			svyParallelGeo "`varlist'" "`hiergeovars'" "`variable'" "`parameter'" `subpop' `setcluster'
+			svyParallelGeo "`varlist'" "`hiergeovars'" "`variable'" "`parameter'" `setcluster'
 			tempfile dataset_dims
 			qui save `dataset_dims',  replace
 		}
 		else{
-			parallel, prog(svyParallelGeo)  setparallelid(`parallelid') keep nodata: svyParallelGeo "`varlist'" "`hiergeovars'" "`variable'" "`parameter'" `subpop' `setcluster'
+			parallel, prog(svyParallelGeo)  setparallelid(`parallelid') keep nodata: svyParallelGeo "`varlist'" "`hiergeovars'" "`variable'" "`parameter'" `setcluster'
 			
 			******************** appending all files ***************************
 			local files: dir . files "__pll_*.dta" // Step 1: List all files
