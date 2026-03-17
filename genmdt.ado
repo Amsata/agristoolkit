@@ -300,6 +300,7 @@ tempfile opendata_dst
 		preserve
 		genMDTbyParam `varlist', parameter("median") variable(`median_bis') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
 		geomarginlabel(`geomarginlabel') conditionals(`conditionals') subpop(`subpop') setcluster(`setcluster')
+		capture append using `opendata_dst'
 		save `opendata_dst', replace
 		restore
 	}
