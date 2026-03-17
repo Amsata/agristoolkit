@@ -1,7 +1,7 @@
 
 	capture program drop svyParallel
 	program svyParallel
-	args varlist variable parameter setcluster
+	args varlist variable parameter subpop setcluster
 
 		*tuples `varlist' // for looping over all dimensions
 		local si: list sizeof variable

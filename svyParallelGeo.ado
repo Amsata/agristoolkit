@@ -1,7 +1,7 @@
 cap program drop svyParallelGeo
 program svyParallelGeo
 
-args varlist hiergeovars variable parameter setcluster
+args varlist hiergeovars variable parameter subpop setcluster
 	*tuples `varlist' // for looping over all dimensions
     local si: list sizeof variable
 	local s_varlist: list sizeof varlist

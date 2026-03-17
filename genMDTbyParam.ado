@@ -1,73 +1,10 @@
-/* START HELP FILE
-title[a command to setup working directory and necessary files and folder for anonymization]
 
-desc[
- {cmd:genMDTbyParam} generate multi-dimentional statisticial tables destined to open Data Africa plateform
- or for other potential use.
-] 
-
-opt[varlist() list of of variables (domains) over which estimates will be creatd.]
-opt[marginlabels() specify the labels of margins of variables in varlist.]
-opt[parameter() parameter to be estimated in the domains (total, mean or ratio).]
-opt[variable() variable the value of which will be used to generate the specified parameter in 'parameter'.]
-opt[conditionals() eliminate tuples (of dimensions in varlist) according to specified conditions.]
-opt[indicatorname() a comprehensive and informative label of the indicator generated with variables specified in 'variable'.]
-opt[units() units of the parameter generated with variable in 'variable'.]
-opt[svySE() units of the parameter generated with variable in 'variable'.]
-opt[subpop() {cmd:(}[{varname}] [{it:{help if}}]{cmd:)}}identify a subpopulation]
-
-
-
-opt2[varlist() list of of variables (domains) over which estimates will be creatd.]
-opt2[marginlabels() specify the labels of margins of variables in varlist.]
-opt2[parameter() parameter to be estimated in the domains (total, mean or ratio).]
-opt2[variable() variable the value of which will be used to generate the specified parameter in 'parameter'.]
-opt2[conditionals() eliminate tuples (of dimensions in varlist) according to specified conditions.]
-opt2[indicatorname() a comprehensive and informative label of the indicator generated with variables specified in 'variable'.]
-opt2[units() units of the parameter generated with variable in 'variable'.]
-opt2[svySE() units of the parameter generated with variable in 'variable'.]
-opt2[subpop() {cmd:(}[{varname}] [{it:{help if}}]{cmd:)}}identify a subpopulation	]
-
-
-example[
- {stata generateODT Region sex ,marginlabels("All households" "Wakanda") param("ratio") var((I3_n/I3_d)) ///
-	indicatorname("Women entrepreneurship index") ///
-	units("")}
-	
-	 {stata generateODT Region sex ,marginlabels("All households" "Wakanda") param("mean") var(hh_member) ///
-	indicatorname("Average households size") ///
-	units("people")}
-	
-		 {stata generateODT Region sex ,marginlabels("All households" "Wakanda") param("total") var(production) ///
-	indicatorname("Crop production") ///
-	units("MT")}
- ]
- 
- 
-author[Amsata Niang]
-institute[Food and Agriculture Organization of the United Nations FAO]
-email[amsata_niang@yahoo.fr]
-
-
-freetext[
-
-]
-
-references[
-
-]
-
-seealso[
-
-]
-
-END HELP FILE */
 
 cap program drop genMDTbyParam
 program define genMDTbyParam
 		
 	syntax [varlist(default=none)] , PARAMeter(string asis) VARiable(string asis) [MARGINlabels(string asis) HIERGEOvars(string asis) ///
-	GEOMARGINlabel(string) CONDitionals(string asis) svySE(string) subpop(string asis) setcluster(integer 0)]
+	GEOMARGINlabel(string) CONDitionals(string asis) subpop(string asis) setcluster(integer 0)]
 	
 	local n_geovar: list sizeof hiergeovars
 	local n_varlist: list sizeof varlist
@@ -87,12 +24,12 @@ program define genMDTbyParam
 		local parameter: list clean parameter
 		
 		if(`setcluster'==0) {
-			svyParallel "`varlist'" "`variable'" "`parameter'" `setcluster'
+			svyParallel "`varlist'" "`variable'" "`parameter'" `subpop' `setcluster'
 			tempfile dataset_dims
 			qui save `dataset_dims',  replace
 		} 
 		else {
-			parallel, prog(svyParallel)  setparallelid(`parallelid') keep nodata: svyParallel "`varlist'" "`variable'" "`parameter'" `setcluster'
+			parallel, prog(svyParallel)  setparallelid(`parallelid') keep nodata: svyParallel "`varlist'" "`variable'" "`parameter'" `subpop' `setcluster'
 			
 			******************* Appending all files ****************************
 			local files: dir . files "__pll_*.dta" 		//   Step 1: list all datasets to be appended
@@ -117,12 +54,12 @@ program define genMDTbyParam
 		qui run "`mypath'"	
 		local parameter: list clean parameter	
 		if (`setcluster'==0) {
-			svyParallelGeo "`varlist'" "`hiergeovars'" "`variable'" "`parameter'" `setcluster'
+			svyParallelGeo "`varlist'" "`hiergeovars'" "`variable'" "`parameter'" `subpop' `setcluster'
 			tempfile dataset_dims
 			qui save `dataset_dims',  replace
 		}
 		else{
-			parallel, prog(svyParallelGeo)  setparallelid(`parallelid') keep nodata: svyParallelGeo "`varlist'" "`hiergeovars'" "`variable'" "`parameter'" `setcluster'
+			parallel, prog(svyParallelGeo)  setparallelid(`parallelid') keep nodata: svyParallelGeo "`varlist'" "`hiergeovars'" "`variable'" "`parameter'" `subpop' `setcluster'
 			
 			******************** appending all files ***************************
 			local files: dir . files "__pll_*.dta" // Step 1: List all files

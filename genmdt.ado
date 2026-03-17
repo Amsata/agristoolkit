@@ -17,7 +17,6 @@ opt[conditionals() eliminate tuples (of dimensions in varlist) according to spec
 opt[indicatorname() a comprehensive and informative label of the indicator generated with variables specified in 'variable'.]
 opt[units() used to spefify units of the variable that will be estimates with mean, total or ratio .]
 opt[setcluster() used to spefify the number of cores in case one wants genrrate the multi-dimentional table with parallel computing.]
-opt[svySE() units of the parameter generated with variable in 'variable'.]
 opt[subpop() {cmd:(}[{it:varname}] [{help if:if}]{cmd:)} identifies a subpopulation]
 
 opt2[varlist() list of of variables (domains or dimensions) over which estimates will be generated.]
@@ -32,7 +31,6 @@ opt2[conditionals() eliminate tuples (of dimensions in varlist) according to spe
 opt2[indicatorname() a comprehensive and informative label of the indicator generated with variables specified in 'variable'.]
 opt2[units() used to spefify units of the variable that will be estimates with mean, total or ratio .]
 opt2[setcluster() used to spefify the number of cores in case one wants genrrate the multi-dimentional table with parallel computing.]
-opt2[svySE() units of the parameter generated with variable in 'variable'.]
 opt2[subpop() {cmd:(}[{it:varname}] [{help if:if}]{cmd:)} identify a subpopulation]
 
 
@@ -64,7 +62,7 @@ cap program drop genmdt
 program define genmdt
 		
 	syntax [varlist(default=none)] , [ MARGINlabels(string asis) mean(string asis) total(string asis) ratio(string asis) median(string asis) HIERGEOvars(string asis) integer(string asis) ///
-	GEOMARGINlabel(string) CONDitionals(string asis) svySE(string) subpop(string asis) UNITs(string asis) INDICATORname(string asis) setcluster(integer 0)]
+	GEOMARGINlabel(string) CONDitionals(string asis) subpop(string asis) UNITs(string asis) INDICATORname(string asis) setcluster(integer 0)]
 		
 		
 	* For ratio specified ad ( (rat1:VI/VE)  (rat2:VI/V2)  (rat3:VI/V3) (rat4:VI/V4)), allow unit specification like 'rat1-rat4@unit' instead of "(rat1:VI/VE)-(rat4:VI/V4)@unit"
@@ -293,7 +291,7 @@ tempfile opendata_dst
 	if `n_mean'>0 {
 		preserve
 		genMDTbyParam `varlist', parameter("mean") variable(`mean_bis') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
-		geomarginlabel(`geomarginlabel') conditionals(`conditionals') svySE(`svySE') subpop(`subpop') setcluster(`setcluster')
+		geomarginlabel(`geomarginlabel') conditionals(`conditionals') subpop(`subpop') setcluster(`setcluster')
 		save `opendata_dst', replace
 		restore
 	}
@@ -301,7 +299,7 @@ tempfile opendata_dst
 		if `n_median'>0 {
 		preserve
 		genMDTbyParam `varlist', parameter("median") variable(`median_bis') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
-		geomarginlabel(`geomarginlabel') conditionals(`conditionals') svySE(`svySE') subpop(`subpop') setcluster(`setcluster')
+		geomarginlabel(`geomarginlabel') conditionals(`conditionals') subpop(`subpop') setcluster(`setcluster')
 		save `opendata_dst', replace
 		restore
 	}
@@ -310,7 +308,7 @@ tempfile opendata_dst
 	if `n_total'>0 {
 		preserve
 		genMDTbyParam `varlist', parameter("total") variable(`total_bis') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
-		geomarginlabel(`geomarginlabel') conditionals(`conditionals') svySE(`svySE') subpop(`subpop') setcluster(`setcluster')
+		geomarginlabel(`geomarginlabel') conditionals(`conditionals') subpop(`subpop') setcluster(`setcluster')
 		capture append using `opendata_dst'
 		save `opendata_dst', replace
 		restore
@@ -319,7 +317,7 @@ tempfile opendata_dst
 	if `n_ratio'>0 {
 		preserve
 		genMDTbyParam `varlist', parameter("ratio") variable(`ratio') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
-		geomarginlabel(`geomarginlabel') conditionals(`conditionals') svySE(`svySE') subpop(`subpop') setcluster(`setcluster')
+		geomarginlabel(`geomarginlabel') conditionals(`conditionals') subpop(`subpop') setcluster(`setcluster')
 		capture append using `opendata_dst'
 		save `opendata_dst', replace
 		restore

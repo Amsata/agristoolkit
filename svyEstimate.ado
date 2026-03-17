@@ -3,7 +3,7 @@ cap program drop svyEstimate
 program define svyEstimate
 		
 	syntax [varlist] ,PARAMeter(string) VARiable(string asis) ///
-	[conditionals(string asis) svySE(string) subpop(string asis) alldim(string asis) ]
+	[conditionals(string asis) subpop(string asis) alldim(string asis) ]
 
 		quietly {
 		************************************************************************
