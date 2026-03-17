@@ -4,9 +4,9 @@ program define svyEstimate
 		
 	syntax [varlist] ,PARAMeter(string) VARiable(string asis) ///
 	[conditionals(string asis) subpop(string asis) alldim(string asis) ]
-
 	
-	 *local subpop_clean : subinstr local text `"""' "", all
+	 local subpop_clean : subinstr local subpop `"""' "", all
+		
 		quietly {
 		************************************************************************
 		*** Generate estimate over dimension the given dimension combination ***
@@ -71,8 +71,8 @@ program define svyEstimate
 		}
 		
 		else {
-			if("`alldim'"=="yes") svy: `parameter' `variable'
-			else svy, over(`varlist'): `parameter' `variable'
+			if("`alldim'"=="yes") svy, subpop(`subpop_clean'): `parameter' `variable'
+			else svy,  subpop(`subpop_clean') over(`varlist'): `parameter' `variable'
 			qui return list
 			matrix define T= r(table)'	
 			qui ereturn list
