@@ -24,12 +24,12 @@ program define genMDTbyParam
 		local parameter: list clean parameter
 		
 		if(`setcluster'==0) {
-			svyParallel "`varlist'" "`variable'" "`parameter'" `setcluster'
+			svyParallel "`varlist'" "`variable'" "`parameter'" `setcluster' "`subpop'"
 			tempfile dataset_dims
 			qui save `dataset_dims',  replace
 		} 
 		else {
-			parallel, prog(svyParallel)  setparallelid(`parallelid') keep nodata: svyParallel "`varlist'" "`variable'" "`parameter'" `setcluster'
+			parallel, prog(svyParallel)  setparallelid(`parallelid') keep nodata: svyParallel "`varlist'" "`variable'" "`parameter'" `setcluster' "`subpop'"
 			
 			******************* Appending all files ****************************
 			local files: dir . files "__pll_*.dta" 		//   Step 1: list all datasets to be appended

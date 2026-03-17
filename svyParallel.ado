@@ -1,7 +1,7 @@
 
 	capture program drop svyParallel
 	program svyParallel
-	args varlist variable parameter setcluster
+	args varlist variable parameter setcluster subpop
 
 		*tuples `varlist' // for looping over all dimensions
 		local si: list sizeof variable
@@ -41,7 +41,7 @@
 			************************************************************************
 			*****check if there are hierarchical structure between 2 variables******
 			************************************************************************	
-				quietly svyEstimate `tuple' , param(`parameter') var(`var') alldim(`alldim')				
+				quietly svyEstimate `tuple' , param(`parameter') var(`var') alldim(`alldim') subpop("`subpop'")				
 			if (init==0) {
 			save `odp_tab', replace
 			scalar def init=1
