@@ -6,7 +6,6 @@ program define svyEstimate
 	[conditionals(string asis) subpop(string asis) alldim(string asis) ]
 	
 	
-	local subpop "SexeName if RegionName==1"
 	 local subpop_clean : subinstr local subpop `"""' "", all
 	 
 
@@ -18,7 +17,7 @@ program define svyEstimate
 
 		if ("`parameter'"=="median") {
 		
-		if("`subpop'"!="") {
+		if(`subpop'!="") {
 		
 			capture ParseSubpopOption `subpop_clean'
 			local subvar `s(varlist)'

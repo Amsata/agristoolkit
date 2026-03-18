@@ -65,9 +65,14 @@ program define genmdt
 	GEOMARGINlabel(string) CONDitionals(string asis) subpop(string asis) UNITs(string asis) INDICATORname(string asis) setcluster(integer 0)]
 		
 		
-	* For ratio specified ad ( (rat1:VI/VE)  (rat2:VI/V2)  (rat3:VI/V3) (rat4:VI/V4)), allow unit specification like 'rat1-rat4@unit' instead of "(rat1:VI/VE)-(rat4:VI/V4)@unit"
-	*utiliser la specification "Var@marginlabel" pour l'option marginlabel.
-	*Ajouter du versioning dans la package github
+	
+	
+	/* TODO LIST:
+		1. use 'tuples0' instead of the option alldim and make the controle on wheter varlist is empty or not.
+		2. For ratio specified ad ( (rat1:VI/VE)  (rat2:VI/V2)  (rat3:VI/V3) (rat4:VI/V4)), allow unit specification like 'rat1-rat4@unit' instead of "(rat1:VI/VE)-(rat4:VI/V4)@unit"
+		3. Ajouter du versioning dans la package github
+		4. Use '_function_name' for utility functions
+	*/
 
 	local n_mean: list sizeof mean
 	local n_total: list sizeof total
@@ -78,6 +83,7 @@ program define genmdt
 	local n_geovars: list sizeof hiergeovars
 	local n_integer: list sizeof integer
 	local n_if: list sizeof if
+	local n_conditionals: list sizeof conditionals
 	*******creating unique variable label for geovars
 
 	if `"`subpop'"' != "" {
