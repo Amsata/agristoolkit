@@ -56,7 +56,7 @@ quietly{
 		************************************************************************
 		*****check if there are hierarchical structure between 2 variables******
 		************************************************************************	
-			quietly svyEstimate `tuple' , param(`parameter') var(`var') alldim(`alldim')
+			quietly svyEstimate `tuple' , param(`parameter') var(`var') alldim(`alldim') subpop("`subpop'")	
 			gen geoType="`:word `k' of `hiergeovars''"
 
 			
@@ -130,7 +130,7 @@ forvalues k=1/`s_geovars' {
 		************************************************************************
 		*****check if there are hierarchical structure between 2 variables******
 		************************************************************************	
-			quietly svyEstimate `tuple' , param(`parameter') var(`var') alldim(`alldim')
+			quietly svyEstimate `tuple' , param(`parameter') var(`var') alldim(`alldim') subpop("`subpop'")	
 			gen geoType="`:word `k' of `hiergeovars''"
 
 			
