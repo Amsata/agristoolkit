@@ -74,7 +74,7 @@
 			************************************************************************
 			*****check if there are hierarchical structure between 2 variables******
 			************************************************************************	
-				quietly svyEstimate `tuple' , param(`parameter') var(`var') alldim(`alldim')
+				quietly svyEstimate `tuple' , param(`parameter') var(`var') alldim(`alldim') subpop("`subpop'")	
 			save __pll_`parallelid'_$pll_instance.dta, replace
 			}
 		}
