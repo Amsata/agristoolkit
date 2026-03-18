@@ -314,7 +314,7 @@ tempfile opendata_dst
 		preserve
 		genMDTbyParam `varlist', parameter("mean") variable(`mean_bis') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
 		geomarginlabel(`geomarginlabel') conditionals(`conditionals') subpop(`subpop') setcluster(`setcluster')
-		save `opendata_dst', replace
+		qui save `opendata_dst', replace
 		restore
 	}
 	
@@ -322,8 +322,8 @@ tempfile opendata_dst
 		preserve
 		genMDTbyParam `varlist', parameter("median") variable(`median_bis') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
 		geomarginlabel(`geomarginlabel') conditionals(`conditionals') subpop(`subpop') setcluster(`setcluster')
-		capture append using `opendata_dst'
-		save `opendata_dst', replace
+		qui capture append using `opendata_dst'
+		qui save `opendata_dst', replace
 		restore
 	}
 	
@@ -332,8 +332,8 @@ tempfile opendata_dst
 		preserve
 		genMDTbyParam `varlist', parameter("total") variable(`total_bis') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
 		geomarginlabel(`geomarginlabel') conditionals(`conditionals') subpop(`subpop') setcluster(`setcluster')
-		capture append using `opendata_dst'
-		save `opendata_dst', replace
+		qui capture append using `opendata_dst'
+		qui save `opendata_dst', replace
 		restore
 	}	
 		
@@ -341,8 +341,8 @@ tempfile opendata_dst
 		preserve
 		genMDTbyParam `varlist', parameter("ratio") variable(`ratio') marginlabels(`marginlabels') hiergeovars(`hiergeovars') ///
 		geomarginlabel(`geomarginlabel') conditionals(`conditionals') subpop(`subpop') setcluster(`setcluster')
-		capture append using `opendata_dst'
-		save `opendata_dst', replace
+		qui capture append using `opendata_dst'
+		qui save `opendata_dst', replace
 		restore
 	}
 	
@@ -431,19 +431,19 @@ tempfile opendata_dst
 				}
 			}
 			****convertir les entoer
-			replace Value=Value*100 if Unit=="%"
-			replace LL_confInt=LL_confInt*100 if Unit=="%"
-			replace UL_confInt=UL_confInt*100 if Unit=="%"
-			replace standError=standError*100 if Unit=="%"
+			qui replace Value=Value*100 if Unit=="%"
+			qui replace LL_confInt=LL_confInt*100 if Unit=="%"
+			qui replace UL_confInt=UL_confInt*100 if Unit=="%"
+			qui replace standError=standError*100 if Unit=="%"
 
-			gen Value_str=string(Value, "%15.2f")
+			qui gen Value_str=string(Value, "%15.2f")
 			
 			if(`n_integer'>0){
 				local size_integer: list sizeof integer
 				if(`size_integer'>0){
 					foreach v of local integer{
-					replace Value=round(Value) if Variable=="`v'"
-					replace Value_str=string(round(Value), "%15.0f") if Variable=="`v'"
+					qui replace Value=round(Value) if Variable=="`v'"
+					qui replace Value_str=string(round(Value), "%15.0f") if Variable=="`v'"
 					
 					}
 				}

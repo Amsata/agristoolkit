@@ -23,12 +23,7 @@ program define svyEstimate
 			local subvar `s(varlist)'
 			local if `s(if)'
 			
-			if ("`subvar'"!="") {
-				foreach var of local subvar {
-				keep if !missing(`var')
-				}
-			}
-			
+			if ("`subvar'"!="") keep if !missing(`subvar')
 			if ("`if'"!="") keep `if'
 		
 		}
@@ -153,8 +148,6 @@ program define svyEstimate
 		}
 		
 	
-
-		*break 498
 		**************************************************************************
 		*** Extract correct dimension name and merging with sample frequencies (possible from Stata 17 ***
 		*************************************************************************
