@@ -61,7 +61,7 @@ END HELP FILE */
 cap program drop genmdt
 program define genmdt
 		
-	syntax [varlist(default=none)] , [ MARGINlabels(string asis) mean(string asis) total(string asis) ratio(string asis) median(string asis) HIERGEOvars(string asis) integer(string asis) ///
+	syntax [varlist(default=none)] [if], [ MARGINlabels(string asis) mean(string asis) total(string asis) ratio(string asis) median(string asis) HIERGEOvars(string asis) integer(string asis) ///
 	GEOMARGINlabel(string) CONDitionals(string asis) subpop(string asis) UNITs(string asis) INDICATORname(string asis) setcluster(integer 0)]
 		
 		
@@ -77,7 +77,17 @@ program define genmdt
 	local n_unit: list sizeof units
 	local n_geovars: list sizeof hiergeovars
 	local n_integer: list sizeof integer
+	local n_if: list sizeof if
 	*******creating unique variable label for geovars
+
+	if `"`subpop'"' != "" {
+		capture ParseSubpopOption `subpop'
+		if c(rc) {
+			di as err "invalid subpop() option"
+			exit c(rc)
+		}
+		
+	}
 	
 if(`n_geovars'>0) {
 
@@ -284,7 +294,13 @@ local median_bis
 		quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param("ratio") hiergeovars(`hiergeovars') ///
 		var(`ratio') conditionals(`conditionals') setcluster(`setcluster') 
 	}
-	
+
+******************** exclude observations with if*******************************
+
+if(`n_if'>0) {
+keep `if'
+}
+********************************************************************************
 		
 tempfile opendata_dst
 
@@ -438,3 +454,9 @@ tempfile opendata_dst
 	
 end
 
+program ParseSubpopOption, sclass
+	syntax [varname(default=none numeric)] [if] 
+	sreturn clear
+	sreturn local varlist `varlist'
+	sreturn local if `"`if'"'
+end
