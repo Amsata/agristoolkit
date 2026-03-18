@@ -5,14 +5,34 @@ program define svyEstimate
 	syntax [varlist] ,PARAMeter(string) VARiable(string asis) ///
 	[conditionals(string asis) subpop(string asis) alldim(string asis) ]
 	
+	
+	local subpop "SexeName if RegionName==1"
 	 local subpop_clean : subinstr local subpop `"""' "", all
+	 
+
 		
-		quietly {
+		*quietly {
 		************************************************************************
 		*** Generate estimate over dimension the given dimension combination ***
 		************************************************************************
 
 		if ("`parameter'"=="median") {
+		
+		if("`subpop'"!="") {
+		
+			capture ParseSubpopOption `subpop_clean'
+			local subvar `s(varlist)'
+			local if `s(if)'
+			
+			if ("`subvar'"!="") {
+				foreach var of local subvar {
+				keep if !missing(`var')
+				}
+			}
+			
+			if ("`if'"!="") keep `if'
+		
+		}
 		
 		local other_vars CV_pct se t pvalue ll ul df crit eform
 
@@ -141,8 +161,15 @@ program define svyEstimate
 		*************************************************************************
 		
 		
-		} //quietly
+		*} //quietly
 	
 end
 
 *include controle in case of hierarchical geographic variable, indication=> to many zero/missing value in sample frequencies
+
+program ParseSubpopOption, sclass
+	syntax [varname(default=none numeric)] [if] 
+	sreturn clear
+	sreturn local varlist `varlist'
+	sreturn local if `"`if'"'
+end
