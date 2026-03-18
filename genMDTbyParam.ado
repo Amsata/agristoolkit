@@ -54,12 +54,12 @@ program define genMDTbyParam
 		qui run "`mypath'"	
 		local parameter: list clean parameter	
 		if (`setcluster'==0) {
-			svyParallelGeo "`varlist'" "`hiergeovars'" "`variable'" "`parameter'" `setcluster'
+			svyParallelGeo "`varlist'" "`hiergeovars'" "`variable'" "`parameter'" `setcluster' "`subpop'"
 			tempfile dataset_dims
 			qui save `dataset_dims',  replace
 		}
 		else{
-			parallel, prog(svyParallelGeo)  setparallelid(`parallelid') keep nodata: svyParallelGeo "`varlist'" "`hiergeovars'" "`variable'" "`parameter'" `setcluster'
+			parallel, prog(svyParallelGeo)  setparallelid(`parallelid') keep nodata: svyParallelGeo "`varlist'" "`hiergeovars'" "`variable'" "`parameter'" `setcluster' "`subpop'"
 			
 			******************** appending all files ***************************
 			local files: dir . files "__pll_*.dta" // Step 1: List all files
@@ -80,6 +80,8 @@ program define genMDTbyParam
 	}
 
 	restore
+	
+	*generating for all diension
 	preserve 
 	qui findfile svyParallel.ado
 	qui return list
@@ -87,13 +89,13 @@ program define genMDTbyParam
 	run "`mypath'"
 
 	if(`setcluster'==0) {
-		svyParallel "" "`variable'" "`parameter'" `setcluster'
+		svyParallel "" "`variable'" "`parameter'" `setcluster' "`subpop'"
 		tempfile dataset_alldims
 		qui save `dataset_alldims',  replace
 		qui append using `dataset_dims'
 	}
 	else {
-		parallel, prog(svyParallel)  setparallelid(`parallelid') keep nodata: svyParallel "" "`variable'" "`parameter'" `setcluster'
+		parallel, prog(svyParallel)  setparallelid(`parallelid') keep nodata: svyParallel "" "`variable'" "`parameter'" `setcluster' "`subpop'"
 		
 		********************** appending all files *****************************
 		local files: dir . files "__pll_*.dta"  // Step 1: List all files
