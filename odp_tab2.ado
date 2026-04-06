@@ -7,15 +7,16 @@ program define odp_tab2, rclass
 
 	
 local n_tabtitle :list sizeof tabtitle
-
+local n_if: list sizeof if
 
 	if ("`indvar'"=="") local indvar "Variable"
 	if ("`indicatorname'"=="") local indicatorname "IndicatorName"
 	if ("`value'"=="") local value "Value_str"
 	
+	
 	**start message 
 	preserve
-	qui if "`if'"!="" keep `if'
+	qui if (`n_if'>0) keep `if'
 	qui keep if `indvar'=="`indicator'"
 	qui levelsof(`indicatorname'),local(ind_name)
 	if (`n_tabtitle'==0) di as result `"Generating table: {cmd:`ind_name'}..."'
@@ -51,7 +52,7 @@ local TabTitleCell_num=`TitleCell_num'+1
 local TitleCell="`cell_start'`TitleCell_num'"
 local TabTitleCell="`cell_start'`TabTitleCell_num'"
 
-if "`if'"!="" keep `if'
+if (`n_if'>0) keep `if'
 keep if `indvar'=="`indicator'"
 keep `varlist' `by'
 
@@ -109,7 +110,7 @@ putexcel (`TabTitleCell':`EndTabTitleCell'), border(all, thin) bold font("Arial"
 restore
 
 preserve
-if "`if'"!="" keep `if'
+if (`n_if'>0) keep `if'
 keep if `indvar'=="`indicator'"
 levelsof(`indicatorname'),local(ind_name)
 
