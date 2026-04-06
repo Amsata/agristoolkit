@@ -1,77 +1,19 @@
-/* START HELP FILE
-title[a command to generate multi-dimentional table from statistical survey]
 
-desc[
- {cmd:genmdt} generate multi-dimentional statisticial tables from statistical survey.
-] 
-
-opt[varlist() list of of variables (domains or dimensions) over which estimates will be generated.]
-opt[marginlabels() specify the labels of margins of domains specified in  in varlist.]
-opt[hiergeovars() used to specify geographic variables that have hierachical link.]
-opt[geomarginlabel() used specify the label of the geographic variables in case hiergeovars is used]
-opt[mean() used to spefify list of variables for which average will be estimated]
-opt[total() used to spefify list of variables for which total will be estimated]
-opt[ratio() used to spefify list of variables for which ratio will be estimated]
-opt[integer() used to spefify list of variables for which estimates will be display as integer (and not with decimal)]
-opt[conditionals() eliminate tuples (of dimensions in varlist) according to specified conditions.]
-opt[indicatorname() a comprehensive and informative label of the indicator generated with variables specified in 'variable'.]
-opt[units() used to spefify units of the variable that will be estimates with mean, total or ratio .]
-opt[setcluster() used to spefify the number of cores in case one wants genrrate the multi-dimentional table with parallel computing.]
-opt[subpop() {cmd:(}[{it:varname}] [{help if:if}]{cmd:)} identifies a subpopulation]
-
-opt2[varlist() list of of variables (domains or dimensions) over which estimates will be generated.]
-opt2[marginlabels() specify the labels of margins of domains specified in  in varlist.]
-opt2[hiergeovars() used to specify geographic variables that have hierachical link.]
-opt2[geomarginlabel() used specify the label of the geographic variables in case hiergeovars is used]
-opt2[mean() used to spefify list of variables for which average will be estimated]
-opt2[total() used to spefify list of variables for which total will be estimated]
-opt2[ratio() used to spefify list of variables for which ratio will be estimated]
-opt2[integer() used to spefify list of variables for which estimates will be display as integer (and not with decimal)]
-opt2[conditionals() eliminate tuples (of dimensions in varlist) according to specified conditions.]
-opt2[indicatorname() a comprehensive and informative label of the indicator generated with variables specified in 'variable'.]
-opt2[units() used to spefify units of the variable that will be estimates with mean, total or ratio .]
-opt2[setcluster() used to spefify the number of cores in case one wants genrrate the multi-dimentional table with parallel computing.]
-opt2[subpop() {cmd:(}[{it:varname}] [{help if:if}]{cmd:)} identify a subpopulation]
-
-
-example[
- {stata genmdt Region sex ,marginlabels("Region@Wakanda" "Sex@Both") ratio ((WII=I3_n/I3_d)) mean(AGE) total(AG_PARCELLE)  indicatorname("WII@Women entrepreneurship index" "AGE@Age of the households head" "AG_PARCELLE@Total number of agricultural parcels") units("WII%" "AGE@Years" "AG_PARCELLE@Parcel")}
- ]
- 
- 
-author[Amsata Niang]
-institute[Food and Agriculture Organization of the United Nations]
-email[amsata.niang@fao.org]
-
-
-freetext[
-
-]
-
-references[
-
-]
-
-seealso[
-
-]
-
-END HELP FILE */
 
 cap program drop genmdt
 program define genmdt
 		
-	syntax [varlist(default=none)] [if], [ MARGINlabels(string asis) mean(string asis) total(string asis) ratio(string asis) median(string asis) HIERGEOvars(string asis) integer(string asis) ///
+	syntax [varlist(default=none)] [if], [ MARGINlabels(string asis) mean(string asis) total(string asis) ratio(string asis) median(string asis) HIERGEOvars(string asis) INTeger(string asis) ///
 	GEOMARGINlabel(string) CONDitionals(string asis) subpop(string asis) UNITs(string asis) INDICATORname(string asis) setcluster(integer 0)]
 		
 		
-	
 	
 	/* TODO LIST:
 		1. use 'tuples0' instead of the option alldim and make the controle on wheter varlist is empty or not.
 		2. For ratio specified ad ( (rat1:VI/VE)  (rat2:VI/V2)  (rat3:VI/V3) (rat4:VI/V4)), allow unit specification like 'rat1-rat4@unit' instead of "(rat1:VI/VE)-(rat4:VI/V4)@unit"
 		3. Ajouter du versioning dans la package github
 		4. Use '_function_name' for utility functions
+		5. move all the possible checks in checkconsistency functions
 	*/
 
 	local n_mean: list sizeof mean
@@ -98,6 +40,22 @@ program define genmdt
 if(`n_geovars'>0) {
 
 	quietly{
+	
+	********replace "'" in labels by "@@" 
+	
+		foreach vr of local hiergeovars {
+		local lbls : value label `vr'
+		qui elabel list `lbls'
+		local valeur="`r(values)'"
+		local text=`"`r(labels)'"'
+		foreach val of local valeur {
+			local txt : label `lbls' `val'
+			local newtxt = subinstr(`"`txt'"', "'", "@&@&", .)
+			label define `lbls' `val' "`newtxt'", modify
+		}
+	}
+	
+		cap label drop labels_geovars
 		local old_vl: value label `:word 1 of `hiergeovars''
 		elabel copy `old_vl' labels_geovars
 		qui elabel list labels_geovars
@@ -110,6 +68,7 @@ if(`n_geovars'>0) {
 				qui elabel list `v'_labels
 				local valeur="`r(values)'"
 				local text=`"`r(labels)'"'
+				di `"`text'"'
 				local len_label=`r(k)'
 				local max_final=cond(`max_val'>`r(max)',`max_val',`r(max)')
 
@@ -118,13 +77,26 @@ if(`n_geovars'>0) {
 					local j=`max_final'+`:word `i' of `valeur''
 					di "max=`max_val' :i=`:word `i' of `valeur'' :j=`j'"
 					qui recode `v' `:word `i' of `valeur''=`j'
+					
+					di `"`:word `i' of `text''"'
 					label define labels_geovars `j' `"`:word `i' of `text''"',add
 					}
-				
+					
 				label val `v' labels_geovars
-			}
+				
+				local lbls : value label `v'
+				qui elabel list `lbls'
+				local valeur="`r(values)'"
+				local text=`"`r(labels)'"'
+				foreach val of local valeur {
+					local txt : label `lbls' `val'
+					local newtxt = subinstr(`"`txt'"', "@&@&", "'", .)
+					label define `lbls' `val' "`newtxt'", modify
+				}
+			}	
 		}
 	}
+	
 }
 
 	
@@ -157,7 +129,7 @@ if(`n_geovars'>0) {
 					local pos_var: list posof "`varname'" in all_variable
 					if `pos'==1 {
 						display as error "error in '{cmd:`ind'}': Please put the variable name before {cmd:@}" _newline 
-						display as error "The indicator name should be specified as followed: {cmd: 'variableName@title of the indicator'} "
+						display as error "The indicator name should be specified as followed: {cmd: 'variableName@label of the indicator'} "
 						exit 480
 					}
 					else if `pos_var'==0 {
@@ -166,8 +138,9 @@ if(`n_geovars'>0) {
 					    local pos_var: list posof "`varname'" in res_before_colon
 
 						if `pos_var'==0 {
-						display as error "Eerror in '{cmd:`ind'}': {cmd: `varname'} is not a valid variable name" _newline 
-						display as error "The indicator name should be specified as followed: {cmd: 'variableName@title of the indicator'} "
+						display as error "Eerror in '{cmd:`ind'}' in the option {cmd: indicatorname}: {cmd: `varname'}  is not a valid variable name specified in {cmd: mean}, {cmd: median},{cmd: total} or {cmd: ratio}." _newline 
+							display as error "Please make sure that the variable {cmd: `varname'} exists in  {cmd: mean}, {cmd: median},{cmd: total} or {cmd: ratio}" _newline 
+						display as error "In case the variable {cmd: `varname'} exists in  {cmd: mean}, {cmd: median},{cmd: total} or {cmd: ratio}, please make sure the indicator label, in the {cmd: indicatorname} option, is be specified as followed: {cmd: 'variableName@title of the indicator'} "
 						exit 480
 						}
 					}
@@ -206,9 +179,11 @@ if(`n_geovars'>0) {
 							local res_before_colon "`r(extracted)'"
 							local pos_var_b2: list posof "`var_before'" in res_before_colon
 							if `pos_var_b2'==0 {
-							display as error "error in '{cmd: `ind'}': {cmd: `var_before'} is not a valid variable name" _newline 
-							display as error "The unit should be specified as followed: {cmd: 'var1-var2@unit'} "
-							exit 480
+							display as error "error in '{cmd: `ind'}' in the option {cmd: units}: {cmd: `var_before'} is not a valid variable name specified in {cmd: mean}, {cmd: median},{cmd: total} or {cmd: ratio}." _newline 
+						display as error "Please make sure that the variable {cmd: `varname'} exists in  {cmd: mean}, {cmd: median},{cmd: total} or {cmd: ratio}" _newline 
+
+display as error "In case the variable {cmd: `var_before'} exists in the parameters  {cmd: mean}, {cmd: median},{cmd: total} or {cmd: ratio}, please make sure the indicator unit, in the {cmd: units} option, is be specified as followed: {cmd: 'variableName@unit'} or as range {cmd: 'Var_i-Var_j@unit'} "
+						exit 480
 							}
 						}
 					
@@ -217,8 +192,10 @@ if(`n_geovars'>0) {
 							local res_before_colon "`r(extracted)'"
 							local pos_var_a2: list posof "`var_after'" in res_before_colon
 							if `pos_var_a2'==0 {
-								display as error "error in '{cmd: `ind'}': {cmd: `var_after'} is not a valid variable name" _newline 
-								display as error "The unit should be specified as followed: {cmd: 'var1-var2@unit'} "
+								display as error "error in '{cmd: `ind'}': {cmd: `var_after'}is not a valid variable name specified in {cmd: mean}, {cmd: median},{cmd: total} or {cmd: ratio}." _newline 
+								display as error "Please make sure that the variable {cmd: `var_after'} exists in  {cmd: mean}, {cmd: median},{cmd: total} or {cmd: ratio}" _newline 
+
+display as error "In case the variable {cmd: `var_after'} exists in the parameters  {cmd: mean}, {cmd: median},{cmd: total} or {cmd: ratio}, please make sure the indicator unit, in the {cmd: units} option, is be specified as followed: {cmd: '`var_after'@unit'} or as range {cmd: 'Var_i-Var_j@unit'} "
 								exit 480
 							}
 						}
@@ -230,9 +207,11 @@ if(`n_geovars'>0) {
 					    local pos_var: list posof "`varname'" in res_before_colon
 
 						if `pos_var'==0 {
-							display as error "Eerror in '{cmd:`ind'}': {cmd: `varname'} is not a valid variable name" _newline 
-							display as error "The indicator name should be specified as followed: {cmd: 'variableName@title of the indicator'} "
-							exit 480
+							display as error "Eerror in '{cmd:`ind'}': {cmd: `varname'} is not a valid variable name specified in {cmd: mean}, {cmd: median},{cmd: total} or {cmd: ratio}." _newline 
+							display as error "Please make sure that the variable {cmd: `varname'} exists in  {cmd: mean}, {cmd: median},{cmd: total} or {cmd: ratio}" _newline 
+
+							display as error "In case the variable {cmd: `varname'} exists in the parameters  {cmd: mean}, {cmd: median},{cmd: total} or {cmd: ratio}, please make sure the indicator unit, in the {cmd: units} option, is be specified as followed: {cmd: '`varname'@unit'} or as range {cmd: 'Var_i-Var_j@unit'} "
+						exit 480
 						}
 					}
 				}
