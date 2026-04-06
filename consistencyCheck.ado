@@ -97,7 +97,7 @@ program define consistencyCheck
 
 	cap which tuples
 	if _rc {
-		di as error "Error: The tuples package is required. Please install it by running: ssc install elabel"
+		di as error "Error: The tuples package is required. Please install it by running: ssc install tuples"
 		exit 1
 	}
 	
