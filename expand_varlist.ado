@@ -1,5 +1,9 @@
+cap program drop expand_varlist
 program define expand_varlist, rclass
     args varlist
+
+	*remove extra space before and/or after "-", if any
+	local varlist = ustrregexra("`varlist'", "\s*-\s*", "-")
 
     local expanded_list ""	
 
