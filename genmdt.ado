@@ -276,6 +276,12 @@ local median_bis
 	
 	
 	if `n_ratio'>0 {
+	
+	local ratio = ustrregexra("`ratio'", "\s*:\s*", ":")
+	local ratio = ustrregexra("`ratio'", "\s*/\s*", "/")
+	local ratio : subinstr local ratio "(" "", all
+	local ratio : subinstr local ratio ")" "", all
+	
 		quietly consistencyCheck `varlist' , marginlabels(`marginlabels') param("ratio") hiergeovars(`hiergeovars') ///
 		var(`ratio') conditionals(`conditionals') setcluster(`setcluster') 
 	}
