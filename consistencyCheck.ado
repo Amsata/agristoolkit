@@ -177,35 +177,15 @@ program define consistencyCheck
 	*** if ratio, check if the specification if correct ***
 	*******************************************************
 	if ("`parameter'"=="ratio") {
+	
 		foreach v of local variable {
-		
-		
-		local pos_par = strpos("`v'", "(")
-		if (`pos_par'==0) {
-			display as error "Error: Please enclose the ratio formula between parenthesis like (V1/V2) or (nyname:V1/V2) in `v'" 
-			exit 498
-			}
-			
-		local pos_par = strpos("`v'", ")")
-		if (`pos_par'==0) {
-			display as error "Error: Closing parenthesis missing in `v'"
-			exit 498
-			}
-			
-		*Removing parenthesis
-		local var_2 = subinstr("`v'", "(", "", .)
-		local var_2 = subinstr("`var_2'", ")", "", .)
-		
-		****
-		local var_2=substr("`var_2'", strpos("`var_2'", ":") + 1, .)
-
+		local var_2=substr("`v'", strpos("`var_2'", ":") + 1, .)
 		local pos = strpos("`var_2'", "/")
 		*control if pos==0: invalid specification
 		if (`pos'==0) {
 			display as error "Error: Invalid specification in `v' for ratio estimation. '/' missing"
 			exit 498
 			}
-			
 		*check if numerator or denominator are in the variable lsit
 		local denominator = substr("`var_2'", `pos'+1, .)
 		local numerator = substr("`var_2'", 1, `pos'-1)
@@ -220,7 +200,6 @@ program define consistencyCheck
 			exit 498
 			}
 		}
-		
 	}
 		*set cluster if specified
 		if(`setcluster'>0) {
