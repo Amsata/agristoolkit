@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>agristoolkit</title>
+  <title>agristoolkit - Article</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Simple modern styling -->
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
@@ -45,7 +44,20 @@
       font-weight: 500;
     }
 
- /* Layout */
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    /* Layout */
     .layout {
       display: flex;
       gap: 40px;
@@ -83,37 +95,22 @@
     .sidebar a:hover {
       text-decoration: underline;
     }
-    nav a:hover {
-      text-decoration: underline;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 40px auto;
-      padding: 20px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
 
     h2 {
       border-bottom: 2px solid #eee;
       padding-bottom: 5px;
     }
 
-    .articles a {
-      display: block;
-      padding: 12px;
-      margin: 10px 0;
-      background: #ecf0f1;
-      border-radius: 5px;
-      text-decoration: none;
-      color: #2c3e50;
-      font-weight: 500;
+    pre {
+      background: #f4f6f7;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
     }
 
-    .articles a:hover {
-      background: #d0d7de;
+    pre code {
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.95em;
     }
 
     footer {
@@ -123,10 +120,20 @@
       font-size: 0.9em;
     }
 
-    code {
-      background: #eee;
-      padding: 3px 6px;
-      border-radius: 4px;
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Mobile */
+    @media (max-width: 900px) {
+      .layout {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        position: relative;
+        top: 0;
+      }
     }
 	nav {
   background-color: #34495e;
@@ -296,7 +303,7 @@ nav a.active {
 
 <span style="color:#2e7d32;">* Display first observations</span>
 </code></pre>
-<img src="output1.png" alt="Output of the genmdt" style="width:800px; height:600px">
+<img src="output1.png" alt="Output of the genmdt" style="width:1100px; height:600px">
 
  <h3 id="tab_from_mdt">Part II: Generating an example of table for report</h2>
 <p>
@@ -308,7 +315,7 @@ nav a.active {
 <span style="color:#1565c0;">tabtitle</span>(<span style="color:#A31515;">"Proportion of people with diabetes, high blood pressure and number of people that have had heart attack, by region and sex"</span>) <span style="color:#2e7d32;">///</span>
 <span style="color:#1565c0;">outfile</span>(<span style="color:#A31515;">"test_genmdt.xlsx"</span>) <span style="color:#1565c0;">replace</span>
 </code></pre>  
-<img src="output2.png" alt="Output of the tab_from_mdt" style="width:800px; height:800px">
+<img src="output2.png" alt="Output of the tab_from_mdt" style="width:1100px; height:800px">
 
 	
     </div>
