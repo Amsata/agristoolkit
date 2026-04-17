@@ -1,0 +1,37 @@
+we will use 
+====
+
+agristoolkit is a stata that allow allow to compile long-format statistical table from complex statistical survey and extract statistical tables from it to be included in reports.
+
+In this exemple we are going to use the nhanes2 dataset to long-format tables containg number of people with hight-blood pressures in the US by Region , Sex and Age group.
+
+Twwo statistical indicators will be produced:  
+
+**1. Pproportion of people with diabetites** (in percentage)  
+**2. Proportion of people with high blood pressure** (in percentage)  
+**3. Total number of  that have had an heart attack** (count)  
+
+
+These two indicators will be desagregated by Region, Sex and Sex groups with will represent our estimation domains.
+
+
+~~~~
+<<dd_do>>
+webuse nhanes2, clear
+
+label def rur 1 "Urban" 2 "Rural"
+label val rural rur
+
+genmdt region sex rural , marginlabels("region@USA" "sex@both")  ///
+mean(highbp diabetes) total(heartatk) integer(heartatk)          ///
+units("highbp@%" "diabetes@%" "heartatk@people")                 ///
+indicator(                                                       ///
+"highbp@Pproportion of people with diabetites"                   ///
+"diabetes@Proportion of people with high blood pressure"         ///
+"heartatk@Total number of  that have had an heart attack"        ///
+)
+<</dd_do>>
+
+testing the value
+
+

@@ -1,0 +1,11 @@
+pre {
+  background: #f4f6f7;
+  padding: 15px;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+pre code {
+  font-family: Consolas, Monaco, monospace;
+  font-size: 0.95em;
+}

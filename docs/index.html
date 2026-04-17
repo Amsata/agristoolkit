@@ -45,12 +45,50 @@
       font-weight: 500;
     }
 
+ /* Layout */
+    .layout {
+      display: flex;
+      gap: 40px;
+    }
+
+    .main-content {
+      flex: 3;
+    }
+
+    .sidebar {
+      flex: 1;
+      position: sticky;
+      top: 20px;
+      height: fit-content;
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 6px;
+      border: 1px solid #eee;
+    }
+
+    .sidebar h3 {
+      margin-top: 0;
+      font-size: 1em;
+      color: #555;
+    }
+
+    .sidebar a {
+      display: block;
+      text-decoration: none;
+      color: #2c3e50;
+      font-size: 0.9em;
+      margin: 8px 0;
+    }
+
+    .sidebar a:hover {
+      text-decoration: underline;
+    }
     nav a:hover {
       text-decoration: underline;
     }
 
     .container {
-      max-width: 900px;
+      max-width: 1200px;
       margin: 40px auto;
       padding: 20px;
       background: white;
@@ -90,6 +128,95 @@
       padding: 3px 6px;
       border-radius: 4px;
     }
+	nav {
+  background-color: #34495e;
+  padding: 10px;
+  text-align: center;
+}
+
+nav a.active {
+  background-color: transparent;
+  color: #ffffff;
+  border-bottom: 3px solid #1abc9c;
+  border-radius: 0;
+}
+
+nav a {
+  color: #ecf0f1;
+  margin: 0 10px;
+  padding: 8px 16px;
+  text-decoration: none;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.25s ease;
+}
+
+/* Hover effect */
+nav a:hover {
+  background-color: #3d566e;
+}
+
+/* ACTIVE TAB (this is the key part) */
+nav a.active {
+  background-color: #ffffff;
+  color: #2c3e50;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* Dropdown container */
+.dropdown {
+  display: inline-block;
+  position: relative;
+}
+
+/* Button style (same as nav links) */
+.dropbtn {
+  background: none;
+  border: none;
+  color: #ecf0f1;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+/* Hover effect */
+.dropbtn:hover {
+  background-color: #3d566e;
+}
+
+/* Dropdown content (hidden by default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: white;
+  min-width: 220px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border-radius: 6px;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+/* Links inside dropdown */
+.dropdown-content a {
+  display: block;
+  padding: 10px 15px;
+  color: #2c3e50;
+  text-decoration: none;
+  font-size: 0.95em;
+}
+
+/* Hover effect */
+.dropdown-content a:hover {
+  background-color: #ecf0f1;
+}
+
+/* Show dropdown on hover */
+.dropdown:hover .dropdown-content {
+  display: block;
+}
   </style>
 </head>
 
@@ -101,52 +228,99 @@
 </header>
 
 <nav>
-  <a href="index.html">Home</a>
-  <a href="article1.html">Article 1</a>
-  <a href="article2.html">Article 2</a>
-  <a href="article3.html">Article 3</a>
-  <a href="article4.html">Article 4</a>
+  <a href="index.html" class="active">Home</a>
+  <a href="getting-started.html">Getting Started</a>
+  <a href="article2.html">genmdt</a>
+  <a href="article3.html">tab_from_mdt</a>
+   <!-- DROPDOWN -->
+  <div class="dropdown">
+    <button class="dropbtn">Articles ▾</button>
+    <div class="dropdown-content">
+      <a href="advanced1.html">Quality control</a>
+      <a href="advanced2.html">Complex indicators</a>
+      <a href="advanced3.html">Masking rules</a>
+      <a href="advanced4.html">Automation workflows</a>
+    </div>
+  </div>
 </nav>
 
-<div class="container">
+<div class="container" style="width:1600px;">
 
-  <h2>Overview</h2>
-  <p>
-    <strong>agristoolkit</strong> is a Stata package designed to simplify
-    the analysis and tabulation of survey data, with a focus on agricultural datasets.
-  </p>
+  <div class="layout">
+  
+      <div class="main-content">
 
-  <h2>Installation</h2>
+  <h2 id="agristoolkit">Overview</h2>
+       <p>
+   <strong>agristoolkit</strong> is a Stata package developed to streamline the production, management, and dissemination of statistical 
+	outputs derived from complex survey data. It enables users to generate standardized, long-format multi-dimensional 
+	   tables of indicators computed with parameters such as  <strong><code>mean</code></strong>, <strong>total</strong>, <strong>ratio</strong>, and <strong>median</strong> while properly accounting for survey design features 
+	   (weights, stratification, and clustering) through the <code><span style="color:#1565c0;">genmdt</span></code> function. </br></br>
+
+In addition, the package provides tools to transform these machine-readable datasets into well-structured, publication-ready 
+tables via the <code><span style="color:#1565c0;">tab_from_mdt</span></code> function, facilitating their direct integration into analytical reports, briefs, 
+and other dissemination products. </br></br>
+A key feature of <strong>agristoolkit</strong> is its support for statistical quality assurance. The package incorporates mechanisms 
+to monitor and evaluate the reliability of estimates based on criteria such as the number of sample observations, 
+standard errors, and coefficients of variation. These metrics can be used to guide decisions on whether indicators 
+should be published, flagged, or masked, ensuring that both machine-readable outputs and publication-ready 
+tables meet predefined quality standards.</br></br>
+
+The package was designed to address a common dual need in statistical production systems:
+(i) the creation of detailed, structured datasets suitable for statistical databases and data portals, and
+(ii) the generation of simplified, human-readable tables for reporting and communication purposes.</br></br>
+
+By linking both outputs to a single underlying data structure, <strong>agristoolkit</strong> ensures full consistency, 
+reproducibility, and efficiency across data dissemination workflows, reducing duplication of effort 
+and minimizing the risk of discrepancies between published results and underlying data systems.
+      </p>
+
+  <h2 id="intallation">Installation</h2>
   <p>Install directly from GitHub or your repository:</p>
-  <pre><code>net install agristoolkit, from("https://your-url")</code></pre>
+  <pre><code><span style="color:#1565c0;">net</span> install agristoolkit, from(<span style="color:#A31515;">"https://raw.githubusercontent.com/amsata/agristoolkit/main/"</span>) <span style="color:#1565c0;">replace</span></code></pre>
 
-  <h2>Main Features</h2>
+  <h2 id="features">Main Features</h2>
   <ul>
-    <li>Efficient tabulation of survey data</li>
-    <li>Support for complex survey design</li>
-    <li>Clean and reproducible workflows</li>
+    <li> <strong>Generation of machine-readable multi-dimensional tables (<code><span style="color:#1565c0;">genmdt</span></code>)</strong>: agristoolkit enables the production of standardized, 
+	long-format tables of survey indicators (mean, total, ratio, median) that fully account for complex survey design. 
+	These structured outputs are optimized for integration into statistical databases and data portals, 
+	while ensuring consistency and reproducibility.</li> </br>
+    <li><strong>Production of publication-ready tables with quality control (<code><span style="color:#1565c0;">tab_from_mdt</span></code>)</strong>: The package allows users to convert machine-readable 
+	outputs into clear, formatted tables for reports and briefs. It integrates statistical quality checks—based on sample size, 
+	standard errors, and coefficients of variation—to support decisions on publishing, flagging, or masking indicators,
+	ensuring reliable and coherent dissemination.</li>
   </ul>
 
-  <h2>Documentation</h2>
+  <h2 id="documentation">Documentation</h2>
   <div class="articles">
-    <a href="article1.html">📘 Getting Started</a>
-    <a href="article2.html">🧹 Data Cleaning</a>
-    <a href="article3.html">📊 Tabulation</a>
-    <a href="article4.html">⚙️ Advanced Usage</a>
+    <a href="getting-started.html">🎬 Getting Started</a>
+    <a href="article2.html">🧮 genmdt</a>
+    <a href="article3.html">📅 tab_from_mdt</a>
   </div>
 
-  <h2>Source Code</h2>
+  <h2 id="code">Source Code</h2>
   <p>
     View the project on GitHub:
-    <a href="https://github.com/yourusername/agristoolkit">
-      github.com/yourusername/agristoolkit
+    <a href="https://github.com/Amsata/agristoolkit">
+      https://github.com/amsata/agristoolkit
     </a>
   </p>
+    </div>
 
+ <div class="sidebar">
+      <h3>On this page</h3>
+	  <a href="#agristoolkit">What is agristoolkit?</a>
+      <a href="#intallation">Installation</a>
+	  <a href="#features">Main Features</a>
+	  <a href="#documentation">Documentation</a>
+	  <a href="#code">Source code</a>
+
+    </div>
+</div>
 </div>
 
 <footer>
-  <p>© 2026 agristoolkit | Built with Stata + dyndoc</p>
+  <p>© 2026 Amsata Niang</p>
 </footer>
 
 </body>
