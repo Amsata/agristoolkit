@@ -14,7 +14,7 @@
 		else {
 			local alldim "no"
 			*if ("`conditionals'"=="") {
-			tuples `varlist' 
+			tuples `varlist', nopython
 		*}
 		*else{
 		*	tuples `varlist', conditionals(`conditionals') 

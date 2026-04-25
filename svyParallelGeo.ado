@@ -25,11 +25,11 @@ forvalues k=1/`s_geovars' {
 	*if ("`conditionals'"=="") {
 		if(`s_varlist'==0) {
 			local new_varlist "`:word `k' of `hiergeovars''"
-		tuples `new_varlist' 
+		tuples `new_varlist', nopython
 		}
 		else {
 			local new_varlist "`:word `k' of `hiergeovars'' `varlist'"
-		tuples `new_varlist' 
+		tuples `new_varlist', nopython
 		}
 	*}
 	*else{
@@ -92,11 +92,11 @@ forvalues k=1/`s_geovars' {
 	*if ("`conditionals'"=="") {
 		if(`s_varlist'==0) {
 			local new_varlist "`:word `k' of `hiergeovars''"
-		tuples `new_varlist' 
+		tuples `new_varlist', nopython
 		}
 		else {
 			local new_varlist "`:word `k' of `hiergeovars'' `varlist'"
-		tuples `new_varlist' 
+		tuples `new_varlist', nopython
 		}
 	*}
 	*else{
