@@ -179,7 +179,7 @@ program define consistencyCheck
 	if ("`parameter'"=="ratio") {
 	
 		foreach v of local variable {
-		local var_2=substr("`v'", strpos("`var_2'", ":") + 1, .)
+		local var_2=substr("`v'", strpos("`v'", ":") + 1, .)
 		local pos = strpos("`var_2'", "/")
 		*control if pos==0: invalid specification
 		if (`pos'==0) {
