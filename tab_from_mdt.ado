@@ -148,7 +148,7 @@ local tab_end_cell_letter="`r(tab_end_cell_letter)'"
 }
 
 
-_excel_cell_shift, cell("`tab_end_cell_letter'") rowinc(0) colinc(1)
+_excel_cell_shift, cell("`tab_end_cell_letter'") rowinc(0) colinc(2)
 local end_cell="`r(cell)'"
 local end_cell = subinstr("`end_cell'", ".", "", .)
 *di "`end_cell'"
