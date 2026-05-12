@@ -147,10 +147,16 @@ local tab_end_line=`r(tab_end_line)'
 local tab_end_cell_letter="`r(tab_end_cell_letter)'"
 }
 
+
+_excel_cell_shift, cell("`tab_end_cell_letter'") rowinc(0) colinc(1)
+local end_cell="`r(cell)'"
+local end_cell = subinstr("`end_cell'", ".", "", .)
+*di "`end_cell'"
+
 return scalar tab_start_line=`tab_start_line'
 if(`size_over'>0) return local tab_start_cell_letter= "`tab_start_cell_letter_in'"
 else return local tab_start_cell_letter= "`r(tab_start_cell_letter)'"
-return local tab_end_cell_letter="`tab_end_cell_letter'"
+return local tab_end_cell_letter="`end_cell'"
 return scalar tab_end_line=`tab_end_line'
 
 end
