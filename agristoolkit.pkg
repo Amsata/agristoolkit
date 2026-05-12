@@ -3,9 +3,10 @@ d 'AGRISTOOLKIT': A toolkit for agricultural surveys and census
 d 
 d processing, analysisng and disseminating agricultural survey and census data
 d 
-d Distribution-Date:   20260223
+d Distribution-Date:   20260512
 d License: Creative Commons Attribution 4.0
 d 
+F _excel_cell_shift.ado
 F add_name.ado
 F consistencyCheck.ado
 F erase_after_hash.ado
@@ -26,4 +27,5 @@ F svyEstimate.ado
 F svyParallel.ado
 F svyParallelGeo.ado
 F tab_from_mdt.ado
+F tab_from_mdt.sthlp
 F to_string.ado
