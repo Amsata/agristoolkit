@@ -53,7 +53,9 @@ if (`size_by'==0) {
 		odp_tab `varlist' `if' , tabtitle(`tabtitle') outfile(`outfile') indicator(`indicator') indicatorname(`indicatorname')  ///
 		indvar(`indvar') value(`value') rowtotal(`rowtotal') decimal(`decimal') valid(`valid') `replace'
 		local tab_start_line=`r(tab_start_line)'
-				local tab_end_line=`r(tab_end_line)'
+		local tab_end_line=`r(tab_end_line)'
+		local tab_end_cell_letter="`r(tab_end_cell_letter)'"
+
 	}
 	else {
 	
