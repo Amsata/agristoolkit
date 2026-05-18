@@ -87,6 +87,16 @@ program define svyEstimate
 		else {
 			if("`alldim'"=="yes") svy, subpop(`subpop_clean'): `parameter' `variable'
 			else svy,  subpop(`subpop_clean') over(`varlist'): `parameter' `variable'
+			
+			if (`c(stata_version)'<16 & "`alldim'"!="yes") {
+				foreach dimname of local varlist {
+					local lbls : value label `dimname'
+					elabel copy `lbls' lb_`dimname'
+				}
+				local nameslist `"`e(over_namelist)'"'
+				local overlbls `"`e(over_labels)'"'
+			}
+		
 			qui return list
 			matrix define T= r(table)'	
 			qui ereturn list
@@ -121,6 +131,40 @@ program define svyEstimate
 			merge 1:1 rownames using `res_estimation', nogen
 			merge 1:1 rownames using `dataset_n_obs', nogen
 			merge 1:1 rownames using `dataset_N_subpop', nogen
+			
+			if (`c(stata_version)'<16 & "`alldim'"!="yes") {
+				tempvar ov_label
+				gen `ov_label'=""
+				local i=1
+				foreach v of local overlbls {
+					qui replace `ov_label'=`"`v'"' if strpos(rownames, "`:word `i' of `nameslist''") > 0
+					local ++i
+				}
+
+				foreach vv of local varlist {
+					gen `vv'=.
+					qui elabel list lb_`vv'
+					local valeur="`r(values)'"
+					local text=`"`r(labels)'"'
+					local i=1
+					foreach val of local valeur {
+						qui replace `vv'=`val' if strpos(`ov_label', "`:word `i' of `text''") > 0
+						local ++i
+					}
+				}
+				
+				replace rownames = regexr(rownames , "\:.*", "")
+				replace rownames=rownames+"@"
+				local j=1
+				local n_varlist: list sizeof varlist
+				foreach vv of local varlist {
+					if(`j'==`n_varlist') replace rownames=rownames+string(`vv')+".`vv'"
+					else replace rownames=rownames+string(`vv')+".`vv'#"
+					local ++j
+				}
+				drop `varlist'
+			}
+			
 			if("`parameter'"=="ratio") replace rownames = regexr(rownames, "^[^@]+", "`variable'")
 			
 			if ("`alldim'"!="yes") {
