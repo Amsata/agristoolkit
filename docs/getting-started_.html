@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>agristoolkit - Article</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
+      margin: 0;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+
+    header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.5em;
+    }
+
+    header p {
+      margin-top: 10px;
+      font-size: 1.2em;
+      opacity: 0.9;
+    }
+
+    nav {
+      background-color: #34495e;
+      padding: 10px;
+      text-align: center;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 40px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    /* Layout */
+    .layout {
+      display: flex;
+      gap: 40px;
+    }
+
+    .main-content {
+      flex: 3;
+    }
+
+    .sidebar {
+      flex: 1;
+      position: sticky;
+      top: 20px;
+      height: fit-content;
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 6px;
+      border: 1px solid #eee;
+    }
+
+    .sidebar h3 {
+      margin-top: 0;
+      font-size: 1em;
+      color: #555;
+    }
+
+    .sidebar a {
+      display: block;
+      text-decoration: none;
+      color: #2c3e50;
+      font-size: 0.9em;
+      margin: 8px 0;
+    }
+
+    .sidebar a:hover {
+      text-decoration: underline;
+    }
+
+    h2 {
+      border-bottom: 2px solid #eee;
+      padding-bottom: 5px;
+    }
+
+    pre {
+      background: #f4f6f7;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+
+    pre code {
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.95em;
+    }
+
+    footer {
+      text-align: center;
+      margin: 40px 0;
+      color: #777;
+      font-size: 0.9em;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Mobile */
+    @media (max-width: 900px) {
+      .layout {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        position: relative;
+        top: 0;
+      }
+    }
+	nav {
+  background-color: #34495e;
+  padding: 10px;
+  text-align: center;
+}
+
+nav a.active {
+  background-color: transparent;
+  color: #ffffff;
+  border-bottom: 3px solid #1abc9c;
+  border-radius: 0;
+}
+
+nav a {
+  color: #ecf0f1;
+  margin: 0 10px;
+  padding: 8px 16px;
+  text-decoration: none;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.25s ease;
+}
+
+/* Hover effect */
+nav a:hover {
+  background-color: #3d566e;
+}
+
+/* ACTIVE TAB (this is the key part) */
+nav a.active {
+  background-color: #ffffff;
+  color: #2c3e50;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* Dropdown container */
+.dropdown {
+  display: inline-block;
+  position: relative;
+}
+
+/* Button style (same as nav links) */
+.dropbtn {
+  background: none;
+  border: none;
+  color: #ecf0f1;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+/* Hover effect */
+.dropbtn:hover {
+  background-color: #3d566e;
+}
+
+/* Dropdown content (hidden by default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: white;
+  min-width: 220px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border-radius: 6px;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+/* Links inside dropdown */
+.dropdown-content a {
+  display: block;
+  padding: 10px 15px;
+  color: #2c3e50;
+  text-decoration: none;
+  font-size: 0.95em;
+}
+
+/* Hover effect */
+.dropdown-content a:hover {
+  background-color: #ecf0f1;
+}
+
+/* Show dropdown on hover */
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>agristoolkit</h1>
+  <p>A Stata toolkit for analyzing and tabulating survey data</p>
+</header>
+
+<nav>
+  <a href="index.html">Home</a>
+  <a href="getting-started_.html" class="active">Getting Started</a>
+  <a href="genmdt.html">genmdt</a>
+  <a href="tab-from-mdt.html">tab_from_mdt</a>
+   <!-- DROPDOWN -->
+  <div class="dropdown">
+    <button class="dropbtn">Articles ▾</button>
+    <div class="dropdown-content">
+	  <a href="add-name.html">Using <code>add_name</code></a>
+	  <a href="hiergeovars.html">Using <code>hiergovars()</code></a>
+      <a href="conditionals.html">Using <code>conditionals()</code></a>
+	  <a href="setcluster.html">Using <code>setcluster()</code></a>
+	  <a href="masking-rules.html">Using Data Flags </a>
+    </div>
+  </div>
+</nav>
+
+<div class="container" style="width:1600px;">
+
+  <div class="layout">
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+      <h2 id="what">What is agristoolkit?</h2>
+      <p>
+        In this example, we use the <strong>nhanes2</strong> dataset to generate long-format tables 
+        presenting key health indicators in the United States, disaggregated by region, sex, 
+        and area of residence.
+      </p>
+
+      <h3 id="indicators">Part I: Generation of machine-readable multi-dimensional table</h2>
+      <ul>
+        <li><strong>Proportion of people with diabetes</strong> (percentage)</li>
+        <li><strong>Proportion of people with high blood pressure</strong> (percentage)</li>
+        <li><strong>Total number of people who have had a heart attack</strong> (count)</li>
+      </ul>
+
+      <p>
+        All indicators are disaggregated by <strong>region</strong>, <strong>sex</strong>, 
+        and <strong>residence (urban/rural)</strong>, which define the estimation domains.
+      </p>
+
+      <pre><code><span style="color:#2e7d32;">* Load example dataset</span>
+<span style="color:#1565c0;">webuse</span> nhanes2, clear
+
+<span style="color:#2e7d32;">* Define and apply value labels</span>
+<span style="color:#1565c0;">label define</span> rur 1 "Urban" 2 "Rural"
+<span style="color:#1565c0;">label values</span> rural rur
+
+<span style="color:#2e7d32;">* Defining the sampling design</span>
+<span style="color:#1565c0;">svyset</span> psu [pw=finalwgt], <span style="color:#1565c0;">strata</span>(strata)
+
+<span style="color:#2e7d32;">* Generate multi-dimensional table</span>
+<span style="color:#1565c0;">genmdt</span> region sex rural , <span style="color:#1565c0;">marginlabels</span>(<span style="color:#A31515;">"region@USA" "sex@both"</span>) 	       <span style="color:#2e7d32;">///</span>
+    <span style="color:#1565c0;">mean</span>(highbp diabetes) <span style="color:#1565c0;">total</span>(heartatk) <span style="color:#1565c0;">integer</span>(heartatk)			<span style="color:#2e7d32;">///</span>
+     <span style="color:#1565c0;">units</span>(<span style="color:#A31515;">"highbp@%" "diabetes@%" "heartatk@people"</span>)                      <span style="color:#2e7d32;">///</span>
+    <span style="color:#1565c0;">indicator</span>(									<span style="color:#2e7d32;">///</span>
+	<span style="color:#A31515;">"highbp@Proportion of people with high blood pressure"</span>         	<span style="color:#2e7d32;">///</span>
+	<span style="color:#A31515;">"diabetes@Proportion of people with diabetes"</span>                   	<span style="color:#2e7d32;">///</span>
+	<span style="color:#A31515;">"heartatk@Total number of people who have had a heart attack"</span> 	<span style="color:#2e7d32;">///</span>
+	)
+
+<span style="color:#2e7d32;">* Display first observations</span>
+</code></pre>
+<img src="output1.png" alt="Output of the genmdt" style="width:1100px; height:600px">
+
+ <h3 id="tab_from_mdt">Part II: Generating an example of table for report</h2>
+<p>
+  After generating the multi-dimensional statistical table containing indicators across dimensions, 
+  now we can use the <span style="color:#1565c0;">tab_from_mdt</span> function to generated tables that can feed statistical reports.
+      </p>
+	     <pre><code><span style="color:#2e7d32;">* Load example dataset</span>
+<span style="color:#1565c0;">tab_from_mdt</span> region  <span style="color:#1565c0;">if</span> rural==2, <span style="color:#1565c0;">over</span>(sex) <span style="color:#1565c0;">indicator</span>(highbp diabetes heartatk) <span style="color:#2e7d32;">///</span>
+<span style="color:#1565c0;">tabtitle</span>(<span style="color:#A31515;">"Proportion of people with diabetes, high blood pressure and number of people that have had heart attack, by region and sex"</span>) <span style="color:#2e7d32;">///</span>
+<span style="color:#1565c0;">outfile</span>(<span style="color:#A31515;">"test_genmdt.xlsx"</span>) <span style="color:#1565c0;">replace</span>
+</code></pre>  
+<img src="output2.png" alt="Output of the tab_from_mdt" style="width:1100px; height:800px">
+
+	
+    </div>
+
+
+
+
+
+
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <h3>On this page</h3>
+      <a href="#what">What is agristoolkit?</a>
+      <a href="#indicators">Utilisation of genmdt</a>
+	  <a href="#tab_from_mdt">Utilisation of tab_from_mdt</a>
+
+    </div>
+
+  </div>
+
+</div>
+
+<footer>
+  <p>© 2026 agristoolkit | Built with Stata + dyndoc</p>
+</footer>
+
+</body>
+</html>

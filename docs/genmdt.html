@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>agristoolkit - Article</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
+      margin: 0;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+
+    header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.5em;
+    }
+
+    header p {
+      margin-top: 10px;
+      font-size: 1.2em;
+      opacity: 0.9;
+    }
+
+    nav {
+      background-color: #34495e;
+      padding: 10px;
+      text-align: center;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 40px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    /* Layout */
+    .layout {
+      display: flex;
+      gap: 40px;
+    }
+
+    .main-content {
+      flex: 3;
+    }
+
+    .sidebar {
+      flex: 1;
+      position: sticky;
+      top: 20px;
+      height: fit-content;
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 6px;
+      border: 1px solid #eee;
+    }
+
+    .sidebar h3 {
+      margin-top: 0;
+      font-size: 1em;
+      color: #555;
+    }
+
+    .sidebar a {
+      display: block;
+      text-decoration: none;
+      color: #2c3e50;
+      font-size: 0.9em;
+      margin: 8px 0;
+    }
+
+    .sidebar a:hover {
+      text-decoration: underline;
+    }
+
+    h2 {
+      border-bottom: 2px solid #eee;
+      padding-bottom: 5px;
+    }
+
+    pre {
+      background: #f4f6f7;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+
+    pre code {
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.95em;
+    }
+
+    footer {
+      text-align: center;
+      margin: 40px 0;
+      color: #777;
+      font-size: 0.9em;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Mobile */
+    @media (max-width: 900px) {
+      .layout {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        position: relative;
+        top: 0;
+      }
+    }
+	nav {
+  background-color: #34495e;
+  padding: 10px;
+  text-align: center;
+}
+
+nav a.active {
+  background-color: transparent;
+  color: #ffffff;
+  border-bottom: 3px solid #1abc9c;
+  border-radius: 0;
+}
+
+nav a {
+  color: #ecf0f1;
+  margin: 0 10px;
+  padding: 8px 16px;
+  text-decoration: none;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.25s ease;
+}
+
+/* Hover effect */
+nav a:hover {
+  background-color: #3d566e;
+}
+
+/* ACTIVE TAB (this is the key part) */
+nav a.active {
+  background-color: #ffffff;
+  color: #2c3e50;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* Dropdown container */
+.dropdown {
+  display: inline-block;
+  position: relative;
+}
+
+/* Button style (same as nav links) */
+.dropbtn {
+  background: none;
+  border: none;
+  color: #ecf0f1;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+/* Hover effect */
+.dropbtn:hover {
+  background-color: #3d566e;
+}
+
+/* Dropdown content (hidden by default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: white;
+  min-width: 220px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border-radius: 6px;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+/* Links inside dropdown */
+.dropdown-content a {
+  display: block;
+  padding: 10px 15px;
+  color: #2c3e50;
+  text-decoration: none;
+  font-size: 0.95em;
+}
+
+/* Hover effect */
+.dropdown-content a:hover {
+  background-color: #ecf0f1;
+}
+
+/* Show dropdown on hover */
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>genmdt</h1>
+  <p>Generate multidimensional statistical tables from complex survey data</p>
+</header>
+
+<nav>
+  <a href="index.html">Home</a>
+  <a href="getting-started_.html">Getting Started</a>
+  <a href="genmdt.html "  class="active">genmdt</a>
+  <a href="tab-from-mdt.html">tab_from_mdt</a>
+   <!-- DROPDOWN -->
+  <div class="dropdown">
+    <button class="dropbtn">Articles ▾</button>
+    <div class="dropdown-content">
+	  <a href="add-name.html">Using <code>add_name</code></a>
+	  <a href="hiergeovars.html">Using <code>hiergovars()</code></a>
+      <a href="conditionals.html">Using <code>conditionals()</code></a>
+	  <a href="setcluster.html">Using <code>setcluster()</code></a>
+	  <a href="masking-rules.html">Using Data Flags </a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+<div class="layout">
+
+<div class="main-content">
+
+<h2 id="overview">Overview</h2>
+
+<p>
+<strong>genmdt</strong> is a Stata command designed to generate standardized multidimensional statistical tables from complex survey data.
+The command leverages Stata survey estimation procedures to compute indicators while properly accounting for survey weights,
+stratification, and clustering.
+</p>
+
+<p>
+The generated output follows a machine-readable long-format structure suitable for:
+</p>
+
+<ul>
+  <li>Statistical databases</li>
+  <li>Open data portals</li>
+  <li>Dashboards</li>
+  <li>Automated reporting systems</li>
+  <li>Publication-ready tables</li>
+</ul>
+
+<p>
+The command supports estimation using:
+</p>
+
+<ul>
+  <li><strong>mean</strong></li>
+  <li><strong>total</strong></li>
+  <li><strong>ratio</strong></li>
+  <li><strong>median</strong></li>
+</ul>
+
+<h2 id="syntax">Syntax</h2>
+
+<pre><code>genmdt [varlist] [, 
+    svy_options
+    dimension_options
+    formatting_options
+] : command</code></pre>
+
+<h2 id="requirements">Requirements</h2>
+
+<p>
+Before running <code>genmdt</code>, survey settings must be declared using <code>svyset</code>.
+</p>
+
+<pre><code>svyset psuid [pweight=finalwgt], strata(stratid)</code></pre>
+
+<div class="note">
+Using <code>if</code> or <code>in</code> restrictions directly may produce incorrect variance estimates for subpopulations.
+Use <code>subpop()</code> instead.
+</div>
+
+<h2 id="dimensions">Disaggregation Dimensions</h2>
+
+<p>
+Variables specified after <code>genmdt</code> define the estimation domains or disaggregation dimensions.
+</p>
+
+<pre><code>genmdt region sex rural, mean(age)</code></pre>
+
+<p>
+If no dimension variable is specified, indicators are estimated at the overall population level.
+</p>
+
+<h3>Margin Labels</h3>
+
+<p>
+The <code>marginlabels()</code> option allows simultaneous estimation of:
+</p>
+
+<ul>
+  <li>Disaggregated categories</li>
+  <li>Overall population margins</li>
+</ul>
+
+<pre><code>genmdt sex, ///
+    marginlabels("sex@Both sexes") ///
+    mean(age)</code></pre>
+
+<h2 id="parameters">Estimation Parameters</h2>
+
+<h3>Mean Estimation</h3>
+
+<pre><code>genmdt region, mean(age income)</code></pre>
+
+<h3>Total Estimation</h3>
+
+<pre><code>genmdt region, total(population livestock)</code></pre>
+
+<h3>Ratio Estimation</h3>
+
+<pre><code>genmdt region, ratio(expenditure/income)</code></pre>
+
+<pre><code>genmdt region, ///
+    ratio(PovertyRate:poor/population)</code></pre>
+
+<h3>Median Estimation</h3>
+
+<pre><code>genmdt region, median(income)</code></pre>
+
+<p>
+Median estimation is internally performed using <code>collapse</code>.
+</p>
+
+<h2 id="subpop">Subpopulation Estimation</h2>
+
+<p>
+Use <code>subpop()</code> to estimate indicators for subpopulations while preserving correct variance estimation.
+</p>
+
+<pre><code>genmdt region, ///
+    subpop(female==1) ///
+    mean(age)</code></pre>
+
+<h2 id="hiergeo">Hierarchical Geographic Variables</h2>
+
+<p>
+Hierarchical geographic dimensions should be specified using <code>hiergeovars()</code>.
+</p>
+
+<pre><code>genmdt , ///
+    hiergeovars(region district village) ///
+    mean(yield)</code></pre>
+
+<p>
+Optional geographic margin labels can be specified using:
+</p>
+
+<pre><code>geomarginlabels("National")</code></pre>
+
+<h2 id="reporting">Reporting and Formatting Options</h2>
+
+<h3>Units</h3>
+
+<pre><code>units("income@USD" "yield@kg/ha")</code></pre>
+
+<h3>Indicator Labels</h3>
+
+<pre><code>indicatornames(
+    "income@Average household income"
+    "yield@Average crop yield"
+)</code></pre>
+
+<h3>Integer Formatting</h3>
+
+<pre><code>integer(population livestock)</code></pre>
+
+<h2 id="output">Output Structure</h2>
+
+<p>
+The output generated by <code>genmdt</code> contains:
+</p>
+
+<table>
+  <tr>
+    <th>Variable</th>
+    <th>Description</th>
+  </tr>
+
+  <tr>
+    <td>Dimensions</td>
+    <td>Disaggregation variables</td>
+  </tr>
+
+  <tr>
+    <td>Indicator</td>
+    <td>Estimated variable</td>
+  </tr>
+
+  <tr>
+    <td>Parameter</td>
+    <td>Mean, total, ratio, median</td>
+  </tr>
+
+  <tr>
+    <td>Estimate</td>
+    <td>Estimated value</td>
+  </tr>
+
+  <tr>
+    <td>SE</td>
+    <td>Standard error</td>
+  </tr>
+
+  <tr>
+    <td>CV</td>
+    <td>Coefficient of variation</td>
+  </tr>
+
+  <tr>
+    <td>CI Lower</td>
+    <td>Lower confidence interval</td>
+  </tr>
+
+  <tr>
+    <td>CI Upper</td>
+    <td>Upper confidence interval</td>
+  </tr>
+
+  <tr>
+    <td>N</td>
+    <td>Unweighted sample size</td>
+  </tr>
+
+  <tr>
+    <td>Weighted N</td>
+    <td>Weighted sample size</td>
+  </tr>
+</table>
+
+<h2 id="examples">Examples</h2>
+
+<h3>Example 1 — Mean Estimation</h3>
+
+<pre><code>webuse nhanes2f
+
+svyset psuid [pweight=finalwgt], strata(stratid)
+
+genmdt region, mean(age)</code></pre>
+
+<h3>Example 2 — Labels and Units</h3>
+
+<pre><code>webuse nhanes2f
+
+svyset psuid [pweight=finalwgt], strata(stratid)
+
+genmdt region, ///
+    marginlabels("region@USA") ///
+    mean(age) ///
+    units("age@Years") ///
+    indicatornames("age@Average age of individuals")</code></pre>
+
+<h3>Example 3 — Multiple Indicators</h3>
+
+<pre><code>webuse nhanes2f
+
+svyset psuid [pweight=finalwgt], strata(stratid)
+
+genmdt region sex rural, ///
+    marginlabels("region@USA" "sex@Both") ///
+    mean(highbp diabetes) ///
+    total(heartatk) ///
+    integer(heartatk) ///
+    units( ///
+        "highbp@%" ///
+        "diabetes@%" ///
+        "heartatk@people" ///
+    ) ///
+    indicatornames( ///
+        "highbp@Proportion with high blood pressure" ///
+        "diabetes@Proportion with diabetes" ///
+        "heartatk@Total heart attack cases" ///
+    )</code></pre>
+
+<h2 id="bestpractices">Best Practices</h2>
+
+<div class="tip">
+Always define survey settings using <code>svyset</code> before estimation.
+</div>
+
+<div class="tip">
+Prefer <code>subpop()</code> over direct <code>if</code> restrictions.
+</div>
+
+<div class="tip">
+Use indicator labels and units to improve readability and dissemination workflows.
+</div>
+
+<div class="tip">
+Use <code>hiergeovars()</code> for hierarchical geographic structures.
+</div>
+
+<h2 id="links">External Documentation</h2>
+
+<ul>
+  <li>
+    <a href="https://amsata.github.io/agristoolkit/">
+      agristoolkit Documentation
+    </a>
+  </li>
+
+  <li>
+    <a href="https://amsata.github.io/agristoolkit/getting-started.html">
+      Getting Started Guide
+    </a>
+  </li>
+
+  <li>
+    <a href="https://github.com/Amsata/agristoolkit">
+      GitHub Repository
+    </a>
+  </li>
+</ul>
+
+</div>
+
+<div class="sidebar">
+  <h3>On this page</h3>
+
+  <a href="#overview">Overview</a>
+  <a href="#syntax">Syntax</a>
+  <a href="#requirements">Requirements</a>
+  <a href="#dimensions">Dimensions</a>
+  <a href="#parameters">Parameters</a>
+  <a href="#subpop">Subpopulation</a>
+  <a href="#hiergeo">Hierarchical Geography</a>
+  <a href="#reporting">Reporting</a>
+  <a href="#output">Output Structure</a>
+  <a href="#examples">Examples</a>
+  <a href="#bestpractices">Best Practices</a>
+  <a href="#links">External Documentation</a>
+</div>
+
+</div>
+</div>
+
+<footer>
+  <p>© 2026 Amsata Niang</p>
+</footer>
+
+</body>
+</html>
+

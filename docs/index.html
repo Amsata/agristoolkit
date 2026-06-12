@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>agristoolkit</title>
+  <title>agristoolkit - Article</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Simple modern styling -->
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
@@ -45,7 +44,20 @@
       font-weight: 500;
     }
 
- /* Layout */
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 40px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    /* Layout */
     .layout {
       display: flex;
       gap: 40px;
@@ -83,37 +95,22 @@
     .sidebar a:hover {
       text-decoration: underline;
     }
-    nav a:hover {
-      text-decoration: underline;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 40px auto;
-      padding: 20px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
 
     h2 {
       border-bottom: 2px solid #eee;
       padding-bottom: 5px;
     }
 
-    .articles a {
-      display: block;
-      padding: 12px;
-      margin: 10px 0;
-      background: #ecf0f1;
-      border-radius: 5px;
-      text-decoration: none;
-      color: #2c3e50;
-      font-weight: 500;
+    pre {
+      background: #f4f6f7;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
     }
 
-    .articles a:hover {
-      background: #d0d7de;
+    pre code {
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.95em;
     }
 
     footer {
@@ -123,10 +120,20 @@
       font-size: 0.9em;
     }
 
-    code {
-      background: #eee;
-      padding: 3px 6px;
-      border-radius: 4px;
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Mobile */
+    @media (max-width: 900px) {
+      .layout {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        position: relative;
+        top: 0;
+      }
     }
 	nav {
   background-color: #34495e;
@@ -229,17 +236,19 @@ nav a.active {
 
 <nav>
   <a href="index.html" class="active">Home</a>
-  <a href="getting-started.html">Getting Started</a>
-  <a href="article2.html">genmdt</a>
-  <a href="article3.html">tab_from_mdt</a>
+  <a href="getting-started_.html">Getting Started</a>
+  <a href="genmdt.html">genmdt</a>
+  <a href="tab-from-mdt.html">tab_from_mdt</a>
    <!-- DROPDOWN -->
   <div class="dropdown">
     <button class="dropbtn">Articles ▾</button>
     <div class="dropdown-content">
-      <a href="advanced1.html">Quality control</a>
-      <a href="advanced2.html">Complex indicators</a>
-      <a href="advanced3.html">Masking rules</a>
-      <a href="advanced4.html">Automation workflows</a>
+	  <a href="add-name.html">Using <code>add_name</code></a>
+	  <a href="hiergeovars.html">Using <code>hiergovars()</code></a>
+      <a href="conditionals.html">Using <code>conditionals()</code></a>
+	  <a href="setcluster.html">Using <code>setcluster()</code></a>
+	  <a href="masking-rules.html">Using Data Flags </a>
+	  
     </div>
   </div>
 </nav>
@@ -254,11 +263,14 @@ nav a.active {
        <p>
    <strong>agristoolkit</strong> is a Stata package developed to streamline the production, management, and dissemination of statistical 
 	outputs derived from complex survey data. It enables users to generate standardized, long-format multi-dimensional 
-	   tables of indicators computed with parameters such as  <strong><code>mean</code></strong>, <strong>total</strong>, <strong>ratio</strong>, and <strong>median</strong> while properly accounting for survey design features 
-	   (weights, stratification, and clustering) through the <code><span style="color:#1565c0;">genmdt</span></code> function. </br></br>
+	   tables of indicators computed with parameters such as  <span style="color:#1565c0;font-size:14px;"><strong><code>mean</code></strong></span>,
+	   <span style="color:#1565c0;font-size:14px;"><strong><code>total</code></strong></span>,
+	   <span style="color:#1565c0;font-size:14px;"><strong><code>ratio</code></strong></span>, 
+	   and <span style="color:#1565c0;font-size:14px;"><strong><code>median</code></strong></span> while properly accounting for survey design features 
+	   (weights, stratification, and clustering) through the <span style="color:#1565c0;font-size:14px;"><strong><code>genmdt</code></strong></span> function. </br></br>
 
 In addition, the package provides tools to transform these machine-readable datasets into well-structured, publication-ready 
-tables via the <code><span style="color:#1565c0;">tab_from_mdt</span></code> function, facilitating their direct integration into analytical reports, briefs, 
+tables via the <span style="color:#1565c0;font-size:14px;"><strong><code>tab_from_mdt</code></strong></span> function, facilitating their direct integration into analytical reports, briefs, 
 and other dissemination products. </br></br>
 A key feature of <strong>agristoolkit</strong> is its support for statistical quality assurance. The package incorporates mechanisms 
 to monitor and evaluate the reliability of estimates based on criteria such as the number of sample observations, 
@@ -281,11 +293,11 @@ and minimizing the risk of discrepancies between published results and underlyin
 
   <h2 id="features">Main Features</h2>
   <ul>
-    <li> <strong>Generation of machine-readable multi-dimensional tables (<code><span style="color:#1565c0;">genmdt</span></code>)</strong>: agristoolkit enables the production of standardized, 
+    <li> <strong>Generation of machine-readable multi-dimensional tables (<span style="color:#1565c0;font-size:14px;"><strong><code>genmdt [varlist][,options]</code></strong></span>)</strong>: agristoolkit enables the production of standardized, 
 	long-format tables of survey indicators (mean, total, ratio, median) that fully account for complex survey design. 
 	These structured outputs are optimized for integration into statistical databases and data portals, 
-	while ensuring consistency and reproducibility.</li> </br>
-    <li><strong>Production of publication-ready tables with quality control (<code><span style="color:#1565c0;">tab_from_mdt</span></code>)</strong>: The package allows users to convert machine-readable 
+	while ensuri	ng consistency and reproducibility.</li> </br>
+    <li><strong>Production of publication-ready tables with quality control (<span style="color:#1565c0;font-size:14px;"><strong><code>tab_from_mdt</code></strong></span>)</strong>: The package allows users to convert machine-readable 
 	outputs into clear, formatted tables for reports and briefs. It integrates statistical quality checks—based on sample size, 
 	standard errors, and coefficients of variation—to support decisions on publishing, flagging, or masking indicators,
 	ensuring reliable and coherent dissemination.</li>
@@ -293,9 +305,11 @@ and minimizing the risk of discrepancies between published results and underlyin
 
   <h2 id="documentation">Documentation</h2>
   <div class="articles">
-    <a href="getting-started.html">🎬 Getting Started</a>
-    <a href="article2.html">🧮 genmdt</a>
-    <a href="article3.html">📅 tab_from_mdt</a>
+  <ul>
+    <li><a href="getting-started_.html">🎬 Getting Started</a></li>
+     <li><a href="genmdt.html">🧮 genmdt</a></li>
+     <li><a href="tab-from-mdt.html">📅 tab_from_mdt</a></li>
+	</ul>
   </div>
 
   <h2 id="code">Source Code</h2>
